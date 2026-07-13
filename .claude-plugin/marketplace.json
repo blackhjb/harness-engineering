@@ -1,0 +1,22 @@
+{
+  "name": "harness-engineering",
+  "owner": {
+    "name": "hunter.baek",
+    "email": "hunter.baek@kakaohealthcare.com"
+  },
+  "plugins": [
+    {
+      "name": "harness",
+      "displayName": "Hunter Harness",
+      "version": "1.0.0",
+      "description": "Goal-driven multi-agent development harness for a solo developer: 12 role agents (PM to SRE), 8 workflow commands (GOAL->analyze->plan->build->verify->retro, plus a lightweight quick path), file-based persistent state (.harness/), and a self-improving retro loop.",
+      "author": {
+        "name": "hunter.baek",
+        "email": "hunter.baek@kakaohealthcare.com"
+      },
+      "source": "./plugins/harness",
+      "category": "development",
+      "tags": ["harness", "agents", "workflow", "spring-boot", "react", "llm", "gcp"]
+    }
+  ]
+}
