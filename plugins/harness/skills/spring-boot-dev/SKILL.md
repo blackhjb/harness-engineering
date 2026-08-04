@@ -132,4 +132,4 @@ Default: the layered flow above. Move a module to hexagonal (ports & adapters: `
 - [ ] Schema changes as new Flyway migration; no applied migration edited; rollback story stated
 - [ ] Errors flow through the global advice as ProblemDetail; nothing leaks internals
 - [ ] No secrets/credentials in code, config, or test fixtures
-- [ ] Log entry appended to .harness/logs/, insights to .harness/retro/inbox.md
+- [ ] Log entry appended to .harness/logs/, insights recorded as wiki nodes (.harness/wiki/)

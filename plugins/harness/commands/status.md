@@ -12,7 +12,7 @@ If `.harness/` or `.harness/state.json` does not exist, tell the user (Korean) t
 2. `.harness/GOAL.md` — one-line goal, success criteria IDs.
 3. `.harness/plan.md` (if present) — task table.
 4. Today's daily log — or, if absent, the most recent one directly under `logs/` (NEVER `logs/archive/`) — scan the last entries for failures, escalations, open decisions.
-5. `.harness/retro/inbox.md` — unprocessed insight count.
+5. `.harness/wiki/INDEX.md` — active node count + `(candidate)` node count.
 Cross-check: if state.json and plan.md disagree on a task status, report BOTH values and flag it — do not fix it here.
 
 ## Render (Korean, compact — under 30 lines)

@@ -116,7 +116,7 @@ Reproduce twice before filing. Minimize first: strip payload fields, drop steps,
 2. Fails every time → real defect. File it.
 3. Intermittent → mark **FLAKY**: never counted as PASS, never rerun-until-green. Report as a separate defect ("FLAKY: <test name>", suggested owner backend-dev) with observed failure rate and both outputs — the orchestrator turns it into a task. Causes to name: time/`now()` dependence, test-order coupling, shared mutable state, real-network calls, sleeps instead of awaits.
 4. Flaky on the change's critical path → blocks PASS for that criterion. Off-path flakiness = residual risk, listed explicitly.
-5. Repeated offenders go to playbook.md via retro — flakiness is a defect class, not weather.
+5. Repeated offenders get a wiki node (reinforce on recurrence) — flakiness is a defect class, not weather.
 
 ## 7. Dry-run vs full integration — when to demand which
 

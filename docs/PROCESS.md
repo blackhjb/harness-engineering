@@ -16,7 +16,7 @@
 ### 1. `/harness:goal <한 줄 목표>`
 - 짧은 인터뷰(최대 5문항)로 측정 가능한 성공 기준·제약·범위 외 확정
 - `.harness/` 생성, GOAL.md 작성, state.json phase="goal"
-- 기존 goal이 있으면 새 iteration으로 전환 (playbook/logs는 보존)
+- 기존 goal이 있으면 새 iteration으로 전환 (wiki/logs는 보존)
 
 ### 2. `/harness:analyze`
 - analyst가 코드베이스·데이터·연동·제약 조사 → analysis.md
@@ -30,7 +30,7 @@
 
 ### 4. `/harness:build`
 - orchestrator가 의존성 없는 태스크를 담당 에이전트에게 **병렬 디스패치**
-- 각 개발 에이전트: playbook 필독 → TDD 구현 → 수용 기준 충족 → logs/ 기록 → retro/inbox.md에 배운 점 적재
+- 각 개발 에이전트: wiki INDEX + 자기 scope 노드 필독 → TDD 구현 → 수용 기준 충족 → logs/ 기록 → 배운 점을 위키 노드로 적재(생성/강화/승격)
 - 설계 공백 발견 시 즉시 architect에게 보고 (무단 변경 금지)
 
 ### 5. `/harness:verify`
@@ -40,8 +40,8 @@
 - FAIL이면 fix 태스크 생성 → build로 복귀. "조건부 통과" 없음
 
 ### 6. `/harness:retro`
-- harness-improver가 logs/ + retro/inbox.md 마이닝 → 실패 패턴 클러스터링
-- 산출: playbook 업데이트(자동 적용) + 프롬프트/게이트 수정안(diff 단위 사람 승인)
+- harness-improver가 logs/ + candidate 노드 마이닝 → 실패 패턴 클러스터링
+- 산출: 위키 큐레이션(승격/병합/은퇴 — 자동 적용) + 프롬프트/게이트 수정안(diff 단위 사람 승인)
 - 이것이 하네스를 쓸수록 똑똑해지게 만드는 루프
 
 ## 실전 예시 (첫 세션)

@@ -137,11 +137,11 @@ harness-state · co-creation · spring-boot-dev · frontend-dev · ai-agent-dev 
 ├── design.md        설계(기술+UX)
 ├── plan.md          태스크 표 (담당/의존성/수용기준)
 ├── state.json       루프 상태·승인 게이트
-├── playbook.md      누적 인사이트 [PB-nnn], 활성 30불릿 캡 — 모든 에이전트 필독
+├── wiki/            자기 진화 지식 위키 — 1노드(파일) = 1인사이트, 어느 에이전트든 생성·강화·승격
+│   └── INDEX.md     노드당 1줄 훅 — 에이전트는 INDEX + 자기 scope 노드만 읽음 (은퇴 노드는 INDEX 제외)
 ├── logs/            실행 로그 — 하루 한 파일 (logs/YYYY-MM-DD.md, append-only)
 │   └── archive/     오래된 로그 콜드 스토리지 (에이전트가 읽지 않음)
-└── retro/           회고 인박스·리포트
-    └── playbook-archive.md   은퇴 플레이북 불릿 콜드 스토리지 (에이전트가 읽지 않음)
+└── retro/           회고 리포트·레거시 아카이브
 ```
 
 > `.harness/logs/` 는 커밋 여부 선택. 나머지는 커밋 권장(팀 확장 시 그대로 공유됨). 아래 「프로젝트 준비」 참조.
@@ -163,17 +163,16 @@ harness-state · co-creation · spring-boot-dev · frontend-dev · ai-agent-dev 
 .DS_Store
 ```
 
-- `.harness/retro/inbox.md` 는 커밋 여부 선택 — 머신 간 회고를 공유하려면 커밋, 로컬 스크래치로 쓰려면 ignore.
-- `GOAL.md` · `prd.md` · `design.md` · `plan.md` · `playbook.md` 는 **커밋 권장** — 프로젝트의 의사결정 기록이자 팀 확장 시 그대로 공유되는 자산이다.
+- `GOAL.md` · `prd.md` · `design.md` · `plan.md` · `wiki/` 는 **커밋 권장** — 프로젝트의 의사결정 기록이자 팀 확장 시 그대로 공유되는 자산이다. (단, 프로젝트가 `.harness/` 전체를 의도적으로 로컬 전용(gitignore)으로 두는 결정도 유효 — harness-state 스킬의 예외 조항 참조.)
 
 ## 토큰 비용 (정직한 안내)
 
 멀티 에이전트 하네스는 공짜가 아니다. 디스패치 1회 고정비 ≈ 에이전트 프롬프트 1~2K + 스킬 2~3K + `.harness/` 문서 2~4K ≈ **6~10K 입력 토큰**. 전체 7단계 루프(디스패치 약 8회)는 출력 토큰을 제외하고 **약 80~150K 입력 토큰**이 든다.
 
 내장된 완화 장치:
-- 플레이북 활성 30불릿 캡 + 스코프 필터링 (계속 자라는 컨텍스트 없음)
+- 위키 캡(active ≤ 40 · scope당 ≤ 8 · 노드 ≤ 10줄 · INDEX ≤ 80줄) + INDEX 훅 기반 scope 필터 로딩 (계속 자라는 컨텍스트 없음)
 - 에이전트가 파일을 직접 읽음 — 디스패치 브리프에 내용을 붙여 넣지 않음
-- 아카이브(`logs/archive/`, `retro/playbook-archive.md`)는 절대 읽지 않는 콜드 스토리지
+- 아카이브(`logs/archive/`, `retro/` 내 레거시 아카이브)는 절대 읽지 않는 콜드 스토리지
 - Claude Code의 프롬프트 캐싱이 반복 읽기 비용을 줄임
 - `/harness:quick` — 디스패치 1회 ≈ 8~10K 토큰의 경량 경로
 

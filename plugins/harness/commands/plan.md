@@ -11,11 +11,11 @@ Respond in Korean. All artifacts in Korean per the harness-state skill.
 `.harness/GOAL.md` and `.harness/analysis.md` must exist and be filled in (not empty scaffolds); otherwise stop and point to `/harness:goal` or `/harness:analyze`. If analysis.md lists a blocking item in 알아내야 하는 것 (차단 여부 "예"), surface it to the user before proceeding.
 
 ## Stage 1 — PRD (planner)
-Set state.json `phase` = "plan". Delegate to `planner`: read GOAL.md, playbook.md, analysis.md; write `.harness/prd.md` per the harness-state skill's canonical PRD sections (P0 = must-ship). Every P0 story must trace to a success criterion (SC-n) in GOAL.md.
+Set state.json `phase` = "plan". Delegate to `planner`: read GOAL.md, wiki/INDEX.md (own-scope nodes), analysis.md; write `.harness/prd.md` per the harness-state skill's canonical PRD sections (P0 = must-ship). Every P0 story must trace to a success criterion (SC-n) in GOAL.md.
 
 ## Stage 2 — Design (architect, + product-designer when user-facing)
 Set state.json `phase` = "design". Determine from prd.md whether the work has user-facing UI.
-- Delegate to `architect`: read GOAL/playbook/analysis/prd; write `.harness/design.md` per the harness-state skill's canonical 12 sections — all except `8. UX 설계`.
+- Delegate to `architect`: read GOAL/wiki-INDEX/analysis/prd; write `.harness/design.md` per the harness-state skill's canonical 12 sections — all except `8. UX 설계`.
 - If user-facing: delegate to `product-designer` IN PARALLEL (same message) to write the `8. UX 설계` section (screens, flows, states, error/empty/loading cases) — architect owns the file merge; product-designer returns its section and architect integrates it, or dispatch product-designer after architect if they would collide on the same file.
 Check design.md answers every P0 story; if a P0 lacks design coverage, send the gap back to the architect once.
 

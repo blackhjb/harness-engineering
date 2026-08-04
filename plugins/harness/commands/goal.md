@@ -18,15 +18,15 @@ Wait for the answers before writing anything. If a success criterion comes back 
 
 ## 2. Handle an existing .harness/
 - No `.harness/`: create the full structure below.
-- `.harness/` exists: NEW GOAL ITERATION. Preserve `playbook.md`, `retro/`, and `logs/` — accumulated learning. Read the old state.json, increment `iteration`, and overwrite GOAL.md / analysis.md / prd.md / design.md / plan.md with fresh scaffolds. If the previous goal's phase is not `done` or `retro`, warn the user it is unfinished and get explicit confirmation before overwriting.
+- `.harness/` exists: NEW GOAL ITERATION. Preserve `wiki/`, `retro/`, and `logs/` — accumulated learning. (A legacy `playbook.md`/`retro/inbox.md` is also preserved untouched; note to the user that the next `/harness:retro` migrates it into wiki nodes per the harness-state skill.) Read the old state.json, increment `iteration`, and overwrite GOAL.md / analysis.md / prd.md / design.md / plan.md with fresh scaffolds. If the previous goal's phase is not `done` or `retro`, warn the user it is unfinished and get explicit confirmation before overwriting.
 
 ## 3. Create files (from the harness-state skill's canonical section lists)
 Every section present, empty ones marked "해당 없음".
 - `.harness/GOAL.md` — filled from the interview.
 - `analysis.md`, `prd.md`, `design.md`, `plan.md` — headers only, sections per the skill's lists.
 - `state.json` — per the skill's schema: `goal_id` = `<yyyymmdd>-<short-slug>`, `base_ref` = current commit SHA from `git rev-parse HEAD` (null if not a git repo), `phase` = "goal", `iteration` (1 or incremented), `updated_at` = now, `approvals` all false, `verify` = {"verdict": null, "date": null}, `tasks` = [].
-- `playbook.md` — create with header + format comment ONLY if missing; never overwrite an existing playbook.
-- `retro/inbox.md` and `logs/` — create if missing.
+- `wiki/INDEX.md` — create with header + format comment ONLY if missing; never overwrite an existing wiki.
+- `retro/` and `logs/` — create if missing.
 - Append a goal-set entry to today's daily log (who, what goal, iteration).
 
 ## 4. Confirm and hand off

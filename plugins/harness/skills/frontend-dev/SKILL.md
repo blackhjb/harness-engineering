@@ -156,4 +156,4 @@ test('shows validation error when name is empty', async () => {
 - [ ] 360px and 1280px layouts verified
 - [ ] No console errors/warnings on exercised paths
 - [ ] No API contract workaround snuck in (if tempted, trigger the contract mismatch protocol instead)
-- [ ] Log entry + retro/inbox.md candidates appended
+- [ ] Log entry appended + candidate wiki nodes recorded

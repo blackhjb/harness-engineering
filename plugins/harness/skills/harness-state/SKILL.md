@@ -1,13 +1,13 @@
 ---
 name: harness-state
-description: The contract for the .harness/ directory — exact schema and lifecycle of every file, the state.json JSON schema, playbook/log/inbox formats, context budget, and canonical section lists. Use whenever any agent or command reads or writes anything under .harness/ (GOAL.md, analysis.md, prd.md, design.md, plan.md, state.json, playbook.md, logs/, retro/) so artifacts stay consistent across agents.
+description: The contract for the .harness/ directory — exact schema and lifecycle of every file, the state.json JSON schema, the wiki knowledge-node format and lifecycle, log format, context budget, and canonical section lists. Use whenever any agent or command reads or writes anything under .harness/ (GOAL.md, analysis.md, prd.md, design.md, plan.md, state.json, wiki/, logs/, retro/) so artifacts stay consistent across agents.
 ---
 
 # harness-state: the .harness/ directory contract
 
 `.harness/` is the harness's file-system-as-memory; agents are stateless between runs. Three universal rules:
 
-1. Every agent reads `.harness/GOAL.md` and `.harness/playbook.md` BEFORE any task.
+1. Every agent reads `.harness/GOAL.md` and `.harness/wiki/INDEX.md` BEFORE any task, then opens ONLY the wiki nodes matching its own scope plus `global`/`workflow` — never bulk-reads `wiki/`.
 2. Results go to files, not just chat — not in `.harness/` (or the codebase) = did not happen.
 3. **Destructive git commands are forbidden for every agent**: `git reset` · `git checkout -- <path>` · `git stash` · `git clean` · `git restore`. Undo an experimental edit by REVERSE-EDITING; read past versions via `git show <sha>:<path>`; reproduce old states in an isolated `git worktree add` (remove it after). Agents share one working tree — one agent's reset destroys every sibling's uncommitted work, and untracked files are unrecoverable (incident: a reviewer's `reset --hard` wiped a full day's uncommitted work; recovery was possible only for staged files via dangling blobs).
 
@@ -23,12 +23,11 @@ All `.harness/` content is Korean; code identifiers, file paths, technical terms
 | `design.md` | Architecture, API/data contracts, UX spec | architect + product-designer | Design; build gated on user approval |
 | `plan.md` | Task table: id, owner, deps, acceptance, status | orchestrator ONLY | End of plan; status updated through build |
 | `state.json` | Machine-readable phase + task state | orchestrator (`tasks[]`); commands: `phase`/`approvals`/`verify` | Every phase/task transition |
-| `playbook.md` | Curated insight bullets (ACE), read by ALL agents | harness-improver; created by /harness:goal | Retro (curation) |
+| `wiki/` | Self-evolving knowledge layer — ONE node (엔티티) per file | any agent (create/reinforce/promote); harness-improver (merge/retire) | Continuously, evidence in hand |
+| `wiki/INDEX.md` | One line per living node — the ONLY hot knowledge read | whoever changes a node, same turn | Every node change |
 | `logs/YYYY-MM-DD.md` | ONE shared append-only daily log, ALL agents | every agent (append) | Continuously |
-| `retro/inbox.md` | Raw candidate insights | any agent (append) | After failures/learnings |
 | `retro/YYYY-MM-DD.md` | Retro report + edit proposals | harness-improver | Retro |
-| `retro/playbook-archive.md` | Retired bullets (full text, append-only) | harness-improver | Retro; cold storage |
-| `logs/archive/` | Logs mined by past retros | harness-improver | Retro; cold storage |
+| `logs/archive/`, `retro/*archive*` | Cold storage: mined logs, legacy playbook/inbox archives | harness-improver | Retro; never read in normal work |
 
 ## state.json schema
 
@@ -59,17 +58,54 @@ Rules:
 - `approvals.design`/`approvals.plan`: set ONLY on an explicit user yes; they gate all build dispatches. `verify.verdict`: set only by the verify command.
 - Write the whole file atomically (read, modify, write back complete JSON).
 - `deferred` ≠ `pending`: a deferral is a DECISION (reason + where it is re-planned), never a leftover. NEVER park deferred work as `pending` — an unexecuted task and a deferred task must be distinguishable from status alone (incident: a planned task was silently skipped and verify PASSed because both looked `pending`).
-- state.json MUST be git-tracked: at scaffold time, if the repo's `.gitignore` excludes it (e.g. `*.json`), add a `!.harness/state.json` exception. An untracked state file cannot be recovered after a destructive git operation (dangling-blob recovery only works for staged files).
+- state.json MUST be git-tracked: at scaffold time, if the repo's `.gitignore` excludes it (e.g. `*.json`), add a `!.harness/state.json` exception. An untracked state file cannot be recovered after a destructive git operation (dangling-blob recovery only works for staged files). EXCEPTION: a project may deliberately keep ALL of `.harness/` local-only (gitignored) — that is a recorded human decision (GOAL 제약 or a `decision` log entry), never an agent's. In such a repo the destructive-git ban above is the ledger's ONLY protection; treat `.harness/` as unrecoverable and never propose re-tracking it.
 
-## playbook.md bullet format
+## wiki/ — the self-evolving knowledge layer
+
+One node = one file = one operational insight (엔티티). This replaces the legacy flat `playbook.md` and `retro/inbox.md` (migration at the end of this section).
+
+File name IS the node's identity: `<scope>--<kebab-slug>.md`, scope from the ONE scope enum: analysis / planning / design / backend / frontend / ai-agent / qa / review / sre / cost / workflow / global. Never reuse a slug. Node format:
 
 ```
-[PB-001] (workflow) 병렬 디스패치 전 반드시 plan.md 의존성 컬럼을 재확인한다 — 2026-07-02 wave 2에서 의존 작업 동시 실행으로 충돌.
-[PB-003] (retired: gradle 8 업그레이드로 해소)
+---
+scope: qa                          # exactly one scope from the enum
+status: active                     # candidate | active | retired
+evidence: 2026-08-03, 2026-08-04   # dates the pattern was observed — append-only
+links: [qa--other-node]            # related nodes; a link to a not-yet-written node marks future work, not an error
+source: PB-003                     # optional: provenance (legacy bullet ID, task ID, retro date)
+---
+운영 규칙 1–3줄 (when Y, do X — 한국어, 코드 식별자는 원문).
+근거 1–2줄: 날짜 + 사건 한 줄. 반례·미탐 형태가 있으면 함께 적는다.
 ```
 
-- ID `PB-NNN`, monotonic, never reused. Scope (the ONE scope enum, shared with inbox entries): analysis / planning / design / backend / frontend / ai-agent / qa / review / sre / cost / workflow / global.
-- Bullets are operational ("when Y, do X"), ideally with evidence date. Add/merge/retire only — never rewrite wholesale. Curation authority: harness-improver; any agent may PROPOSE via retro/inbox.md.
+Body cap: 10 lines. Nodes are operational ("when Y, do X"); truisms are banned — every node taxes every future agent that opens it.
+
+### INDEX.md — the single hot read
+
+One line per candidate/active node (retired nodes are dropped from INDEX):
+
+```
+- [scope] [[slug]] — 한 줄 훅 (candidate)
+```
+
+Status suffix `(candidate)` only while candidate; active lines carry no suffix. INDEX cap: 80 lines. The hook line must let an agent decide open/skip without opening the node.
+
+### Node lifecycle — the always-on evolution loop (no human gate)
+
+- **create (candidate)**: ANY agent, immediately after a failure, surprising success, or refuted assumption — write the node AND its INDEX line in the same turn. Check INDEX for an existing node covering the pattern FIRST; if one exists, reinforce it instead of creating a near-duplicate.
+- **reinforce**: on re-observing an existing node's pattern, append the evidence date; sharpen the rule text if the new case narrows or extends it (keep the sharper wording, never append prose).
+- **promote (candidate → active)**: any agent, once the node has ≥2 evidence dates from independent tasks — flip `status` in place, remove the INDEX suffix. Promotion does not wait for a retro.
+- **merge / split / retire**: harness-improver only (at retro, or on demand). Merge = union the evidence into the survivor, add a `links` entry, mark the absorbed node `status: retired` and drop its INDEX line. Retired files STAY in `wiki/` as tombstones — cold storage in place.
+- Human approval is NOT required for any wiki edit. It remains required for agent-prompt / command / gate edit proposals (retro), and permission/safety rules stay untouchable.
+
+### Caps (hard)
+
+- active ≤ 40 total AND ≤ 8 per scope — over budget: the improver merges/retires lowest-value nodes BEFORE anything new is promoted.
+- candidate ≤ 15 — over budget: build/verify emit the retro nudge.
+
+### Migration from a legacy ledger (once per project, improver-owned)
+
+Each active `[PB-NNN]` bullet → one active node with `source: PB-NNN`; retired/archived bullets stay in their archive file. Inbox lines → candidate nodes ONLY where the pattern recurs; single-occurrence lines move to `retro/inbox-archive-<date>.md` as occurrence evidence. Then DELETE `playbook.md` and `retro/inbox.md` and build INDEX.md from the surviving nodes.
 
 ## Log format (logs/YYYY-MM-DD.md, append-only)
 
@@ -83,21 +119,13 @@ ONE shared file per day for ALL agents — NO per-agent/per-task logs; "today's 
 
 Event types: `session-start`, `decision`, `dispatch`, `result`, `failure`, `gate`, `escalation`, `verify`, `goal-set`, `retro-complete`. Never edit/delete past entries; corrections = new entries referencing the old one.
 
-## retro/inbox.md entry format
-
-```
-- [ ] (scope, agent, YYYY-MM-DD) 관찰한 패턴 한 줄 — 표면 오류와 의심되는 원인
-```
-
-The `- [ ]` checkbox is mandatory (build's retro nudge counts unchecked boxes); `scope` from the enum above. Any agent appends after a failure, retry, or surprising success. harness-improver MOVES processed lines into the retro report and DELETES them here (never checks off in place); it removes ONLY promoted or explicitly retired lines — below-threshold lines (single occurrence, non-High severity) STAY as occurrence evidence.
-
 ## Context budget (token control — hard rules)
 
-The harness must get smarter WITHOUT per-task context growing; learning lives in a fixed-size curated playbook.
+The harness must get smarter WITHOUT per-task context growing; learning lives in the fixed-budget wiki (caps above).
 
-1. **playbook.md capped**: max 30 active bullets (~120 lines). Over budget → merge/retire lowest-value bullets before adding. Bullets retired in a PREVIOUS retro move (full text) to `retro/playbook-archive.md` at the next retro, leaving tombstone `[PB-NNN] (archived)`, pruned once unreferenced.
-2. **Scope-filtered reading**: apply only bullets matching own scope + `global`/`workflow`; skim the rest, never quote them into outputs.
-3. **Fixed read-set per task**: GOAL.md + playbook.md + own plan.md task row + documents the role owns/consumes (e.g. dev → design.md). NEVER read `logs/`, `retro/`, or archives in normal work — past decisions live in the owning DOCUMENTS (design.md ADR / prd.md / GOAL.md), never mined from logs.
+1. **Wiki reads are INDEX-driven**: read `wiki/INDEX.md` (≤80 lines), open only own-scope + `global`/`workflow` nodes (≤10 lines each). Never bulk-read `wiki/`; never quote other scopes' nodes into outputs.
+2. **Node text stays compressed**: reinforcement sharpens wording, it never appends narrative. Incident stories belong in the daily log, referenced from the node by date.
+3. **Fixed read-set per task**: GOAL.md + wiki/INDEX.md + own-scope nodes + own plan.md task row + documents the role owns/consumes (e.g. dev → design.md). NEVER read `logs/`, `retro/`, or archives in normal work — past decisions live in the owning DOCUMENTS (design.md ADR / prd.md / GOAL.md), never mined from logs.
 4. **Logs: write-heavy, read-rarely**: only harness-improver reads them (only newer than the last retro report), then moves them to `logs/archive/`. `/harness:status` reads only today's log.
 5. **Archives = cold storage**: read only when a human asks.
 6. **Every document is capped, not just the playbook**: analysis.md ≤ 80 lines · prd.md ≤ 100 · design.md ≤ 150 · GOAL.md ≤ 80. Documents carry CONCLUSIONS + file:line references; raw evidence (command output, matrices, reproduction transcripts) goes to the daily log, referenced by date. A document over budget is a defect the owner must compress before handoff (incident: a 480-line analysis.md forced every downstream task to read 1,250 lines for a 28-line change).
@@ -105,7 +133,7 @@ The harness must get smarter WITHOUT per-task context growing; learning lives in
 
 ## Lifecycle rules
 
-1. `/harness:goal` scaffolds everything; preserves playbook.md, retro/, logs/ across iterations.
+1. `/harness:goal` scaffolds everything; preserves wiki/, retro/, logs/ (accumulated learning) across iterations.
 2. Phases move only forward except: verify FAIL → build, and any phase → goal (new iteration). The transition's writer updates state.json in the same turn.
 3. Document ownership is exclusive per phase (table above); others read but do not edit — log disagreements and escalate.
 4. Task status flow (English values only): `pending → in_progress → (review) → done`, branches `blocked`/`failed`. Only evidence-backed transitions to `done`.
@@ -123,4 +151,4 @@ Scaffold directly from these lists; keep every section even if empty, marked "�
 - **design.md** (numbered, in order): 1 시스템 컨텍스트 · 2 품질 속성 우선순위 · 3 아키텍처 스타일 · 4 컴포넌트/모듈 책임 · 5 API 계약 · 6 데이터 모델 · 7 에러/장애 전략 · 8 UX 설계 (사용자 대상 기능일 때 — product-designer 작성; the ONLY UX section name) · 9 기술 선택 · 10 NFR 예산 · 11 설계 결정 (ADR) · 12 승인 (BUILD 게이트 체크박스 → state.json approvals.design)
 - **plan.md**: 작업 표(T-NNN / 작업 / 담당 / 의존성 / 인수 조건 / 상태 / **증거**) · 병렬 실행 웨이브 · 커버리지 확인 · 리스크와 대비책. Status = the English enum above; 담당 = the state.json role list. 증거 column: `done` = commit sha or log entry ref · `deferred` = 사유 + 재편성 위치 · `blocked` = 차단 원인. A row whose status can't be justified by its 증거 cell is treated as NOT done.
 
-Initial content (fresh scaffold): `playbook.md` = header `# Playbook` + one format comment (`<!-- 형식: [PB-NNN] (scope) 운영 가능한 인사이트 — 근거 날짜 -->`); `retro/inbox.md` = header `# Retro Inbox` + one format comment (`<!-- 형식: - [ ] (scope, agent, YYYY-MM-DD) 관찰한 패턴 한 줄 — 표면 오류와 의심되는 원인 -->`).
+Initial content (fresh scaffold): `wiki/INDEX.md` = header `# Wiki Index` + one format comment (`<!-- 형식: - [scope] [[slug]] — 한 줄 훅 (candidate) · 노드 파일은 <scope>--<slug>.md -->`).

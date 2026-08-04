@@ -150,4 +150,4 @@ flowchart TD
 - [ ] 파괴적 액션마다 확인 또는 실행취소가 명시됐는가
 - [ ] 새 디자인 시스템을 발명하지 않았는가
 
-Fail any box → the document goes back for revision before handoff; questions asked downstream later are logged as spec defects in `.harness/retro/inbox.md`.
+Fail any box → the document goes back for revision before handoff; questions asked downstream later are logged as spec defects in a candidate wiki node (scope: planning).

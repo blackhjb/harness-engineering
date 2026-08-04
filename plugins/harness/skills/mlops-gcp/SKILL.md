@@ -121,4 +121,4 @@ Call from the top-level exception handler and the partial-success reporter.
 - [ ] Artifact Registry: cleanup policy keeps last ~10 images; untagged digests deleted.
 - [ ] Log retention: default 30 days is right for jobs; no accidental sink to expensive storage.
 - [ ] Idle leftovers: unused Scheduler jobs, stale Cloud Run revisions/services from PoCs — delete.
-- [ ] Record numbers in `.harness/retro/inbox.md` as `- [ ] (cost, sre, YYYY-MM-DD) …` if any lesson emerged.
+- [ ] Record numbers in a wiki node (scope: cost) if any lesson emerged.

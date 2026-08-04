@@ -9,8 +9,8 @@ Lilian Weng의 "Harness Engineering for Self-Improvement"(2026-07)의 핵심 패
 | Pattern 1: Workflow Automation (goal-oriented loop) | 8개 커맨드가 plan→execute→observe→improve 루프를 고정: `/harness:goal → analyze → plan → build → verify → retro` (+ `status`, S-size용 경량 경로 `quick`) |
 | Pattern 2: File System as Persistent Memory | 프로젝트마다 `.harness/` 디렉토리. 모든 산출물·상태·로그를 파일로 영속화 → 세션 중단 후에도 복구, 컨텍스트 오염 방지 |
 | Pattern 3: Sub-agent & Backend Jobs | orchestrator가 독립 태스크를 역할 에이전트에게 병렬 디스패치. 결과는 채팅이 아닌 파일로 회수 (inspectable parallelism) |
-| ACE (Agentic Context Engineering) | `.harness/playbook.md` — 전체 재작성 금지, `[PB-nnn]` 단위 증분 큐레이션으로 context collapse 방지. 모든 에이전트가 작업 전 필독 |
-| Self-Harness (weakness mining → bounded proposal → validation) | harness-improver가 logs/·retro/inbox.md에서 실패 패턴 마이닝 → 제한된 편집안 제안 → 사람 승인 후 적용 |
+| ACE (Agentic Context Engineering) | `.harness/wiki/` — 지식을 노드(1파일 = 1인사이트 엔티티) 단위로 분해한 **자기 진화 위키**. 모든 에이전트가 증거 발생 즉시 노드를 생성·강화·승격(사람 게이트 없음), INDEX 1줄 훅 + scope 필터 로딩으로 고정 예산 유지, 증분 큐레이션으로 context collapse 방지 |
+| Self-Harness (weakness mining → bounded proposal → validation) | harness-improver가 logs/·candidate 노드에서 실패 패턴 마이닝 → 위키 큐레이션(병합/은퇴)은 직접, 프롬프트·게이트 편집안은 사람 승인 후 적용 |
 | Reward hacking / 안전 경계 | 평가·권한은 개선 루프 밖에 위치: 승인 게이트·안전 규칙은 편집 불가 표면 |
 
 ## 에이전트 로스터 (12종)
@@ -41,10 +41,17 @@ ai-agent-dev, data-pipeline, mlops-gcp, testing-qa, product-spec.
 
 ## 컨텍스트 예산
 
-학습은 무한히 쌓지 않는다. 플레이북은 활성 30불릿 캡의 고정 크기로 유지하고,
-은퇴 불릿은 `retro/playbook-archive.md`, 오래된 로그는 `logs/archive/` 콜드 스토리지로 이동해 에이전트가 읽지 않는다.
+학습은 무한히 쌓지 않는다. 지식은 `.harness/wiki/` 노드로 분해되고(active ≤ 40 · scope당 ≤ 8 · 노드 본문 ≤ 10줄 · INDEX ≤ 80줄),
+에이전트는 INDEX 1줄 훅만 상시 읽고 자기 scope + global/workflow 노드만 연다. 은퇴 노드는 위키 안에 tombstone 으로 남고(INDEX 에서 제외),
+오래된 로그는 `logs/archive/` 콜드 스토리지로 이동해 에이전트가 읽지 않는다.
 디스패치 1회 고정비는 약 6~10K 입력 토큰(에이전트 프롬프트 + 스킬 + `.harness/` 문서).
 작은 작업은 경량 경로 `/harness:quick`(디스패치 1회)으로 전체 루프 비용을 생략한다.
+
+**설계 결정 (2026-08-04, 위키 전환)**: 초기 구현은 평면 `playbook.md`(전 에이전트 통째 필독) + `retro/inbox.md`(산문 백로그)였다.
+2일 실전에서 플레이북 불릿이 사고 서사를 흡수하며 비대해지고(불릿당 ~850B) inbox 백로그 93건이 회고 사이에 방치되어,
+디스패치 고정비가 목표의 3~5배(실측 30K+ 토큰)로 상승했다. 원인은 규칙 부재가 아니라 **지식의 단위가 파일이 아니라 문서**였던 것 —
+노드 단위로 쪼개면 읽기는 scope 필터로, 진화(생성→강화→승격)는 회고를 기다리지 않고 상시로, 압축(병합/은퇴)은 큐레이터 소관으로 분리된다.
+inbox 는 candidate 노드로 대체되어 관찰→승격이 같은 자료구조 안에서 일어난다.
 
 ## 이식성 설계
 

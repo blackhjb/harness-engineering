@@ -12,9 +12,9 @@ ALWAYS respond to the user in Korean. Write all artifacts — `.harness/` files,
 Full schema lives in the `harness-state` skill (`.agents/skills/harness-state/`). Key rules:
 
 - Files are the only durable truth. If a result is not in `.harness/` (or the codebase), it did not happen.
-- Read `.harness/GOAL.md` and `.harness/playbook.md` BEFORE starting any task.
+- Read `.harness/GOAL.md` and `.harness/wiki/INDEX.md` BEFORE starting any task; open only the wiki nodes matching your scope + global/workflow.
 - One daily log: append to `.harness/logs/YYYY-MM-DD.md` (append-only, entry format per the skill).
-- Retro candidates go to `.harness/retro/inbox.md` using the skill's inbox entry format.
+- Insights become wiki nodes: create (candidate) / reinforce / promote per the skill's node lifecycle — no inbox.
 - `.harness/plan.md` and `.harness/state.json` are written ONLY by the orchestrator role; everyone else treats them as read-only.
 
 ## Workflow (skills replace slash commands)
@@ -34,4 +34,4 @@ At key branch points, ask the user in Korean with 2–4 options plus a recommend
 
 ## Token budget rule
 
-The playbook is capped at 30 active bullets with scope filtering; never read the cold storage (`.harness/logs/archive/`, `.harness/retro/playbook-archive.md`), and never paste file contents into dispatch briefs — agents read files themselves.
+The wiki is capped (active ≤ 40 nodes, ≤ 8 per scope, node body ≤ 10 lines, INDEX ≤ 80 lines) with INDEX-driven scope-filtered reads; never read the cold storage (`.harness/logs/archive/`, legacy archives under `.harness/retro/`), and never paste file contents into dispatch briefs — agents read files themselves.
