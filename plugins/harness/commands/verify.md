@@ -12,7 +12,7 @@ Read `.harness/state.json` and `plan.md`. If build tasks are still `pending`/`in
 
 ## Step 1 — Parallel verification (single message, two Task calls)
 Delegate to `qa` and `code-reviewer` IN PARALLEL. Both RETURN structured reports and append log entries; neither edits plan.md or state.json — only the orchestrator (Step 3) converts findings into fix tasks.
-- `qa` brief: read `.harness/GOAL.md`, `playbook.md`, `plan.md`, `design.md`. Run the test suites and check EVERY success criterion SC-n in GOAL.md and every task's 인수 조건 with an actual command or inspection — none by assumption. RETURN a table: 기준 / 검증 방법(실행한 명령) / 결과 / 증거. Append full evidence (command output excerpts) to today's log.
+- `qa` brief: read `.harness/GOAL.md`, `playbook.md`, `plan.md`, `design.md`. Run the test suites and check EVERY success criterion SC-n in GOAL.md and every task's 인수 조건 with an actual command or inspection — none by assumption. **Additionally map EVERY plan.md task to exactly one of: commit sha / log result entry / explicit `deferred` with reason. One or more unmapped tasks = FAIL** — SC-level checks cannot see commit-less tasks, so "all SC met" and "a planned task never ran" can both be true (incident: an unexecuted guard-extension task passed verify). RETURN a table: 기준 / 검증 방법(실행한 명령) / 결과 / 증거, plus the task↔artifact map. Append full evidence (command output excerpts) to today's log.
 - `code-reviewer` brief: same context. Review all code changed during this goal's build (diff against state.json `base_ref` where set) for correctness, design.md conformance, security, test adequacy. RETURN a table: 심각도(BLOCKER/MAJOR/MINOR/NIT) / 파일:라인 / 문제 / 권고. Append to today's log.
 
 ## Step 2 — Verdict

@@ -13,7 +13,7 @@ Read `.harness/state.json`. Both `approvals.design` and `approvals.plan` must be
 ## Execution
 Set state.json `phase` = "build", then delegate the entire build to the `orchestrator` with this brief:
 - Read `.harness/GOAL.md`, `playbook.md`, `plan.md`, `design.md`, `state.json` first (your startup protocol).
-- Execute plan.md wave by wave: dispatch every dependency-free `pending` task to its owner (담당 column) IN PARALLEL; dependent tasks wait for `done` dependencies.
+- Execute plan.md wave by wave **and run ALL waves continuously — finishing one wave is not a stopping point**; stop only on your loop's four stop conditions (all done / blocked with nothing independent / escalation / context-limit handoff). Read-only tasks in parallel; commit-producing tasks strictly serial (shared working tree).
 - Task IDs passed ("$ARGUMENTS") → run only those and their unmet dependencies.
 - Each dispatch follows your dispatch contract (task ID, verbatim acceptance criteria, read-first paths, exact artifact paths, log + retro-inbox instructions).
 - `done` only when acceptance criteria are demonstrably met with evidence in today's log. Failures: your retry policy — one amended retry, then fix-task or human escalation.
