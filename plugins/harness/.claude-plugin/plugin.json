@@ -1,7 +1,7 @@
 {
   "name": "harness",
   "displayName": "Hunter Harness",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Goal-driven multi-agent development harness: 12 role agents, 8 workflow commands (GOAL->analyze->plan->build->verify->retro, plus a lightweight quick path), file-based state (.harness/), self-improving retro loop. Covers Java/Spring Boot backend, React/TS frontend, Python LLM-agent development, data pipelines, and GCP MLOps.",
   "author": {
     "name": "hunter.baek",
