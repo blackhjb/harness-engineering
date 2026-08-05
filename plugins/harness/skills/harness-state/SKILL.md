@@ -119,6 +119,9 @@ ONE shared file per day for ALL agents — NO per-agent/per-task logs; "today's 
 
 Event types: `session-start`, `decision`, `dispatch`, `result`, `failure`, `gate`, `escalation`, `verify`, `goal-set`, `retro-complete`. Never edit/delete past entries; corrections = new entries referencing the old one.
 
+- `HH:MM` is the wall-clock time AT WRITE TIME — run `date +%H:%M` and copy its output; never reuse the dispatch prompt's time, estimate, or write placeholders (`15:__`, `13:2x`).
+- Readers (gates, status, retro mining) treat APPEND ORDER as the authoritative sequence; header times are informational and may lag when an agent finishes late.
+
 ## Context budget (token control — hard rules)
 
 The harness must get smarter WITHOUT per-task context growing; learning lives in the fixed-budget wiki (caps above).
@@ -140,6 +143,7 @@ The harness must get smarter WITHOUT per-task context growing; learning lives in
 5. Gates: design approval before build, verify PASS before done, human approval before applying harness edit proposals.
 6. User decisions: PRIMARY record = the owning document (architecture → design.md ADR, scope/priority → prd.md, goal-level → GOAL.md); the `decision` log entry is secondary — "never re-ask" is enforced via the documents, not logs.
 7. **Backward propagation**: when build/verify work REFUTES a premise recorded upstream (a GOAL measurement, an analysis F-NNN fact, a design assumption), the orchestrator corrects the owning document IN THE SAME TURN — a one-line 정정 with the refuting evidence, never a silent divergence. Stale premises left in documents poison every later read (incident: 7 refuted premises had to be hunted down by hand across 5 documents).
+8. **Quick route (규모 비례)**: a goal that `/harness:goal` triages as quick 경로 (no contract/architecture impact, mechanical diff, command-checkable SCs) keeps analysis.md/prd.md/design.md/plan.md as "해당 없음 — quick 경로" stubs and runs as `/harness:quick` batches; phase closes goal → done directly. What is NOT waived: every SC still gets its measurement command + value in a `verify` log entry, state.json `verify.verdict` is still set, and guard changes still require a positive control. Ceremony scales with the change; evidence does not (incident: ~300 changed lines consumed ~1.4M subagent tokens, mostly on documents and wave management — the defects were all caught by verification, none by ceremony).
 
 ## Canonical required sections per document
 

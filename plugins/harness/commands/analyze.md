@@ -25,7 +25,7 @@ Respond in Korean.
 - 핵심 발견 3-5개 (파일 경로 포함)
 - 가장 위험한 리스크 2-3개
 - 계획을 차단하는 항목 (알아내야 하는 것 U-n 중 차단 여부 "예") — if any exist, ask the user to resolve them NOW
-- 다음 단계: `/harness:plan` (차단 항목이 없을 때)
+- 다음 단계 (차단 항목이 없을 때): analysis.md 의 권고가 정한 경로 — 남은 작업이 quick 경로 기준(goal 커맨드 §2: 계약·아키텍처 결정 0 + 기계적 소규모 diff + 명령 판정 가능 SC)을 충족하면 `/harness:quick`, 아니면 `/harness:plan`. 권고는 반드시 어느 쪽인지 명시한다 — 규모 판정 없이 기본값으로 plan 에 넘기지 말 것
 
 ## Question rules (co-creation)
 All user questions in this phase follow the `co-creation` skill (key branch points only, batched options with a recommended default, decisions recorded in the owning document and never re-asked).

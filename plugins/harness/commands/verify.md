@@ -21,6 +21,8 @@ Compute the verdict yourself from both reports. Severity mapping: qa uses blocks
 - FAIL: anything else. Reviewer MAJOR findings become fix tasks and the verdict is FAIL. (qa minor and reviewer MINOR/NIT do not block PASS — list them.) Partial success is FAIL with an itemized gap list.
 Record in state.json: `verify` = {"verdict": "PASS"|"FAIL", "date": now}. Append a verdict entry with evidence summary to today's log. Exactly two verdicts exist — a PASS with caveats, named risks, or conditions does not; anything short of full PASS is FAIL.
 
+**Goal 결산 (append to the same verdict entry — this feeds the harness's self-tuning loop):** `git diff --shortstat <base_ref>..HEAD` (files/+/-), commit count, dispatch count (count of `dispatch` entries for this goal in the daily logs), and subagent token totals where the coordinator observed them in tool results. Retro mines these numbers for ceremony-vs-diff disproportion — a goal with no 결산 is invisible to that loop.
+
 ## Step 3 — On FAIL, route fixes
 Delegate to the `orchestrator` (the ONLY writer of plan.md and state.json `tasks[]`): for each unmet criterion, qa blocks-goal/blocks-task finding, and reviewer BLOCKER/MAJOR finding, add a fix task to plan.md (new T-NNN, owner, dependencies, acceptance criteria = the exact failed check), mirror into `tasks[]`, set phase back to "build". Point the user to `/harness:build`, then `/harness:verify` again.
 

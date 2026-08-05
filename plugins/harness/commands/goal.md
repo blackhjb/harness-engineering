@@ -16,11 +16,23 @@ Ask in Korean, in a single message, only what "$ARGUMENTS" does not already answ
 5. 참고 컨텍스트 — existing code/docs to look at first (optional).
 Wait for the answers before writing anything. If a success criterion comes back vague, restate it measurably once ("이렇게 바꾸면 측정 가능합니다: ... 맞습니까?") and proceed on confirmation.
 
-## 2. Handle an existing .harness/
+## 2. Size triage (규모 비례 라우팅 — do not skip)
+Classify the goal's size BEFORE scaffolding, from the interview answers plus (if a quick grep settles it) the codebase. Full-loop ceremony must be proportional to the change, never to the goal's importance — a 15-line mechanical batch does not earn a PRD (incident: ~300 changed lines consumed ~1.4M subagent tokens on documents and wave management; the value came from verification, not ceremony).
+
+- **quick 경로** — ALL of: no API/data-contract/schema change · no architecture decision (no new module boundary, no tech choice) · expected diff localized and mechanical (guards, re-exports, test fixes, config/doc tweaks — roughly ≤8 files / ≤150 lines) · every success criterion directly checkable by a command.
+  → Still scaffold per section 4, but leave analysis.md/prd.md/design.md/plan.md as stubs marked "해당 없음 — quick 경로", record the route + one-line rationale in GOAL.md (승인 섹션) and the daily log, and hand off to `/harness:quick` (one batch, or one invocation per SC cluster) instead of `/harness:analyze`. Verification rigor is NOT reduced — quick's proportional-verify rules still apply in full.
+- **표준 루프** — anything else, or any doubt that a wrong guess is expensive → `/harness:analyze` as usual.
+- **판단 불가** — run `/harness:analyze` first; analysis.md's 권고 MUST then name the route (quick vs plan) explicitly, and the goal proceeds on that recommendation.
+
+The numeric thresholds above (≤8 files / ≤150 lines) are **retro-tunable defaults, not constants**: retro mines each goal's 결산 (diff vs orchestration cost, logged by verify/quick closure) and proposes threshold adjustments through the bounded harness-edit channel; a project may also carry a sharper local rule as a `cost`-scope wiki node — when one exists, it wins over these defaults.
+
+State the chosen route and its rationale in the confirmation message (section 5).
+
+## 3. Handle an existing .harness/
 - No `.harness/`: create the full structure below.
 - `.harness/` exists: NEW GOAL ITERATION. Preserve `wiki/`, `retro/`, and `logs/` — accumulated learning. (A legacy `playbook.md`/`retro/inbox.md` is also preserved untouched; note to the user that the next `/harness:retro` migrates it into wiki nodes per the harness-state skill.) Read the old state.json, increment `iteration`, and overwrite GOAL.md / analysis.md / prd.md / design.md / plan.md with fresh scaffolds. If the previous goal's phase is not `done` or `retro`, warn the user it is unfinished and get explicit confirmation before overwriting.
 
-## 3. Create files (from the harness-state skill's canonical section lists)
+## 4. Create files (from the harness-state skill's canonical section lists)
 Every section present, empty ones marked "해당 없음".
 - `.harness/GOAL.md` — filled from the interview.
 - `analysis.md`, `prd.md`, `design.md`, `plan.md` — headers only, sections per the skill's lists.
@@ -29,8 +41,8 @@ Every section present, empty ones marked "해당 없음".
 - `retro/` and `logs/` — create if missing.
 - Append a goal-set entry to today's daily log (who, what goal, iteration).
 
-## 4. Confirm and hand off
-Show the user in Korean: the success criteria table, 제약, 범위 제외; ask them to confirm GOAL.md or request edits. Once confirmed, the next step is `/harness:analyze`.
+## 5. Confirm and hand off
+Show the user in Korean: the success criteria table, 제약, 범위 제외, and the section-2 route decision with its rationale; ask them to confirm GOAL.md or request edits. Once confirmed, the next step is the routed command — `/harness:quick` for the quick 경로, `/harness:analyze` otherwise. **Routing must never add a manual step for the user**: when the user has granted standing autonomous progression (e.g., "알아서 진행"), the coordinator invokes the routed command itself in the same session — the route decides WHICH path runs, the user is never asked to type it.
 
 ## Question rules (co-creation)
 All user questions in this phase follow the `co-creation` skill (key branch points only, batched options with a recommended default, decisions recorded in the owning document and never re-asked); exception — the initial interview may ask short open-ended questions for basic facts (기한, 제약 등).
