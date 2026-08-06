@@ -36,6 +36,8 @@ GOAL 배경·전제에 쓰는 **사실 명제**(도입 시점·인과 순서·"~
 직전 iteration 의 verify 로그·사용자 보고를 그대로 승격하는 것이 **가장 흔한 오염 경로**다(실측: 한 iteration 의 전제 5건이 analyze 에서 전건 반증됐고, 그 교정에만 analyst 2인 212k 토큰이 쓰였다). 틀린 전제로 시작하면 그 뒤 모든 디스패치가 재작업이 된다 — 토큰을 가장 많이 태우는 지점은 작업이 아니라 **잘못된 출발**이다.
 
 ## 3. Handle an existing .harness/
+- **위키 상한 위반이면 새 goal 을 열기 전에 `/harness:retro` 를 먼저 돌린다** (count it: candidate ≤15, active ≤8 per scope, INDEX ≤80 lines). Over budget, INDEX stops being triageable in one pass and every later agent recalls worse — curation is a precondition for the next goal, not a nicety deferred to "someday" (실측 2026-08-06: candidate 20, qa 19/8, workflow 13/8 accumulated because retro never ran).
+- **장부가 실제와 어긋나면 먼저 맞춘다**: if code changed since the last verdict while state.json still says `done`/PASS, that follow-up work was an unregistered iteration — register it (increment `iteration`, reset `verify`) before anything else. A ledger that disagrees with the tree makes every later status read wrong.
 - No `.harness/`: create the full structure below.
 - `.harness/` exists: NEW GOAL ITERATION. Preserve `wiki/`, `retro/`, and `logs/` — accumulated learning. (A legacy `playbook.md`/`retro/inbox.md` is also preserved untouched; note to the user that the next `/harness:retro` migrates it into wiki nodes per the harness-state skill.) Read the old state.json, increment `iteration`, and overwrite GOAL.md / analysis.md / prd.md / design.md / plan.md with fresh scaffolds. If the previous goal's phase is not `done` or `retro`, warn the user it is unfinished and get explicit confirmation before overwriting.
 
