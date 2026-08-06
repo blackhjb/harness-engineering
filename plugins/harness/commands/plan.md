@@ -24,6 +24,7 @@ Delegate to `orchestrator`: read all of the above; write `.harness/plan.md` — 
 
 ## Stage 4 — Approval gate (do not skip)
 Present in Korean: prd.md priorities summary, design.md key decisions and tradeoffs, and the full plan.md task table with waves. Ask explicitly: "이 설계와 계획을 승인하시겠습니까? 수정할 부분이 있으면 알려주세요."
+- Before presenting, cross-check GOAL.md/prd.md against design.md for the SAME proposition stated differently — above all "what does the user see when the feature is off, the gate fails, or the default applies". Such a contradiction yields identical code under either reading, so task decomposition never surfaces it; list every mismatch in the approval request as a decision the user must settle.
 - On approval: set state.json `approvals.design` = true and `approvals.plan` = true, refresh `updated_at`, log the approval, and point to `/harness:build`.
 - On change requests: route each to the owning agent (planner/architect/product-designer/orchestrator), then re-present. Never set approvals without an explicit yes.
 

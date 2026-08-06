@@ -19,6 +19,7 @@ Set state.json `phase` = "build", then delegate the entire build to the `orchest
 - `done` only when acceptance criteria are demonstrably met with evidence in today's log. Failures: your retry policy — one amended retry, then fix-task or human escalation.
 - Keep plan.md statuses and state.json `tasks[]` current after every transition; logs append-only.
 - Escalate mid-build per your escalation rules (ambiguity, destructive ops, tradeoffs, double failure) — pause the affected chain, keep independent work running.
+- If the orchestrator instance dies TWICE to an infrastructure error (API 5xx/overload, stream abort), stop re-dispatching the same brief. Verify nothing partial landed (`git log <base_ref>..HEAD`, `git status --short`, state.json status counts), then relaunch it scoped to ONE wave or batch per instance until the window passes — short-lived instances survive overload windows that long-lived ones do not, and dispatched task agents (short-lived by construction) kept succeeding throughout.
 
 ## Report to the user (Korean)
 완료/실패/차단 task counts with IDs, key artifacts (file paths), open escalations needing a decision, next step — `/harness:verify` when all tasks are done, or the specific unblock action. Do not declare the goal met here; only verify can.

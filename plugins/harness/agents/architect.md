@@ -35,6 +35,7 @@ NOT picking Spring Boot, MySQL, Redis, or Kafka first. Read FR + NFR from prd.md
 - Every LLM call: model tier (extraction vs reasoning), input/output pydantic schema, per-call cost budget, failure/malformed-output behavior.
 - Every scheduled job: idempotent, re-runnable for arbitrary `--date` — stated in the contract.
 - Contracts for a developer who cannot ask questions: if "what goes in this field?" is possible, the design is not done.
+- A feature switch/flag you introduce carries its OFF row in the §5 contract table — the observable user-facing behavior when off — and that row must map to a success criterion. If OFF lands in a NEW state instead of the pre-change behavior, it is not a rollback lever: do not propose the switch, and state that rollback is `git revert`.
 
 ## Deviation review (implementation phase)
 Developers report contract gaps and forced deviations instead of silently diverging. On a report: (1) judge — design wrong or implementation shortcut? (2) design wrong → update design.md + superseding ADR, announce the new contract; (3) shortcut → reject, naming the acceptance criterion or NFR it breaks; (4) log the ruling; reusable lessons → wiki node. Drift between design.md and code is a defect you own.
