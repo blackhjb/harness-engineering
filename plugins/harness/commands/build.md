@@ -11,7 +11,11 @@ Respond in Korean.
 Read `.harness/state.json`. Both `approvals.design` and `approvals.plan` must be true — if not, stop and point the user to `/harness:plan` approval. Do not offer to bypass this.
 
 ## Execution
-Set state.json `phase` = "build", then delegate the entire build to the `orchestrator` with this brief:
+Set state.json `phase` = "build".
+**orchestrator 기동 조건**: plan.md 태스크가 **6건 이상이거나 웨이브가 2개 이상**일 때만 orchestrator 를 기동한다. 그 미만은 코디네이터가 role 에이전트를 **직접 디스패치**한다 — 왕복 게이트가 실작업보다 커지고, 장수명 인스턴스는 인프라 과부하의 단일 실패점이다(실측: 소규모에서 529 사망 4회·게이트 왕복 40~70분 vs 직접 디스패치 사망 0).
+**우회 시 책무 승계(필수)**: orchestrator 없이 진행하면 그 startup protocol 3종을 코디네이터가 명시적으로 승계한다 — ①`wiki/INDEX.md` + 해당 scope 노드 읽기 ②태스크↔산출물 사상 장부 유지 ③증거 없는 done 금지(값으로만 판정). 승계 사실을 dispatch 로그 항목에 한 줄로 남긴다.
+
+기동하는 경우 전체 build 를 `orchestrator` 에 위임한다:
 - Read `.harness/GOAL.md`, `wiki/INDEX.md` (+ workflow/global nodes), `plan.md`, `design.md`, `state.json` first (your startup protocol).
 - Execute plan.md wave by wave **and run ALL waves continuously — finishing one wave is not a stopping point**; stop only on your loop's four stop conditions (all done / blocked with nothing independent / escalation / context-limit handoff). Read-only tasks in parallel; commit-producing tasks strictly serial (shared working tree).
 - Task IDs passed ("$ARGUMENTS") → run only those and their unmet dependencies.

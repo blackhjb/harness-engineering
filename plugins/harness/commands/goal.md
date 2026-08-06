@@ -30,6 +30,10 @@ The numeric thresholds above (≤8 files / ≤150 lines) are **retro-tunable def
 
 State the chosen route and its rationale in the confirmation message (section 5).
 
+## 2-B. 사실 명제에는 근거를 붙인다 (재작업의 최대 원인)
+GOAL 배경·전제에 쓰는 **사실 명제**(도입 시점·인과 순서·"~가 없다"는 부재 주장·값의 형태·직전 iteration 의 결론)는 각각 `file:line`·커밋 sha·명령 출력 중 하나를 **같은 줄에 병기**한다. 근거를 댈 수 없으면 `[미검증]` 으로 표시하고 analyze 의 확인 대상으로 넘긴다 — 확신도를 섞어 쓰지 않는다.
+직전 iteration 의 verify 로그·사용자 보고를 그대로 승격하는 것이 **가장 흔한 오염 경로**다(실측: 한 iteration 의 전제 5건이 analyze 에서 전건 반증됐고, 그 교정에만 analyst 2인 212k 토큰이 쓰였다). 틀린 전제로 시작하면 그 뒤 모든 디스패치가 재작업이 된다 — 토큰을 가장 많이 태우는 지점은 작업이 아니라 **잘못된 출발**이다.
+
 ## 3. Handle an existing .harness/
 - No `.harness/`: create the full structure below.
 - `.harness/` exists: NEW GOAL ITERATION. Preserve `wiki/`, `retro/`, and `logs/` — accumulated learning. (A legacy `playbook.md`/`retro/inbox.md` is also preserved untouched; note to the user that the next `/harness:retro` migrates it into wiki nodes per the harness-state skill.) Read the old state.json, increment `iteration`, and overwrite GOAL.md / analysis.md / prd.md / design.md / plan.md with fresh scaffolds. If the previous goal's phase is not `done` or `retro`, warn the user it is unfinished and get explicit confirmation before overwriting.

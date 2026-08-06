@@ -12,6 +12,7 @@ Respond in Korean. All artifacts in Korean per the harness-state skill.
 
 ## Stage 1 — PRD (planner)
 Set state.json `phase` = "plan". Delegate to `planner`: read GOAL.md, wiki/INDEX.md (own-scope nodes), analysis.md; write `.harness/prd.md` per the harness-state skill's canonical PRD sections (P0 = must-ship). Every P0 story must trace to a success criterion (SC-n) in GOAL.md.
+**prd.md 는 조건부다** — GOAL.md 의 SC 표가 사용자 관측 행동까지 이미 규정하고 있으면 `prd.md` 를 "해당 없음 — SC 표가 정본"으로 스텁 처리하고 planner 를 **건너뛴다**(디스패치 1회가 통째로 빠진다). 새 사용자 스토리·우선순위 절단·릴리스 슬라이싱 결정이 실제로 필요할 때만 작성한다. 작성하는 경우 **GOAL·prd·design 이 같은 명제를 서로 다르게 말하지 않는지** 승인 제시 전에 대조한다 — 같은 행동을 두 문서가 각자 서술한 것이 dev 실사용 회귀의 원인이었다(prd 고유 catch 는 실측 0건).
 
 ## Stage 2 — Design (architect, + product-designer when user-facing)
 Set state.json `phase` = "design". Determine from prd.md whether the work has user-facing UI.

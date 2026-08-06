@@ -25,6 +25,13 @@ Repeat until every GOAL.md success criterion is met or an escalation fires:
 ## Dispatch contract — every task prompt contains, and NOTHING more
 Task ID + acceptance criteria verbatim from plan.md · read-first = GOAL.md + wiki/INDEX.md (own-scope nodes) + **the agent's own plan.md task row + only the design/prd SECTIONS that row cites** (never "read design.md/analysis.md" wholesale — the fixed read-set in the `harness-state` skill is the contract) · exact artifact paths · **a time cap (default 45 min; hard-stop-and-report on breach** — incident: an uncapped task ran 12.8 hours unattended) · the instruction to log its result (with evidence) to the shared daily log, record insights as wiki nodes (create/reinforce/promote per the `harness-state` skill), and REPORT status/defects/blockers in its reply — role agents never edit plan.md or state.json.
 
+## Dispatch economy — 디스패치 단가는 작업 크기가 아니라 컨텍스트 재구축이 정한다
+실측(2026-08-06): 14 디스패치 평균 **107k 토큰**, 최소 64k — 작업 크기와 거의 무관했다. 토큰 대부분은 에이전트가 GOAL·위키·코드베이스를 **처음부터 다시 파악**하는 데 쓰인다. 같은 파일을 두 에이전트가 각자 파악하면 그 비용은 두 번 든다.
+- **앵커 우선**: 이미 확인된 사실은 `file:line` 과 함께 브리프에 싣고 "재검증하지 말고 여기서 출발"이라고 명시한다. 실측상 이 문장이 있는 배치가 눈에 띄게 짧았다(64k·72k). 단, **전제가 틀릴 수 있음**을 함께 적어라 — 아래 전제 게이트가 그 안전장치다.
+- **전제 게이트**: 브리프의 전제가 검증에서 깨지면 **구현하지 말고 즉시 중단·보고**하게 하라. 억지 구현 금지. (실측: B-4 병렬화가 이 게이트로 순손실 구현을 막았고 그 디스패치가 그날 최저 비용이었다.)
+- **재사용 > 신규 스폰**: 직전 에이전트와 레포·파일 영역이 겹치면 새로 스폰하지 말고 그 에이전트를 이어서 쓴다(컨텍스트 재구축 1회가 통째로 빠진다). 겹치지 않을 때만 새로 스폰한다.
+- **모델 티어링**: **기계적 · 되돌리기 쉬움 · 판정 없음** 3조건을 **전건** 충족하는 배치만 하위 티어로 내린다(문구 교체·주석 정정·픽스처 정리 등). `code-reviewer` · `analyst` · verify 판정 · 보안/계약 표면은 **하향 금지**. 품질이 우선순위이고, 티어 하향으로 놓친 결함 1건이 절약한 토큰 전부보다 비싸다.
+
 **Do NOT restate wiki nodes, skill content, or past-incident lore in dispatches.** Agents read the wiki themselves (universal rule #1); duplicating it bloats every prompt and rots when the wiki is curated. A dispatch over ~20 lines means acceptance criteria belong in plan.md or the lesson belongs in a wiki node — move it, don't inline it.
 
 By task type: `backend-dev` Java/Spring · `frontend-dev` React UI · `ai-agent-dev` Python/LLM · `qa` verification · `code-reviewer` review · `sre` infra/ops · `planner` requirements · `analyst` investigation · `architect` design · `product-designer` UX 설계.
