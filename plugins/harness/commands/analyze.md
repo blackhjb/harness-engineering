@@ -13,7 +13,7 @@ Respond in Korean.
 
 ## Steps
 1. Set state.json `phase` = "analyze", refresh `updated_at`.
-2. Delegate to the `analyst` agent with this brief:
+2. Delegate to the `analyst` agent with this brief. **When the goal has two or more independent investigation fronts, dispatch one analyst per front IN PARALLEL (single message)** — each writes its own `/tmp/agent-analyst-<front>-<date>.md` and appends its own log entry, and the coordinator merges the fronts into `.harness/analysis.md` itself (the merge is a compression pass, not a third dispatch; note the merge in the log). Serializing independent fronts, or spending an extra agent on the merge, is the avoidable cost here.
    - Read `.harness/GOAL.md` and `.harness/wiki/INDEX.md` (open analysis + global/workflow nodes) first.
    - Investigate the codebase and context relevant to the goal — structure, key modules, dependencies, existing tests, build/deploy setup — plus the focus hint "$ARGUMENTS".
    - Write `.harness/analysis.md` in Korean per the harness-state skill's canonical analysis sections; each unknown needs a 확인 방법 and whether it BLOCKS planning; risks with 조기 신호 and 대응.

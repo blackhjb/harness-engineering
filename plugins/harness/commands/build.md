@@ -12,7 +12,9 @@ Read `.harness/state.json`. Both `approvals.design` and `approvals.plan` must be
 
 ## Execution
 Set state.json `phase` = "build".
-**orchestrator 기동 조건**: plan.md 태스크가 **6건 이상이거나 웨이브가 2개 이상**일 때만 orchestrator 를 기동한다. 그 미만은 코디네이터가 role 에이전트를 **직접 디스패치**한다 — 왕복 게이트가 실작업보다 커지고, 장수명 인스턴스는 인프라 과부하의 단일 실패점이다(실측: 소규모에서 529 사망 4회·게이트 왕복 40~70분 vs 직접 디스패치 사망 0).
+**태스크 묶기(디스패치 수를 먼저 줄인다)**: before counting anything, group plan.md tasks into **dispatches**: tasks owned by the same role in the same repo/working tree go into ONE agent session, which does them in the given order and commits per task. They would run serially anyway (shared tree), so separate dispatches buy nothing and each costs a full round trip plus a cold context. Dispatches from **different** working trees run in parallel — start them in the same message. Count dispatches, not tasks (2026-08-06: 8 tasks collapsed to 2 build sessions).
+
+**orchestrator 기동 조건**: **묶은 뒤의 디스패치가 4건 이상이거나 병렬 트리가 3개 이상**일 때만 orchestrator 를 기동한다. 그 미만은 코디네이터가 role 에이전트를 **직접 디스패치**한다 — 왕복 게이트가 실작업보다 커지고, 장수명 인스턴스는 인프라 과부하의 단일 실패점이다(실측: 소규모에서 529 사망 4회·게이트 왕복 40~70분 vs 직접 디스패치 사망 0).
 **우회 시 책무 승계(필수)**: orchestrator 없이 진행하면 그 startup protocol 3종을 코디네이터가 명시적으로 승계한다 — ①`wiki/INDEX.md` + 해당 scope 노드 읽기 ②태스크↔산출물 사상 장부 유지 ③증거 없는 done 금지(값으로만 판정). 승계 사실을 dispatch 로그 항목에 한 줄로 남긴다.
 
 기동하는 경우 전체 build 를 `orchestrator` 에 위임한다:
