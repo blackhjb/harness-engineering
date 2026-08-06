@@ -9,6 +9,7 @@ Respond in Korean. This path skips analyze/plan/design ceremony for genuinely sm
 
 ## 1. Preconditions
 `.harness/` and `.harness/state.json` must exist. If not, stop and point to `/harness:goal` — quick tasks still need GOAL.md and the wiki as context.
+**코디네이터 자신도 위키를 읽는다** — 이 커맨드를 시작할 때 `.harness/wiki/INDEX.md` 를 열고, 손댈 영역의 scope 노드(+ `global`/`workflow`)를 읽는다. 이것은 서브에이전트 브리프가 아니라 **코디네이터의 전제 조건**이다: 3.2 의 Coordinator-direct 경로와 종결 단계의 직접 수정은 서브에이전트를 거치지 않으므로, 이 줄이 없으면 위키가 그 편집에 **구조적으로 도달하지 못한다**.
 
 ## 2. Classify (hard gate)
 Quick covers S-size work (single-file bugfix, config change, small localized refactor) AND M-size mechanical batches (several small localized edits — guards, re-exports, test fixes, doc/config tweaks — with zero contract or architecture impact; roughly ≤8 files / ≤150 lines expected diff). REFUSE and redirect to the full loop (`/harness:analyze` → `/harness:plan`) if the task:
@@ -30,8 +31,9 @@ When refusing, say why in one line and name the command to run instead. Do not o
 3. **Proportional verification (mandatory, not reducible):**
    - Always: run the project's test suite (or dispatch `qa` for a focused check if the suite is heavy); confirm green with real output, plus the project's import/boot smoke if one is established. Exception — documentation-only changes: skip the suite; a reviewer glance (or self-check of rendered content and links) suffices, and the report states this exception was used.
    - If the change adds or modifies a guard/lint/test-that-must-catch: a **positive control is mandatory** — inject a known violation → red (exit code) → revert → green, logged with the actual commands and outputs. A guard merged without a red reproduction is not done ("초록불 lint 는 없는 lint 보다 나쁘다").
-   - For a multi-file batch: ONE `code-reviewer` pass over the final diff before calling it done (single file, a NIT-level tweak: reviewer optional).
+   - For a multi-file batch: ONE `code-reviewer` pass over the final diff before calling it done (single file, a NIT-level tweak: reviewer optional). **이것은 게이트다** — 리뷰어 미실행 상태로 done·PASS 를 선언하지 않는다. 실행하지 않았다면 그 사유를 로그 종결 항목에 명시하고 verdict 를 보류한다.
 4. If this quick run completes a quick-routed GOAL (state.json goal whose route was set to quick by `/harness:goal`): measure EVERY SC in GOAL.md with its stated command, append a `verify` log entry with the values **plus the goal 결산** (`git diff --shortstat <base_ref>..HEAD`, commit count, dispatch count, observed subagent tokens — same fields as the full loop's verdict entry; retro mines these for ceremony-vs-diff disproportion), set state.json `verify` = {verdict, date} and `phase` = "done" on PASS. This closure is the command/coordinator's job — never the dev agent's.
+   **종결 체크리스트(전건 기재 필수)**: SC 전건 측정값 · 결산 · **code-reviewer verdict(또는 미실행 사유)** · **독립성** — 코드를 직접 수정한 주체는 그 수정에 대한 PASS 판정을 스스로 내리지 않는다(직접 수정이 있었다면 `code-reviewer` 또는 `qa` 중 최소 1인을 그 diff 에 붙인다).
 
 ## 4. Report (Korean)
 What changed (file paths), test + positive-control evidence (actual values/exit codes), reviewer verdict if dispatched, wiki insights added. Append a final result entry to today's log.

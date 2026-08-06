@@ -10,6 +10,8 @@ Respond in Korean; write all .harness/ files in Korean (code identifiers, file p
 ## 1. Interview (one message, short)
 Ask in Korean, in a single message, only what "$ARGUMENTS" does not already answer (max 5):
 1. 성공 기준 — how will we MEASURE done? Push for verifiable checks ("p95 < 200ms", "이 3개 API가 통합 테스트 통과"), not feelings.
+   각 기준은 **판별력 2문항**을 통과해야 GOAL 에 들어간다: (a) **이 기준은 지금(수정 전) 거짓인가** — 참이면 vacuous 이므로 교체한다. 로그 레벨·문자열·상수를 인용하는 기준은 그 원문 줄을 열어 확인한다(예: "WARNING 0건"이라 썼는데 실제 호출이 `logger.info` 면 수정 전에도 통과한다). (b) **이 측정이 대상 기전을 실제로 통과하는가** — 같은 값이 다른 경로로도 나올 수 있으면(고정 문구·캐시·조기 반환) 경로 식별 증거를 기준에 함께 적는다.
+   (a) 를 착수 시점에 확정할 수 없으면 기준 문장에 "**수정 전 red 실측을 같은 태스크에 포함**"을 명시한다 — build 단계의 양성 대조 의무와 같은 규율을 기준 자신에게도 건다.
 2. 제약 — tech stack constraints, must-not-change, infra/budget limits.
 3. 기한 — deadline or time budget.
 4. 범위 제외 — explicitly OUT of scope.
