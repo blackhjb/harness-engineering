@@ -9,8 +9,13 @@ Respond in Korean; write all .harness/ files in Korean (code identifiers, file p
 
 ## 1. Interview (one message, short)
 Ask in Korean, in ONE message. **quick 후보면 2문항만**(성공 기준 · 범위 제외); 표준 루프면 최대 4문항(+ 제약 · 기한). 이미 "$ARGUMENTS" 가 답한 것은 묻지 않는다.
-1. 성공 기준 — how will we MEASURE done? 검증 가능한 값으로("p95 < 200ms"), 느낌 말고. 각 기준은 **수정 전 거짓이어야** 한다(참이면 vacuous — 인용한 로그 레벨·문자열·상수는 원문 줄을 열어 확인). 같은 값이 다른 경로로도 나올 수 있으면 경로 식별 증거를 함께 적고, 착수 시점에 확정 불가면 "수정 전 red 실측을 같은 태스크에 포함"을 명시한다.
+1. 성공 기준 — how will we MEASURE done? 검증 가능한 값으로("p95 < 200ms"), 느낌 말고. 각 기준은 **수정 전 거짓이어야** 한다(참이면 vacuous — 인용한 로그 레벨·문자열·상수는 원문 줄을 열어 확인). 같은 값이 다른 경로로도 나올 수 있으면 경로 식별 증거를 함께 적고, 착수 시점에 확정 불가면 "수정 전 red 실측을 같은 태스크에 포함"을 명시한다. **단 이 유예는 확인 자체가 비쌀 때만이다** — grep·명령 1회로 1분 안에 답이 나오면 지금 돌린다. 유예를 기본값으로 쓰면 이미 green 인 SC 를 세워 두고 그걸 발견하는 데 조사 한 전선을 통째로 쓰게 된다(실측: SC 1건이 analyst 세션 1개 ≈ 97분).
 2. 범위 제외 — explicitly OUT of scope.  3. 제약 · 4. 기한 (표준 루프만)
+
+**SC 표를 확정하기 전 두 줄 점검 (범위 팽창은 실행이 아니라 여기서 일어난다):**
+- **출처** — SC 각 행 옆에 그것을 요구한 근거를 한 단어로: `사용자` / `파생`(사용자 SC 를 달성하려면 필연인 것) / `제안`(내가 좋겠다고 판단한 것). **`제안` 이 1건이라도 있으면 착수 전에 사용자에게 그 행만 따로 확인**한다 — 검증만 요청받은 goal 에 내가 리팩터 SC 를 얹으면 산출물은 6커밋인데 비용은 몇 시간이 된다(실측: 검증 3항 요청 → SC 5행 중 2행이 `제안`, 디스패치 4건·서브에이전트 3.9시간).
+- **달성 가능성** — 각 SC 를 §범위 제외와 나란히 읽는다. 제외된 수단 없이는 목표치에 도달할 수 없는 SC 는 **모순**이다; 목표치를 「판정·사유 등록으로 닫는다」로 낮추거나 그 제외를 푼다. 분해 단계까지 끌고 가면 dev 가 불가능한 과제를 받는다(실측: 축별 재편을 배제해 놓고 축 분산 0 을 목표로 건 SC).
+
 Wait for the answers before writing anything. If a success criterion comes back vague, restate it measurably once ("이렇게 바꾸면 측정 가능합니다: ... 맞습니까?") and proceed on confirmation.
 
 ## 2. Size triage (규모 비례 라우팅 — do not skip)
@@ -21,7 +26,8 @@ Classify the goal's size BEFORE scaffolding. **The change surface MUST be grep-m
   - breaking = 필드 제거·rename·타입/의미 변경·필수 요청 필드/인자 추가. **추가형**(새 응답 필드 · 기본값 있는 kwarg · 구 소비자가 무시하는 enum 값)은 quick 을 탈락시키지 않는다 — 둘 중 어느 쪽인지 **구 소비자 동작 근거와 함께 1줄**로 명시한다.
   → Still scaffold per section 4, but leave analysis.md/prd.md/design.md/plan.md as stubs marked "해당 없음 — quick 경로", record the route + one-line rationale in GOAL.md (승인 섹션) and the daily log, and hand off to `/harness:quick` (one batch, or one invocation per SC cluster) instead of `/harness:analyze`. Verification rigor is NOT reduced — quick's proportional-verify rules still apply in full.
 - **표준 루프** — anything else, or any doubt that a wrong guess is expensive → `/harness:analyze` as usual.
-- **판단 불가** — run `/harness:analyze` first; analysis.md's 권고 MUST then name the route (quick vs plan) explicitly, and the goal proceeds on that recommendation.
+- **판단 불가** — run `/harness:analyze` first; analysis.md's 권고 MUST then name the route (quick vs plan) explicitly, and the goal proceeds on that recommendation. 이때 그 analyze 는 **규모를 재는 패스**이지 증명하는 패스가 아니다 — GOAL 에 그렇게 적고, analyze 커맨드의 질문 크기 상한을 그대로 적용한다.
+  - **감사·검증형 goal 의 함정**: 산출물이 「읽고 판정하기」인 goal 은 바뀔 파일을 착수 시점에 알 수 없어, 자연스럽게 **읽을 파일 수**를 세게 된다. 그건 change surface 가 아니다. 승인 섹션에 적은 수가 둘 중 어느 쪽인지 **한 단어로 명시**하고(`read-surface` / `change-surface`), read-surface 로 표준 루프를 골랐다면 그 사실이 곧 「아직 규모 미상」이라는 뜻이므로 위 규모 패스 규칙이 적용된다(실측: read 31파일로 표준 루프 → 실제 change 는 quick 크기).
 
 The numeric thresholds above (≤8 files / ≤150 lines) are **retro-tunable defaults, not constants**: retro mines each goal's 결산 (diff vs orchestration cost, logged by verify/quick closure) and proposes threshold adjustments through the bounded harness-edit channel; a project may also carry a sharper local rule as a `cost`-scope wiki node — when one exists, it wins over these defaults.
 
