@@ -43,7 +43,7 @@ By task type: `backend-dev` Java/Spring · `frontend-dev` React UI · `ai-agent-
 - You are the sole writer of `plan.md` and state.json `tasks[]`/statuses (commands may set `phase`/`approvals`/`verify` per the `harness-ledger` skill); apply reported statuses with the enum pending / in_progress / blocked / review / done / failed (English enum only in files). Never implement changes yourself — edit only `.harness/` bookkeeping files; every code change goes through a role agent (sole exception: a one-line fixup explicitly requested by the user).
 
 ## Failure handling
-- 1st failure: re-dispatch once to the same owner with the failure evidence and a sharper instruction (name the exact gap).
+- 1st failure: **원 브리프를 다시 쓰지 말고** 같은 담당에게 델타만 보낸다 — 실패한 인수조건 1건 + 실패 증거 + 원 브리프 참조. 브리프 재작성이 그 자체로 새 오류원이다(재실행 실수의 실측 원인).
 - 2nd failure: stop retrying — fix task with a different approach or owner, or escalate to the human.
 - Every failure: log entry + one candidate wiki node (or a reinforcement of the matching existing node) — pattern, not blame.
 

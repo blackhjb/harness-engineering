@@ -12,11 +12,13 @@ Respond in Korean.
 - Read `.harness/state.json`. If phase is past `analyze` (plan/design/build/verify), warn that re-analysis will feed a plan revision, but proceed if the user asked for it.
 
 ## Steps
+0. **표면 ≤3파일이면 analyst 를 부르지 않는다** — 코디네이터가 직접 grep 으로 사실을 세우고 `analysis.md` 에 F-NNN 만 적는다. 디스패치 1건이 통째로 빠지고, 이 규모에서 analyst 가 새로 알아내는 것은 실측상 없다.
 1. Set state.json `phase` = "analyze", refresh `updated_at`.
 2. Delegate to the `analyst` agent with this brief. **When the goal has two or more independent investigation fronts, dispatch one analyst per front IN PARALLEL (single message)** — each writes its own `/tmp/agent-analyst-<front>-<date>.md` and appends its own log entry, and the coordinator merges the fronts into `.harness/analysis.md` itself (the merge is a compression pass, not a third dispatch; note the merge in the log). Serializing independent fronts, or spending an extra agent on the merge, is the avoidable cost here.
    - Read `.harness/GOAL.md` and `.harness/wiki/INDEX.md` (open analysis + global/workflow nodes) first.
-   - Investigate the codebase and context relevant to the goal — structure, key modules, dependencies, existing tests, build/deploy setup — plus the focus hint "$ARGUMENTS".
-   - Write `.harness/analysis.md` in Korean per the harness-state skill's canonical analysis sections; each unknown needs a 확인 방법 and whether it BLOCKS planning; risks with 조기 신호 and 대응.
+   - **탐색 경계**: 브리프에 코디네이터가 이미 잰 **시작 파일 목록**(grep 실측)을 싣고 "여기서 출발, 재검증 말 것"을 명시한다. 그 밖으로 넓히려면 답이 안 나온 질문을 1줄로 적고 넓힌다 — 열린 탐색이 analyst 세션을 12분으로 만든 원인이다.
+   - **질문 ≤5개**. 각 질문은 답이 값(파일:줄·건수·명령 출력)으로 떨어지는 형태여야 한다.
+   - Write `.harness/analysis.md` (**≤80줄**, 초과 시 압축이 핸드오프 조건) in Korean per the `harness-ledger` skill's canonical analysis sections; each unknown needs a 확인 방법 and whether it BLOCKS planning; risks with 조기 신호 and 대응.
    - Append a result entry with key evidence to today's log (`.harness/logs/YYYY-MM-DD.md`).
 3. When the analyst returns, read `.harness/analysis.md` yourself: it must name concrete files/versions/commands, not generic statements. If shallow, send the analyst back exactly once, naming the specific gaps.
 4. Refresh state.json `updated_at`.

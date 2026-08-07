@@ -14,6 +14,7 @@ Respond in Korean. All artifacts in Korean per the harness-state skill.
 Set state.json `phase` = "plan". **planner 를 부르지 않는 것이 기본값이다** — GOAL.md 의 SC 표가 정본이고, prd 고유 catch 는 실측 0건이다. 다음 중 하나가 실제로 필요할 때만 planner 를 디스패치한다: 신규 사용자 스토리 · 우선순위 절단 · 릴리스 슬라이싱. 작성하는 경우 GOAL·prd·design 이 같은 명제를 다르게 말하지 않는지 승인 전에 대조한다.
 
 ## Stage 2 — Design (architect, + product-designer when user-facing)
+**표면 ≤3파일 또는 신규 ADR 0건이면 architect 를 부르지 않는다** — 코디네이터가 `design.md` §5·§8·§11 만 직접 쓴다. 그 규모에서 12섹션은 소비자가 없다.
 Set state.json `phase` = "design". Determine from prd.md whether the work has user-facing UI.
 - Delegate to `architect`: read GOAL/wiki-INDEX/analysis/prd; write `.harness/design.md` per the harness-state skill's canonical 12 sections — all except `8. UX 설계`.
 - **소규모 축약(measured surface ≤8 files)**: write §5 API 계약 · §8 UX 설계 · §11 ADR in full and keep the remaining sections to one line each (or "해당 없음"). Those three are what implementers and reviewers actually read back; a full 12-section expansion on a 5-file change is cost with no consumer (incident 2026-08-06: §1~§4·§6·§9·§10 were written, compressed to fit the 150-line cap, and never referenced by a build task).
