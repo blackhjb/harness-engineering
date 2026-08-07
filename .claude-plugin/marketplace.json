@@ -8,8 +8,8 @@
     {
       "name": "harness",
       "displayName": "Hunter Harness",
-      "version": "1.2.0",
-      "description": "Goal-driven multi-agent development harness for a solo developer: 12 role agents (PM to SRE), 8 workflow commands (GOAL->analyze->plan->build->verify->retro, plus a lightweight quick path), file-based persistent state (.harness/), and a self-improving retro loop.",
+      "version": "1.3.0",
+      "description": "Goal-driven multi-agent development harness for a solo developer: 12 role agents (PM to SRE), 8 workflow commands (GOAL->analyze->plan->build->verify->retro, plus a lightweight quick path), 11 skills selected by index and read section-by-section, file-based persistent state (.harness/), and a self-improving retro loop.",
       "author": {
         "name": "hunter.baek",
         "email": "hunter.baek@kakaohealthcare.com"

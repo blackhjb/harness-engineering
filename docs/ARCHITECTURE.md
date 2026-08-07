@@ -33,18 +33,21 @@ Lilian Weng의 "Harness Engineering for Self-Improvement"(2026-07)의 핵심 패
 | sre | 사용자가 서비스 운영까지 담당. 배포·롤백·시크릿·모니터링은 개발과 다른 사고방식이 필요하고, 파괴적 작업 승인 게이트의 소유자 |
 | harness-improver | 기사 주제인 self-improvement 자체. 이게 없으면 하네스가 정적 설정에 머무름. ACE 큐레이터 + Self-Harness 제안자 역할 |
 
-## 스킬 9종
+## 스킬 11종 (레시피북)
 
-harness-state(상태 계약·템플릿), co-creation(핵심 분기점 질문 프로토콜), spring-boot-dev, frontend-dev,
-ai-agent-dev, data-pipeline, mlops-gcp, testing-qa, product-spec.
-스킬 = 재사용 도메인 지식, 에이전트 = 역할·판단. 지식을 스킬로 분리해 에이전트 프롬프트 비대화를 방지.
+공용: harness-state(모든 디스패치가 읽는 계약), harness-ledger(state.json·문서 정본 — orchestrator·커맨드·improver 전용), co-creation.
+스택: spring-boot-dev, python-service, frontend-dev, ai-agent-dev, data-pipeline, mlops-gcp.
+방법: testing-qa, product-spec.
+
+스킬 = 재사용 도메인 지식, 에이전트 = 역할·판단. **선택은 description(인덱스 한 줄)으로, 읽기는 섹션 단위로** —
+`grep -n '^## '` 로 목차를 얻고 필요한 레시피만 연다. 1 디스패치 = 1 스택 스킬.
 
 ## 컨텍스트 예산
 
 학습은 무한히 쌓지 않는다. 지식은 `.harness/wiki/` 노드로 분해되고(active ≤ 40 · scope당 ≤ 8 · 노드 본문 ≤ 10줄 · INDEX ≤ 80줄),
 에이전트는 INDEX 1줄 훅만 상시 읽고 자기 scope + global/workflow 노드만 연다. 은퇴 노드는 위키 안에 tombstone 으로 남고(INDEX 에서 제외),
 오래된 로그는 `logs/archive/` 콜드 스토리지로 이동해 에이전트가 읽지 않는다.
-디스패치 1회 고정비는 약 6~10K 입력 토큰(에이전트 프롬프트 + 스킬 + `.harness/` 문서).
+디스패치 1회 읽기 예산은 **≤3,500단어**(에이전트 + 스택 스킬 1개 + harness-state). 1.3.0 실측: 2,053~3,523단어.
 작은 작업은 경량 경로 `/harness:quick`(디스패치 1회)으로 전체 루프 비용을 생략한다.
 
 **설계 결정 (2026-08-04, 위키 전환)**: 초기 구현은 평면 `playbook.md`(전 에이전트 통째 필독) + `retro/inbox.md`(산문 백로그)였다.
@@ -62,8 +65,8 @@ inbox 는 candidate 노드로 대체되어 관찰→승격이 같은 자료구�
 
 ## Codex 호환
 
-- 원본은 `plugins/harness/` 하나. Codex 쪽 산출물 — `.agents/skills/` 심링크 9종, `cmd-*` 커맨드 래퍼 스킬 8종, `.codex/agents/` 에이전트 TOML 12종 — 은 전부 `tools/sync-codex.sh`가 생성한다. 생성물은 수동 편집 금지, 수정은 원본에서 하고 스크립트를 재실행.
-- 공통 분모는 Anthropic Agent Skills 표준: Codex(2025-12+)가 `$REPO_ROOT/.agents/skills`를 네이티브로 발견하므로 스킬 9종은 심링크만으로 두 도구에 공유된다.
+- 원본은 `plugins/harness/` 하나. Codex 쪽 산출물 — `.agents/skills/` 심링크 11종, `cmd-*` 커맨드 래퍼 스킬 8종, `.codex/agents/` 에이전트 TOML 12종 — 은 전부 `tools/sync-codex.sh`가 생성한다. 생성물은 수동 편집 금지, 수정은 원본에서 하고 스크립트를 재실행.
+- 공통 분모는 Anthropic Agent Skills 표준: Codex(2025-12+)가 `$REPO_ROOT/.agents/skills`를 네이티브로 발견하므로 스킬 11종은 심링크만으로 두 도구에 공유된다.
 - Claude 커맨드는 Codex에서 `cmd-*` 래퍼 스킬(`$cmd-goal` 호출)로, 서브에이전트는 동명 TOML로 매핑된다. Codex는 자동 위임이 없어 AGENTS.md가 명시적 스폰 규칙과 `.harness/` 계약 요약을 안내한다.
 
 ## 주요 게이트 (사람 개입 지점)
