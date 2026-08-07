@@ -1,6 +1,6 @@
 ---
 name: harness-state
-description: 모든 에이전트의 공용 계약 — .harness/ 디렉터리 맵, 공용 디스패치 프로토콜, 위키 노드 형식·수명·상한, 로그 형식, 컨텍스트 예산. .harness/ 아래를 읽거나 쓰는 모든 에이전트가 읽는다. state.json 스키마·문서별 정본 섹션·페이즈 수명주기는 `harness-ledger` 가 소유한다.
+description: 모든 에이전트가 매 디스패치에 여는 공용 계약 — 디렉터리 맵·공용 프로토콜·위키 형식·로그 형식·읽기 예산.
 ---
 
 # harness-state: the .harness/ directory contract
@@ -101,6 +101,7 @@ Event types: `session-start`, `decision`, `dispatch`, `result`, `failure`, `gate
 
 The harness must get smarter WITHOUT per-task context growing; learning lives in the fixed-budget wiki (caps above).
 
+0-a. **스킬은 통째로 읽지 않는다** — `grep -n '^## ' <스킬>` 로 목차를 얻고 필요한 섹션만 offset 으로 읽는다. 스킬은 레시피북이고 한 태스크에 필요한 레시피는 1~2개다.
 0. **1회 디스패치 읽기 예산 ≤3,500단어** — 에이전트 파일 + 도메인 스킬 **1개** + 이 공용 스킬. 초과 시 절단 순서: ①사건 서사를 위키 노드·로그 날짜 참조로 강등 ②1디스패치 1스킬(둘째 스킬 금지) ③스킬을 청중 기준 분할 ④태스크 분할. **예외는 `orchestrator` 하나** — 장부 소유자라 `harness-ledger` 를 함께 읽는다.
 1. **Wiki reads are INDEX-driven**: read `wiki/INDEX.md` (≤80 lines), open only own-scope + `global`/`workflow` nodes (≤10 lines each). Never bulk-read `wiki/`; never quote other scopes' nodes into outputs.
 2. **Node text stays compressed**: reinforcement sharpens wording, it never appends narrative. Incident stories belong in the daily log, referenced from the node by date.

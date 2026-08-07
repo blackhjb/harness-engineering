@@ -1,6 +1,6 @@
 ---
 name: harness-ledger
-description: 하네스 장부 계약 — state.json 스키마와 owner enum, 문서별 정본 섹션 목록, 페이즈·태스크 수명주기, 위키 노드 마이그레이션. orchestrator·커맨드·harness-improver 만 읽는다. dev·qa·review 에이전트는 harness-state 만 읽으면 된다.
+description: state.json·plan.md·문서 정본 섹션을 쓸 때만 연다(orchestrator·커맨드·improver 전용). dev·qa·review 는 열 필요 없다.
 ---
 
 # harness-ledger: 장부와 문서 계약

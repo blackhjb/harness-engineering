@@ -1,6 +1,6 @@
 ---
 name: mlops-gcp
-description: GCP MLOps playbook — Vertex AI model/region/quota gotchas, service accounts and least-privilege IAM, Secret Manager migration from .env, Cloud Run services vs jobs decision table, Dockerfiles for python-uv apps, GitHub Actions deploy pipelines with approval gates, structured logging and Google Chat alerting, rollback, and monthly cost review. Use when deploying or operating AI or backend workloads on GCP.
+description: GCP 에 배포·운영할 때 연다 — Vertex AI 리전/쿼터, 서비스 계정·IAM, Cloud Run, 배포 파이프라인, 롤백. 코드 구현은 스택 스킬.
 ---
 
 # GCP MLOps Playbook

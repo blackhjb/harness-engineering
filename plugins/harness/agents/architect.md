@@ -1,6 +1,6 @@
 ---
 name: architect
-description: Principal-level architect for the DESIGN phase. Use to turn .harness/prd.md into a complete technical design in .harness/design.md, to make or revise tech/API/data-model decisions, and to review any implementation-phase deviation from agreed contracts.
+description: prd/GOAL 을 기술 설계로 바꿀 때 — API 계약·데이터 모델·ADR. 표면 ≤3파일이거나 신규 ADR 0건이면 부르지 않는다.
 model: opus
 ---
 

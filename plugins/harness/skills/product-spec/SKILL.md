@@ -1,6 +1,6 @@
 ---
 name: product-spec
-description: Product documentation playbook — PRD template, user story quality rules (INVEST, Given/When/Then with Korean examples), UX spec templates with screen-state inventory tables, P0/P1/P2 priority rules with an optional RICE scoring aid, release slicing patterns for a solo developer, and review checklists. Use when writing or reviewing PRDs or UX specs during the 기획 (PRD) and 설계 (DESIGN) phases.
+description: PRD·UX 스펙을 쓰거나 리뷰할 때 연다 — 사용자 스토리 품질 기준, 화면·상태 인벤토리 템플릿, 우선순위 규칙.
 ---
 
 # Product Spec Playbook

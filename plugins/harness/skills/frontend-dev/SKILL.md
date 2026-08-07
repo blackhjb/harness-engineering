@@ -1,6 +1,6 @@
 ---
 name: frontend-dev
-description: React + TypeScript implementation playbook for the harness — feature-folder structure, typed API client pattern, server/client state rules, forms, styling tokens, per-screen state checklist, performance basics, and testing recipes. Use for any frontend implementation, refactor, or code-review work (구현/검증 phases, or whenever writing or reviewing React/TS code).
+description: React/TS 화면을 구현·리뷰할 때 연다 — 폴더 구조·서버상태 대 클라이언트상태·폼·테스트 레시피. 서버 계약은 design.md 가 정본.
 ---
 
 # Frontend Dev Playbook (React + TypeScript)

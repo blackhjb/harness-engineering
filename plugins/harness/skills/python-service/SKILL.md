@@ -1,6 +1,6 @@
 ---
 name: python-service
-description: Python 서비스(FastAPI 등) 구현·테스트 규율 — 계층 구조, 의존성 주입, 경계 검증, pytest 3층 전략, 마이그레이션, 관측. backend-dev 가 Python 스택 태스크를 맡을 때 읽는 스택 스킬. Java 는 spring-boot-dev, 배치·ETL 은 data-pipeline 이 담당한다.
+description: Python 서비스(FastAPI 등) 코드를 쓸 때 연다 — 계층 경계·경계 입력 검증·pytest 3층·마이그레이션. LLM 프롬프트는 ai-agent-dev, 배치는 data-pipeline.
 ---
 
 # python-service: Python 서비스 구현 규율

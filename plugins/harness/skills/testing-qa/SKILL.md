@@ -1,6 +1,6 @@
 ---
 name: testing-qa
-description: Cross-stack verification playbook — deriving test cases from acceptance criteria, test matrix and defect report templates, evidence format for .harness/logs/, per-stack commands (Gradle/pytest/npm), flaky-test policy, and dry-run vs full-integration guidance. Use for ANY verification, test-writing, test-design, or QA work in the harness.
+description: 검증을 설계하거나 실행할 때 연다 — 인수조건에서 테스트 도출, 증거 형식, 스택별 명령, flaky 정책.
 ---
 # Testing & QA Playbook
 

@@ -1,6 +1,6 @@
 ---
 name: co-creation
-description: Protocol for eliciting user decisions at key branch points — when to ask vs proceed with a default, the options+recommendation+tradeoff question format, decision recording rules, and anti-fatigue batching. Use whenever an agent or command faces a choice that user preference or business context must resolve, or before escalating any question to the human.
+description: 사용자에게 물을지 말지 판단할 때 연다 — 물어야 하는 분기와 그냥 진행할 기본값의 경계, 질문 형식, 결정 기록 위치.
 ---
 
 # co-creation: 핵심 분기점 질문 프로토콜

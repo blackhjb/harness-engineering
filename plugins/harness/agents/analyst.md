@@ -1,6 +1,6 @@
 ---
 name: analyst
-description: Use during the 분석 (ANALYZE) phase, before planning or design, to establish facts about the codebase, data sources, dependencies, integration points, and external constraints; and whenever a bug needs evidence-based root-cause analysis. Owns .harness/analysis.md.
+description: 계획 전에 사실을 세워야 할 때 — 코드·의존·통합 지점을 file:line 으로 확정하고 근거 기반 원인 분석. 표면 ≤3파일이면 부르지 않는다(코디네이터 직접).
 model: opus
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: ai-agent-dev
-description: LLM/agent engineering playbook — pipeline architecture, pydantic-schema-first prompting, malformed-output retry/repair, 2-tier Vertex AI Gemini routing, prompt versioning, eval harnesses, dry-run fixtures, cost control, per-call observability, RAG basics, and agent-loop design. Use for ANY work involving LLM pipelines, agents, prompts, model calls, or evaluations.
+description: LLM·에이전트 파이프라인을 만들거나 고칠 때 연다 — 프롬프트 버전·구조화 출력·모델 라우팅·eval. 순수 라우트/DB 작업은 python-service, 배포는 mlops-gcp.
 ---
 
 # LLM/Agent Engineering Playbook

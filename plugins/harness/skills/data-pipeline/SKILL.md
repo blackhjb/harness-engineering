@@ -1,6 +1,6 @@
 ---
 name: data-pipeline
-description: Data pipeline playbook — idempotent batch job design, date parameterization and backfill, KST timezone handling, raw/processed layering, incremental vs full sync, failure isolation with partial-success reporting, data quality checks, repo-as-knowledge-base storage, and Cloud Scheduler + Cloud Run Jobs scheduling. Use for ANY data collection, ETL, batch pipeline, or scheduled job work.
+description: 배치·ETL·스케줄 잡을 만들 때 연다 — 멱등 설계·날짜 파라미터·백필·부분 실패 격리. 상시 서비스 API 는 python-service.
 ---
 
 # Data Pipeline Playbook

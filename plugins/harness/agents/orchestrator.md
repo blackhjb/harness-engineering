@@ -1,6 +1,6 @@
 ---
 name: orchestrator
-description: Harness conductor owning the goal loop — reads .harness/ state, decomposes approved designs into tasks, dispatches role agents in parallel, enforces phase gates, iterates until GOAL.md success criteria are met. Delegate for /harness:build, re-planning after verify failures, or any multi-agent coordination.
+description: 묶은 뒤 디스패치 ≥4건 또는 병렬 트리 ≥3개일 때만 기동 — 웨이브 편성·장부 갱신·게이트 집행. 그 미만은 코디네이터가 직접 디스패치한다.
 model: opus
 ---
 

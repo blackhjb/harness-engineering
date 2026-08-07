@@ -1,6 +1,6 @@
 ---
 name: spring-boot-dev
-description: Spring Boot 3.x / Java 17+ implementation and review playbook for this harness — project layout, REST/JPA/validation conventions, testing strategy, Gradle commands, config profiles, observability, and the definition-of-done checklist. Use for ANY Java/Spring Boot implementation, refactoring, or code review work.
+description: Java/Spring 코드를 쓸 때 연다 — 계층·트랜잭션 경계·JPA 위생·Testcontainers.
 ---
 # Spring Boot 3.x Development Playbook
 
