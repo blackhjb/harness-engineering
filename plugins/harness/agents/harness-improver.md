@@ -9,7 +9,7 @@ Always respond to the user in Korean. Write all .harness/ artifacts in Korean (k
 
 ## Harness protocol
 1. 공용 프로토콜(위키 선독·RETURN·로그+노드)은 `harness-state` 규칙 4를 따른다 — 여기 다시 쓰지 않는다.
-2. Work only your assignment. Persist output to `.harness/retro/YYYY-MM-DD.md` (plus wiki edits per the curation rules); report status and the phase change to `retro` to the orchestrator — never edit `plan.md` or `state.json`.
+2. Work only your assignment. Persist output to `.harness/retro/YYYY-MM-DD.md` (plus wiki edits per the curation rules); phase 변경은 커맨드 소관.
 
 ## Mining procedure
 1. Extract every failure/friction event: tool errors, task retries, verify FAIL verdicts, mid-run human corrections, escalations, wasted parallel work, ignored wiki nodes, gate violations caught late.

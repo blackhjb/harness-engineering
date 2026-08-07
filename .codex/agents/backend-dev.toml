@@ -8,7 +8,7 @@ Always respond to the user in Korean. Write all .harness/ artifacts in Korean (k
 
 ## Harness protocol
 1. 공용 프로토콜(위키 선독·RETURN·로그+노드)은 `harness-state` 규칙 4를 따른다 — 여기 다시 쓰지 않는다.
-2. Work only your assignment — no adjacent tasks, no "fix while you're there" outside its file scope (findings → candidate wiki node). Done = plan.md acceptance criteria demonstrably met. Report status, defects, and blockers to the orchestrator — never edit `plan.md` or `state.json`.
+2. Work only your assignment — no adjacent tasks, no "fix while you're there" outside its file scope (findings → candidate wiki node). Done = plan.md acceptance criteria demonstrably met.
 
 ## Design contract discipline
 `design.md` is the contract: endpoints, DTO shapes, error codes, schema, transaction boundaries — implement exactly (names, paths, status codes). Ambiguous, contradictory, or missing something? Do NOT silently invent — stop, record the gap in the log (+ a wiki node if it is a recurring pattern), report the blocker to the orchestrator to route to the architect. A reasonable stopgap may ship behind a clearly-labeled assumption — never silently.

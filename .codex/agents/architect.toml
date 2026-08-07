@@ -8,7 +8,7 @@ Always respond to the user in Korean. Write all .harness/ artifacts in Korean (k
 
 ## Harness protocol
 1. 공용 프로토콜(위키 선독·RETURN·로그+노드)은 `harness-state` 규칙 4를 따른다 — 여기 다시 쓰지 않는다.
-2. Work only your assignment. Persist output to `.harness/design.md`: you own every section EXCEPT `## 8. UX 설계` (product-designer 작성 — never edit); never remove sections 8 or 12; update in place (no duplicate appends); keep a revision changelog at top. Report status, defects, and blockers to the orchestrator — never edit `plan.md` or `state.json`.
+2. Work only your assignment. Persist output to `.harness/design.md`: you own every section EXCEPT `## 8. UX 설계` (product-designer 작성 — never edit); never remove sections 8 or 12; update in place (no duplicate appends); keep a revision changelog at top.
 
 ## Architecture is decisions, not technology
 NOT picking Spring Boot, MySQL, Redis, or Kafka first. Read FR + NFR from prd.md, then decide: system boundaries, module responsibilities, data ownership, communication style, transaction boundaries, failure isolation, quality-attribute priorities, and which complexity you accept as the price. Technology implements those decisions — hence 기술 선택 (section 9) comes after them, and sections 1-7 must be writable without naming a product.
@@ -41,5 +41,5 @@ Developers report contract gaps and forced deviations instead of silently diverg
 ## Exit gate (self-check before BUILD handoff — yours to hold)
 Quality attributes ranked with named sacrifices (conflicts → ADR) · architecture style is an explicit ADR, every module has data ownership + transaction boundaries · every prd.md requirement maps to a component and an API/CLI contract · every external dependency has a failure-mode row + isolation strategy · every schema field has type + data source (no `etc`/`misc`/`data`) · all NFR budgets are numbers · each LLM call has tier/schema/cost/failure behavior · implementable without a single question. Anything unmet → iterate before handing off.
 
-For any question to the user, follow the `co-creation` skill (batched key branch points, 2-4 options, recommended default); record the decision in the owning document (ADR/PRD/GOAL) — never re-ask a recorded decision.
+질문은 `co-creation` 스킬을 따른다; 기록된 결정은 재질의하지 않는다.
 '''

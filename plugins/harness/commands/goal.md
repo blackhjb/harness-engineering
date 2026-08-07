@@ -3,59 +3,54 @@ description: Set or reset the harness goal — brief interview, then scaffold .h
 argument-hint: "<one-line goal>"
 ---
 
-The user wants to set a harness goal: $ARGUMENTS
+사용자가 하네스 goal 을 설정하려 한다: $ARGUMENTS
 
-Respond in Korean; write all .harness/ files in Korean (code identifiers, file paths, technical terms as-is). Consult the `harness-ledger` skill; scaffold files directly from its canonical section lists.
+한국어로 응답하고 모든 `.harness/` 파일을 한국어로 쓴다(코드 식별자·경로·기술 용어는 원문). 문서 스캐폴드는 `harness-ledger` 스킬의 정본 섹션 목록에서 직접 생성한다.
 
-## 1. Interview (one message, short)
-Ask in Korean, in ONE message. **quick 후보면 2문항만**(성공 기준 · 범위 제외); 표준 루프면 최대 4문항(+ 제약 · 기한). 이미 "$ARGUMENTS" 가 답한 것은 묻지 않는다.
-1. 성공 기준 — how will we MEASURE done? 검증 가능한 값으로("p95 < 200ms"), 느낌 말고. 각 기준은 **수정 전 거짓이어야** 한다(참이면 vacuous — 인용한 로그 레벨·문자열·상수는 원문 줄을 열어 확인). 같은 값이 다른 경로로도 나올 수 있으면 경로 식별 증거를 함께 적고, 착수 시점에 확정 불가면 "수정 전 red 실측을 같은 태스크에 포함"을 명시한다. **단 이 유예는 확인 자체가 비쌀 때만이다** — grep·명령 1회로 1분 안에 답이 나오면 지금 돌린다. 유예를 기본값으로 쓰면 이미 green 인 SC 를 세워 두고 그걸 발견하는 데 조사 한 전선을 통째로 쓰게 된다(실측: SC 1건이 analyst 세션 1개 ≈ 97분).
-2. 범위 제외 — explicitly OUT of scope.  3. 제약 · 4. 기한 (표준 루프만)
+## 1. 인터뷰 (한 메시지, 짧게)
+한 메시지로 묻는다. **quick 후보면 2문항만**(성공 기준 · 범위 제외); 표준 루프면 최대 4문항(+ 제약 · 기한). 이미 "$ARGUMENTS" 가 답한 것은 묻지 않는다. 성공 기준이 모호하게 오면 측정 가능하게 한 번 재진술하고("이렇게 바꾸면 측정 가능합니다: ... 맞습니까?") 확인 후 진행한다.
 
-**SC 표를 확정하기 전 두 줄 점검 (범위 팽창은 실행이 아니라 여기서 일어난다):**
-- **출처** — SC 각 행 옆에 그것을 요구한 근거를 한 단어로: `사용자` / `파생`(사용자 SC 를 달성하려면 필연인 것) / `제안`(내가 좋겠다고 판단한 것). **`제안` 이 1건이라도 있으면 착수 전에 사용자에게 그 행만 따로 확인**한다 — 검증만 요청받은 goal 에 내가 리팩터 SC 를 얹으면 산출물은 6커밋인데 비용은 몇 시간이 된다(실측: 검증 3항 요청 → SC 5행 중 2행이 `제안`, 디스패치 4건·서브에이전트 3.9시간).
-- **달성 가능성** — 각 SC 를 §범위 제외와 나란히 읽는다. 제외된 수단 없이는 목표치에 도달할 수 없는 SC 는 **모순**이다; 목표치를 「판정·사유 등록으로 닫는다」로 낮추거나 그 제외를 푼다. 분해 단계까지 끌고 가면 dev 가 불가능한 과제를 받는다(실측: 축별 재편을 배제해 놓고 축 분산 0 을 목표로 건 SC).
+**SC 표 확정 체크리스트 — 행마다 5축 전부.** 범위 팽창과 vacuous SC 는 실행이 아니라 이 표를 쓰는 순간 태어난다 (로그 2026-08-07):
+1. **측정** — 검증 가능한 값("p95 < 200ms"), 느낌 금지.
+2. **수정 전 거짓** — 참이면 vacuous; 인용한 로그 레벨·문자열·상수는 원문 줄을 열어 확인. grep·명령 1회로 1분 안에 확인되면 **지금 돌린다** — "수정 전 red 실측을 태스크에 포함" 유예는 확인이 실제로 비쌀 때만.
+3. **경로 식별** — 같은 값이 다른 경로로도 나올 수 있으면 경로 식별 증거를 함께 적는다.
+4. **출처** — 행마다 한 단어: `사용자` / `파생`(사용자 SC 달성에 필연) / `제안`(내 판단). `제안` 이 1건이라도 있으면 착수 전에 그 행만 사용자에게 별도 확인한다 — 검증 요청에 리팩터 SC 를 얹는 것이 최대 비용 경로다.
+5. **달성 가능성** — §범위 제외와 나란히 읽는다. 제외된 수단 없이는 도달 불가한 SC 는 모순: 목표치를 「판정·사유 등록으로 닫는다」로 낮추거나 그 제외를 푼다.
 
-Wait for the answers before writing anything. If a success criterion comes back vague, restate it measurably once ("이렇게 바꾸면 측정 가능합니다: ... 맞습니까?") and proceed on confirmation.
+## 2. 규모 분류 (규모 비례 라우팅 — 생략 금지)
+**먼저 `.harness/wiki/INDEX.md` 를 열고 `cost`/`workflow`/`global` 노드를 읽는다** — 아래 임계값은 그 노드가 이기는 기본값이다.
+스캐폴드 **전에** 규모를 분류한다. **변경 표면은 grep 실측이 선행 — 문서 추론만으로 라우팅 금지**: 실제로 바뀌는 파일(상수·라우트·컴포넌트)을 찾아 세고, 그 수를 라우팅과 함께 GOAL.md 승인 섹션에 적되 `change-surface`(바뀔 파일)인지 `read-surface`(읽을 파일)인지 **한 단어로 병기**한다. 감사·검증형 goal 은 바뀔 파일을 미리 알 수 없어 read-surface 를 세기 쉽다 — read-surface 는 곧 「규모 미상」이므로 아래 판단-불가 규칙을 탄다. 세리머니는 목표의 중요도가 아니라 실측된 변경 크기에 비례한다.
 
-## 2. Size triage (규모 비례 라우팅 — do not skip)
-**먼저 `.harness/wiki/INDEX.md` 를 열고 `cost`/`workflow`/`global` 노드를 읽는다** — 아래 임계값은 그 노드가 이기는 기본값이라, 읽지 않으면 프로젝트가 이미 배운 값을 무시하게 된다.
-Classify the goal's size BEFORE scaffolding. **The change surface MUST be grep-measured first — routing on document reasoning alone is forbidden**: locate the files that actually change (the constant, the route, the component), count them, and write that count into GOAL.md 승인 섹션 next to the route. Ceremony scales with the measured change, never with the goal's importance — and unmeasured routing is this triage's most expensive error (로그 참조).
+- **quick 경로** — 전건 충족: **호환성을 깨는 계약 변경 없음** · 아키텍처 결정 0(새 모듈 경계·기술 선택 없음) · 실측 diff 가 국소적·기계적(가드, re-export, 테스트 수정, config/문서 — 대략 ≤8파일 / ≤150줄) · SC 전건이 명령으로 판정 가능.
+  - breaking = 필드 제거·rename·타입/의미 변경·필수 요청 필드/인자 추가. **추가형**(새 응답 필드 · 기본값 있는 kwarg · 구 소비자가 무시하는 enum 값)은 quick 을 탈락시키지 않는다 — 어느 쪽인지 구 소비자 동작 근거와 함께 1줄로 명시.
+  → §4 대로 스캐폴드하되 analysis/prd/design/plan 은 만들지 않고, 라우팅 + 1줄 근거를 GOAL.md 승인 섹션과 일간 로그에 기록한 뒤 `/harness:analyze` 대신 `/harness:quick`(한 배치, 또는 SC 클러스터당 1회)으로 넘긴다. **검증 엄격도는 경감되지 않는다.**
+- **표준 루프** — 그 외 전부, 또는 오판이 비쌀 만한 의심이 있으면 → `/harness:analyze`.
+- **판단 불가** — `/harness:analyze` 를 먼저 돌린다. 그 analyze 는 **규모를 재는 패스**이지 증명하는 패스가 아니다(analyze 커맨드의 질문 크기 상한 적용); analysis.md 권고가 경로(quick vs plan)를 명시하고 그대로 진행한다.
 
-- **quick 경로** — ALL of: **no compatibility-breaking contract change** · no architecture decision (no new module boundary, no tech choice) · measured diff localized and mechanical (guards, re-exports, test fixes, config/doc tweaks — roughly ≤8 files / ≤150 lines) · every success criterion directly checkable by a command.
-  - breaking = 필드 제거·rename·타입/의미 변경·필수 요청 필드/인자 추가. **추가형**(새 응답 필드 · 기본값 있는 kwarg · 구 소비자가 무시하는 enum 값)은 quick 을 탈락시키지 않는다 — 둘 중 어느 쪽인지 **구 소비자 동작 근거와 함께 1줄**로 명시한다.
-  → Still scaffold per section 4, but leave analysis.md/prd.md/design.md/plan.md as stubs marked "해당 없음 — quick 경로", record the route + one-line rationale in GOAL.md (승인 섹션) and the daily log, and hand off to `/harness:quick` (one batch, or one invocation per SC cluster) instead of `/harness:analyze`. Verification rigor is NOT reduced — quick's proportional-verify rules still apply in full.
-- **표준 루프** — anything else, or any doubt that a wrong guess is expensive → `/harness:analyze` as usual.
-- **판단 불가** — run `/harness:analyze` first; analysis.md's 권고 MUST then name the route (quick vs plan) explicitly, and the goal proceeds on that recommendation. 이때 그 analyze 는 **규모를 재는 패스**이지 증명하는 패스가 아니다 — GOAL 에 그렇게 적고, analyze 커맨드의 질문 크기 상한을 그대로 적용한다.
-  - **감사·검증형 goal 의 함정**: 산출물이 「읽고 판정하기」인 goal 은 바뀔 파일을 착수 시점에 알 수 없어, 자연스럽게 **읽을 파일 수**를 세게 된다. 그건 change surface 가 아니다. 승인 섹션에 적은 수가 둘 중 어느 쪽인지 **한 단어로 명시**하고(`read-surface` / `change-surface`), read-surface 로 표준 루프를 골랐다면 그 사실이 곧 「아직 규모 미상」이라는 뜻이므로 위 규모 패스 규칙이 적용된다(실측: read 31파일로 표준 루프 → 실제 change 는 quick 크기).
+임계값(≤8파일/≤150줄)은 retro 가 조정하는 기본값이다 — 프로젝트에 `cost` scope 위키 노드가 있으면 그것이 이긴다. 선택한 경로와 근거를 §5 확인 메시지에 밝힌다.
 
-The numeric thresholds above (≤8 files / ≤150 lines) are **retro-tunable defaults, not constants**: retro mines each goal's 결산 (diff vs orchestration cost, logged by verify/quick closure) and proposes threshold adjustments through the bounded harness-edit channel; a project may also carry a sharper local rule as a `cost`-scope wiki node — when one exists, it wins over these defaults.
-
-State the chosen route and its rationale in the confirmation message (section 5).
-
-**문안 확정 게이트**: 산출물이 사용자 눈에 보이는 문자열(문구·라벨·에러·화면 상태)을 포함하면, 착수 전에 **리터럴 3안 이내로 1회 확정**받고 그 문안을 GOAL.md 목표치 칸(또는 design.md §8)에 **그 턴에** 적는다. 미기재 문안으로는 디스패치하지 않는다 — 문구는 취향이라 착수 후 바뀌면 배선까지 되돌아간다(실측: 문구 3회 회전으로 주입 배선 전량 삭제).
+**문안 확정 게이트**: 산출물이 사용자 눈에 보이는 문자열(문구·라벨·에러·화면 상태)을 포함하면, 착수 전에 **리터럴 3안 이내로 1회 확정**받고 그 문안을 GOAL.md 목표치 칸(또는 design.md §8)에 그 턴에 적는다. 미기재 문안으로는 디스패치하지 않는다 — 문구는 취향이라 착수 후 바뀌면 배선까지 되돌아간다 (로그 참조).
 
 ## 2-B. 사실 명제에는 근거를 붙인다 (재작업의 최대 원인)
-GOAL 배경·전제에 쓰는 **사실 명제**(도입 시점·인과 순서·"~가 없다"는 부재 주장·값의 형태·직전 iteration 의 결론)는 각각 `file:line`·커밋 sha·명령 출력 중 하나를 **같은 줄에 병기**한다. 근거를 댈 수 없으면 `[미검증]` 으로 표시하고 analyze 의 확인 대상으로 넘긴다 — 확신도를 섞어 쓰지 않는다.
-직전 iteration 의 verify 로그·사용자 보고를 그대로 승격하는 것이 **가장 흔한 오염 경로**다 (로그 참조). 틀린 전제로 시작하면 그 뒤 모든 디스패치가 재작업이 된다 — 토큰을 가장 많이 태우는 지점은 작업이 아니라 **잘못된 출발**이다.
+GOAL 배경·전제의 **사실 명제**(도입 시점·인과 순서·부재 주장·값의 형태·직전 iteration 의 결론)는 각각 `file:line`·커밋 sha·명령 출력 중 하나를 같은 줄에 병기한다. 근거를 댈 수 없으면 `[미검증]` 으로 표시하고 analyze 의 확인 대상으로 넘긴다. 직전 iteration 의 verify 로그·사용자 보고를 그대로 승격하는 것이 가장 흔한 오염 경로다 (로그 참조).
 
-## 3. Handle an existing .harness/
-- **위키 상한 위반이면 새 goal 을 열기 전에 `/harness:retro` 를 먼저 돌린다** (count it: candidate ≤15, active ≤8 per scope, INDEX ≤80 lines). Over budget, INDEX stops being triageable in one pass and every later agent recalls worse — curation is a precondition for the next goal, not a nicety deferred to "someday" (로그 2026-08-06).
-- **장부가 실제와 어긋나면 먼저 맞춘다**: if code changed since the last verdict while state.json still says `done`/PASS, that follow-up work was an unregistered iteration — register it (increment `iteration`, reset `verify`) before anything else. A ledger that disagrees with the tree makes every later status read wrong.
-- No `.harness/`: create the full structure below.
-- `.harness/` exists: NEW GOAL ITERATION. Preserve `wiki/`, `retro/`, and `logs/` — accumulated learning. (A legacy `playbook.md`/`retro/inbox.md` is also preserved untouched; note to the user that the next `/harness:retro` migrates it into wiki nodes per the `harness-ledger` skill.) Read the old state.json, increment `iteration`, and overwrite GOAL.md / analysis.md / prd.md / design.md / plan.md with fresh scaffolds. If the previous goal's phase is not `done` or `retro`, warn the user it is unfinished and get explicit confirmation before overwriting.
+## 3. 기존 .harness/ 처리
+- **위키 상한 위반이면 새 goal 전에 `/harness:retro` 먼저** (candidate ≤15, active ≤8 per scope, INDEX ≤80줄) — 큐레이션은 다음 goal 의 선행 조건이다 (로그 참조).
+- **장부가 실제와 어긋나면 먼저 맞춘다**: 마지막 verdict 이후 코드가 바뀌었는데 state.json 이 여전히 `done`/PASS 면 그 후속 작업은 미등록 iteration 이다 — `iteration` 증가 + `verify` 리셋으로 등록부터.
+- `.harness/` 없음: 아래 전체 구조 생성.
+- `.harness/` 있음: 새 goal iteration. `wiki/`·`retro/`·`logs/` 는 보존(축적 학습; legacy `playbook.md`/`retro/inbox.md` 도 보존 — 다음 retro 가 이관). 구 state.json 을 읽어 `iteration` 증가, GOAL/analysis/prd/design/plan 은 새 스캐폴드로 덮는다. 직전 goal 의 phase 가 `done`/`retro` 가 아니면 미완임을 경고하고 명시 확인 후 덮는다.
 
-## 4. Create files (from the `harness-ledger` skill's canonical section lists)
-Every section present, empty ones marked "해당 없음".
-- `.harness/GOAL.md` — filled from the interview.
-- `analysis.md`, `prd.md`, `design.md`, `plan.md` — **표준 루프만** 생성한다(headers only). **quick 경로는 이 4개를 만들지 않는다** — 빈 스텁은 읽는 사람도 쓰는 사람도 없이 매 goal 마다 4개 파일을 갱신 대상으로 만든다. quick 의 장부는 GOAL.md + state.json + 로그다.
-- `state.json` — per the skill's schema: `goal_id` = `<yyyymmdd>-<short-slug>`, `base_ref` = current commit SHA from `git rev-parse HEAD` (null if not a git repo), `phase` = "goal", `iteration` (1 or incremented), `updated_at` = now, `approvals` all false, `verify` = {"verdict": null, "date": null}, `tasks` = [].
-- `wiki/INDEX.md` — create with header + format comment ONLY if missing; never overwrite an existing wiki.
-- `retro/` and `logs/` — create if missing.
-- Append a goal-set entry to today's daily log (who, what goal, iteration).
+## 4. 파일 생성 (`harness-ledger` 스킬의 정본 섹션 목록에서)
+모든 섹션 존재, 빈 섹션은 "해당 없음".
+- `GOAL.md` — 인터뷰 내용으로 채움.
+- `analysis.md`·`prd.md`·`design.md`·`plan.md` — **표준 루프만** 생성(헤더만). **quick 경로는 이 4개를 만들지 않는다** — quick 의 장부는 GOAL.md + state.json + 로그다.
+- `state.json` — 스킬 스키마대로: `goal_id` = `<yyyymmdd>-<short-slug>`, `base_ref` = `git rev-parse HEAD`(git 아니면 null), `phase` = "goal", `iteration`(1 또는 증가), `updated_at` = now, `approvals` 전부 false, `verify` = {"verdict": null, "date": null}, `tasks` = [].
+- `wiki/INDEX.md` — 없을 때만 헤더 + 형식 주석으로 생성; 기존 위키는 절대 덮지 않는다.
+- `retro/`·`logs/` — 없으면 생성.
+- 오늘 일간 로그에 goal-set 항목 append (누가, 무슨 goal, iteration).
 
-## 5. Confirm and hand off
-Show the user in Korean: the success criteria table, 제약, 범위 제외, and the section-2 route decision with its rationale; ask them to confirm GOAL.md or request edits. Once confirmed, the next step is the routed command — `/harness:quick` for the quick 경로, `/harness:analyze` otherwise. **Routing must never add a manual step for the user**: when the user has granted standing autonomous progression (e.g., "알아서 진행"), the coordinator invokes the routed command itself in the same session — the route decides WHICH path runs, the user is never asked to type it.
+## 5. 확인과 핸드오프
+사용자에게 한국어로: 성공 기준 표 · 제약 · 범위 제외 · §2 라우팅 결정과 근거를 보여주고 GOAL.md 확정 또는 수정 요청을 받는다. 확정되면 다음 단계는 라우팅된 커맨드다 — quick 경로면 `/harness:quick`, 아니면 `/harness:analyze`. **라우팅이 사용자에게 수동 단계를 추가해서는 안 된다**: 자율 진행 권한("알아서 진행")이 있으면 코디네이터가 같은 세션에서 라우팅된 커맨드를 직접 호출한다.
 
-## Question rules (co-creation)
-All user questions in this phase follow the `co-creation` skill (key branch points only, batched options with a recommended default, decisions recorded in the owning document and never re-asked); exception — the initial interview may ask short open-ended questions for basic facts (기한, 제약 등).
+## Question rules
+질문은 `co-creation` 스킬을 따른다; 기록된 결정은 재질의하지 않는다. 예외 — 최초 인터뷰는 기본 사실(기한, 제약 등)을 짧은 개방형으로 물어도 된다.

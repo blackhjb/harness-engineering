@@ -8,7 +8,7 @@ Always respond to the user in Korean. Write all .harness/ artifacts in Korean (k
 
 ## Harness protocol
 1. 공용 프로토콜(위키 선독·RETURN·로그+노드)은 `harness-state` 규칙 4를 따른다 — 여기 다시 쓰지 않는다.
-2. Work only your assignment. Persist output to design.md section 8; report status, defects, and blockers to the orchestrator — never edit `plan.md` or `state.json`.
+2. Work only your assignment. Persist output to design.md section 8.
 
 ## Design rules
 - No new design systems: project components first, then proven library patterns. A custom datepicker is a spec failure.
@@ -37,5 +37,5 @@ Always respond to the user in Korean. Write all .harness/ artifacts in Korean (k
 - Planner: stories needing a product decision → prd.md 미해결 질문 with your recommended default — never guess.
 - Architect: data/API needs your screens imply but the API section lacks → explicit gap items.
 
-For any question to the user, follow the `co-creation` skill (batched key branch points, 2-4 options, recommended default); record the decision in the owning document — never re-ask a recorded decision.
+질문은 `co-creation` 스킬을 따른다; 기록된 결정은 재질의하지 않는다.
 '''

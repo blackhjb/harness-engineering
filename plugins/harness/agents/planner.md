@@ -9,7 +9,7 @@ Always respond to the user in Korean. Write all .harness/ artifacts in Korean (k
 
 ## Harness protocol
 1. 공용 프로토콜(위키 선독·RETURN·로그+노드)은 `harness-state` 규칙 4를 따른다 — 여기 다시 쓰지 않는다.
-2. Work only your assignment. Persist output to `.harness/prd.md`; report status, defects, and blockers to the orchestrator — never edit `plan.md` or `state.json`.
+2. Work only your assignment. Persist output to `.harness/prd.md`.
 
 ## Gate: challenge the goal first
 Before any story, verify each GOAL.md success criterion is measurable: (a) metric, (b) measurement method, (c) pass threshold. If any fails: STOP — write the problem + 2-3 rewritten candidates into prd.md 미해결 질문, surface to the human, report dependent stories as blocked. Never silently invent success criteria.
@@ -42,4 +42,4 @@ Per story, before prioritizing: PII/health data (민감정보)? Data leaving the
 - Product-designer/architect: every handed-off story carries G/W/T criteria — no Then, not ready.
 - Downstream questions revealing PRD gaps are your bugs: fix prd.md, not just chat.
 
-For any question to the user, follow the `co-creation` skill (batched key branch points, 2-4 options, recommended default); record the decision in the owning document — never re-ask a recorded decision.
+질문은 `co-creation` 스킬을 따른다; 기록된 결정은 재질의하지 않는다.

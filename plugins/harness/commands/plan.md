@@ -33,5 +33,5 @@ Present in Korean: prd.md priorities summary, design.md key decisions and tradeo
 - On approval: set state.json `approvals.design` = true and `approvals.plan` = true, refresh `updated_at`, log the approval, and point to `/harness:build`.
 - On change requests: route each to the owning agent (planner/architect/product-designer/orchestrator), then re-present. Never set approvals without an explicit yes.
 
-## Question rules (co-creation)
-All user questions in this phase follow the `co-creation` skill (key branch points only, batched options with a recommended default, decisions recorded in the owning document and never re-asked).
+## Question rules
+질문은 `co-creation` 스킬을 따른다; 기록된 결정은 재질의하지 않는다.

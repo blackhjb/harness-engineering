@@ -17,8 +17,8 @@ Respond in Korean.
 2. Delegate to the `analyst` agent with this brief. **When the goal has two or more independent investigation fronts, dispatch one analyst per front IN PARALLEL (single message)** — each writes its own `/tmp/agent-analyst-<front>-<date>.md` and appends its own log entry, and the coordinator merges the fronts into `.harness/analysis.md` itself (the merge is a compression pass, not a third dispatch; note the merge in the log). Serializing independent fronts, or spending an extra agent on the merge, is the avoidable cost here.
    - Read `.harness/GOAL.md` and `.harness/wiki/INDEX.md` (open analysis + global/workflow nodes) first.
    - **탐색 경계**: 브리프에 코디네이터가 이미 잰 **시작 파일 목록**(grep 실측)을 싣고 "여기서 출발, 재검증 말 것"을 명시한다. 그 밖으로 넓히려면 답이 안 나온 질문을 1줄로 적고 넓힌다 — 열린 탐색이 analyst 세션을 12분으로 만든 원인이다.
-   - **질문 ≤5개, 그리고 질문 1개 = 명령 몇 줄로 답이 나오는 크기.** 개수만 지키고 질문 **안**을 부풀리는 것이 이 커맨드의 최다 실패다 — 「N파일 전수표」·「enum 도메인 런타임 전개」·「git 이력 조사」·「임계 스윕」을 한 질문에 묶으면 개수 상한을 전부 지킨 채로 세션이 시간 단위가 된다(실측: 질문 5개 × 2전선 → 92분·97분, tool_uses 46·54). 한 질문이 그 크기면 그건 질문이 아니라 태스크다 — 분해해 5개 안에 넣거나, 답을 build 로 미룬다.
-   - **증명 규율을 브리프에 넣지 않는다.** 양성 대조군 주입·임계 하향 대조·red 선실측은 build/verify 소관이다. analyze 가 낼 것은 「무엇을 어떻게 확인해야 하는가」이지 확인 그 자체가 아니다. 위키 `qa` 노드도 **판정 규율**(계수 경계, prod/테스트 분리, 런타임 도달)은 실어도 좋으나 **증명 절차**(대조군·주입·스윕)는 싣지 않는다 — 단계를 겹치면 비용이 곱해진다.
+   - **질문 ≤5개, 그리고 질문 1개 = 명령 몇 줄로 답이 나오는 크기.** 전수표·런타임 전개·git 이력 조사·임계 스윕을 한 질문에 묶으면 개수 상한을 지킨 채 세션이 시간 단위가 된다 (로그 2026-08-07). 그 크기면 질문이 아니라 태스크다 — 분해하거나 답을 build 로 미룬다.
+   - **증명 규율을 브리프에 넣지 않는다.** 양성 대조군 주입·임계 하향 대조·red 선실측은 build/verify 소관이다. 위키 `qa` 노드도 **판정 규율**(계수 경계, prod/테스트 분리, 런타임 도달)만 싣고 **증명 절차**(대조군·주입·스윕)는 싣지 않는다.
    - Write `.harness/analysis.md` (**≤80줄**, 초과 시 압축이 핸드오프 조건) in Korean per the `harness-ledger` skill's canonical analysis sections; each unknown needs a 확인 방법 and whether it BLOCKS planning; risks with 조기 신호 and 대응.
    - Append a result entry with key evidence to today's log (`.harness/logs/YYYY-MM-DD.md`).
 3. When the analyst returns, read `.harness/analysis.md` yourself: it must name concrete files/versions/commands, not generic statements. If shallow, send the analyst back exactly once, naming the specific gaps.
@@ -30,5 +30,5 @@ Respond in Korean.
 - 계획을 차단하는 항목 (알아내야 하는 것 U-n 중 차단 여부 "예") — if any exist, ask the user to resolve them NOW
 - 다음 단계 (차단 항목이 없을 때): analysis.md 의 권고가 정한 경로 — 남은 작업이 quick 경로 기준(goal 커맨드 §2: 계약·아키텍처 결정 0 + 기계적 소규모 diff + 명령 판정 가능 SC)을 충족하면 `/harness:quick`, 아니면 `/harness:plan`. 권고는 반드시 어느 쪽인지 명시한다 — 규모 판정 없이 기본값으로 plan 에 넘기지 말 것
 
-## Question rules (co-creation)
-All user questions in this phase follow the `co-creation` skill (key branch points only, batched options with a recommended default, decisions recorded in the owning document and never re-asked).
+## Question rules
+질문은 `co-creation` 스킬을 따른다; 기록된 결정은 재질의하지 않는다.
