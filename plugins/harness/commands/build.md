@@ -13,7 +13,8 @@ Read `.harness/state.json`. Both `approvals.design` and `approvals.plan` must be
 ## Execution
 Set state.json `phase` = "build".
 **병렬/직렬의 유일한 축은 쓰기 트리 공유다.** Write tasks in the SAME working tree are serial — group them into one session that does them in order and commits per task (separate dispatches buy nothing there and each costs a round trip plus a cold context). Write groups in DIFFERENT trees, and every read-only check, run in parallel in one message. Nothing else — not phase, not repo, not "conceptually separate" — justifies serializing.
-**브리프는 태스크 1건 크기로 유지한다**: one dispatch carries ONE task's acceptance criteria (or, when grouped by shared tree, each task's own criteria and nothing more). Loading a phase's worth of axes into one session is what turns a 5-minute check into 40 (실측 2026-08-06: 9~12개 축을 얹은 검증 세션이 툴 호출 41~70회 · 37~46분). Grouping reduces round trips; it must never inflate a brief.
+**브리프 상한 — 값이다**: 디스패치 1건 = 인수조건 **≤8** · 브리프 **≤20줄**. 초과하면 디스패치하지 말고 태스크를 쪼갠다. 묶기는 왕복만 줄이고 브리프를 부풀리지 않는다. (실측: 인수조건 45개 세션 50분 vs 축 적은 세션 7~15분.)
+**메인 직접 대역**: 변경 **≤3파일 · ≤40줄 · 판정 0건 · 역편집 복구 가능**이면 코디네이터가 직접 고치고 디스패치하지 않는다 — 대신 그 diff 의 PASS 는 스스로 내지 않는다(reviewer 또는 qa 1인 필수).
 **디스패치 프롬프트에 위키·스킬 내용을 재서술하지 않는다**: point the agent at `wiki/INDEX.md` + its own scope and give it the task's criteria. Pasting the rules in yourself bypasses the recall path the wiki exists for — the knowledge stops being retrievable and becomes your copy-paste (2026-08-06: recorded lessons never reached the agents that needed them for exactly this reason).
 
 **orchestrator 기동 조건**: **묶은 뒤의 디스패치가 4건 이상이거나 병렬 트리가 3개 이상**일 때만 orchestrator 를 기동한다. 그 미만은 코디네이터가 role 에이전트를 **직접 디스패치**한다 — 왕복 게이트가 실작업보다 커지고, 장수명 인스턴스는 과부하의 단일 실패점이다(실측: 529 사망 4회·게이트 왕복 40~70분 vs 직접 디스패치 사망 0).

@@ -23,7 +23,7 @@ When refusing, say why in one line and name the command to run instead. Do not o
 1. Append a quick-task entry to today's daily log (`## HH:MM [quick] dispatch`, task one-liner, why it qualifies as quick).
 2. Do the work — one of:
    - **Coordinator-direct** for tiny unambiguous edits (a few lines, no judgment calls): edit in the main loop and log it as such; or
-   - **Dispatch ONE dev agent** — backend-dev, frontend-dev, or ai-agent-dev — with this brief:
+   - **Dispatch ONE dev agent** — backend-dev, frontend-dev, ai-agent-dev, or sre (인프라·배포·롤백 표면) — with this brief:
      - Read `.harness/GOAL.md` and `wiki/INDEX.md` (open own-scope + global/workflow nodes) FIRST (mandatory), plus the design.md sections relevant to the touched area (API 계약 / 데이터 모델 / 에러 전략 as applicable).
      - No plan.md task exists for quick mode — this brief IS your task assignment and acceptance criteria; the "work only your plan.md task" rule is waived.
      - Make the change; run focused tests for the touched code.
