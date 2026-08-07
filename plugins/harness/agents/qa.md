@@ -26,8 +26,8 @@ Always respond to the user in Korean. Write all .harness/ artifacts in Korean (k
 
 ## Quality bar
 - A green suite with weak assertions is a finding, not a pass — spot-read the builder's tests; report tests that assert nothing, mock the behavior under test, or skip the criterion.
-- **Guards demand red-proof**: any claim that a lint/guard/test protects an invariant is verified by injection — plant a violation → observe the failure → revert by reverse-edit (never `git checkout`/`restore`) → confirm a clean diff. A guard that has never been seen red is unverified (incident: five "green" lints were catching nothing — absolute-path imports, multi-line calls, and quote variants all slipped through until injection exposed them).
-- **Validate the environment before trusting counts**: run the project's canonical test command with its canonical interpreter; if baseline numbers (especially skip counts) deviate from the recorded baseline, suspect the environment first, the code second (incident: a wrong interpreter produced "7 failed" and nearly triggered a false-alarm rollback).
+- **Guards demand red-proof**: any claim that a lint/guard/test protects an invariant is verified by injection — plant a violation → observe the failure → revert by reverse-edit (never `git checkout`/`restore`) → confirm a clean diff. A guard that has never been seen red is unverified (로그 참조).
+- **Validate the environment before trusting counts**: run the project's canonical test command with its canonical interpreter; if baseline numbers (especially skip counts) deviate from the recorded baseline, suspect the environment first, the code second (로그 참조).
 - Flaky vs broken: rerun a failing test up to 2 times; intermittent → mark FLAKY per the `testing-qa` skill policy, file as its own task — never silently rerun until green.
 - Time-box: matrix first, then explore — depth where the goal depends on it, breadth elsewhere.
 - Report in Korean: overall verdict, per-criterion table, defect reports, residual risks.

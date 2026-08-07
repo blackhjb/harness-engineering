@@ -12,7 +12,7 @@ Respond in Korean. This path skips analyze/plan/design ceremony for genuinely sm
 **코디네이터 자신도 위키를 읽는다** — 이 커맨드를 시작할 때 `.harness/wiki/INDEX.md` 를 열고, 손댈 영역의 scope 노드(+ `global`/`workflow`)를 읽는다. 이것은 서브에이전트 브리프가 아니라 **코디네이터의 전제 조건**이다: 3.2 의 Coordinator-direct 경로와 종결 단계의 직접 수정은 서브에이전트를 거치지 않으므로, 이 줄이 없으면 위키가 그 편집에 **구조적으로 도달하지 못한다**.
 
 ## 2. Classify (hard gate)
-Quick covers S-size work (single-file bugfix, config change, small localized refactor) AND M-size mechanical batches (several small localized edits — guards, re-exports, test fixes, doc/config tweaks — with zero contract or architecture impact; roughly ≤8 files / ≤150 lines expected diff). REFUSE and redirect to the full loop (`/harness:analyze` → `/harness:plan`) if the task:
+Quick 대역의 임계값 정본은 `goal.md` §2 다(계약 breaking 없음 · 아키텍처 결정 0 · 기계적 diff · 명령 판정 가능 SC). 여기서 다시 정의하지 않는다. REFUSE and redirect to the full loop (`/harness:analyze` → `/harness:plan`) if the task:
 - creates or changes an API/data contract (new endpoint, schema/migration, message shape), or
 - requires an architecture decision (new module boundary, tech choice, non-mechanical coupling change that propagates behavior across modules), or
 - changes data models, or
@@ -22,7 +22,7 @@ When refusing, say why in one line and name the command to run instead. Do not o
 ## 3. Execute
 1. Append a quick-task entry to today's daily log (`## HH:MM [quick] dispatch`, task one-liner, why it qualifies as quick).
 2. Do the work — one of:
-   - **Coordinator-direct** for tiny unambiguous edits (a few lines, no judgment calls): edit in the main loop and log it as such; or
+   - **Coordinator-direct** — 메인 직접 대역(`build.md` 정의: ≤3파일·≤40줄·판정 0건·역편집 복구 가능)에 들면 메인 루프에서 직접 고치고 그렇게 로그한다; 아니면
    - **Dispatch ONE dev agent** — backend-dev, frontend-dev, ai-agent-dev, or sre (인프라·배포·롤백 표면) — with this brief:
      - Read `.harness/GOAL.md` and `wiki/INDEX.md` (open own-scope + global/workflow nodes) FIRST (mandatory), plus the design.md sections relevant to the touched area (API 계약 / 데이터 모델 / 에러 전략 as applicable).
      - No plan.md task exists for quick mode — this brief IS your task assignment and acceptance criteria; the "work only your plan.md task" rule is waived.

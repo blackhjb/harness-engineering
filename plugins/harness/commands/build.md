@@ -18,7 +18,7 @@ Set state.json `phase` = "build".
 **메인 직접 대역**: 변경 **≤3파일 · ≤40줄 · 판정 0건 · 역편집 복구 가능**이면 코디네이터가 직접 고치고 디스패치하지 않는다 — 대신 그 diff 의 PASS 는 스스로 내지 않는다(reviewer 또는 qa 1인 필수).
 **디스패치 프롬프트에 위키·스킬 내용을 재서술하지 않는다**: point the agent at `wiki/INDEX.md` + its own scope and give it the task's criteria. Pasting the rules in yourself bypasses the recall path the wiki exists for — the knowledge stops being retrievable and becomes your copy-paste (2026-08-06: recorded lessons never reached the agents that needed them for exactly this reason).
 
-**orchestrator 기동 조건**: **묶은 뒤의 디스패치가 4건 이상이거나 병렬 트리가 3개 이상**일 때만 orchestrator 를 기동한다. 그 미만은 코디네이터가 role 에이전트를 **직접 디스패치**한다 — 왕복 게이트가 실작업보다 커지고, 장수명 인스턴스는 과부하의 단일 실패점이다(실측: 529 사망 4회·게이트 왕복 40~70분 vs 직접 디스패치 사망 0).
+**orchestrator 기동 조건**: **묶은 뒤의 디스패치가 4건 이상이거나 병렬 트리가 3개 이상**일 때만 orchestrator 를 기동한다. 그 미만은 코디네이터가 role 에이전트를 **직접 디스패치**한다 — 왕복 게이트가 실작업보다 커지고, 장수명 인스턴스는 과부하의 단일 실패점이다 (로그 참조).
 **한 트리의 디스패처는 항상 1인이다** — 시간에 민감한 계획 변경은 실행 중인 orchestrator 에 메시지로 보내지 말고(다음 툴 라운드까지 미배달) 그 웨이브의 **소유권을 가져와** 직접 디스패치하고 "이 웨이브 디스패치 금지" 정정을 보낸다(기전·실측은 wiki `workflow--liveness-by-notification-not-inference`).
 **웨이브 비용 감지(웨이브 종료마다 1줄)**: log cumulative dispatch count and current diff size (`git diff --shortstat <base_ref>..HEAD`). **디스패치 수 > 변경 소스 파일 수**(테스트·픽스처·문서 제외 — 회귀 가드를 성실히 쓸수록 분모가 부풀어 초과가 가려진다) means ceremony has overtaken the change — cut the remaining ceremony (merge dispatches, drop redundant verification tasks) in that same turn and say so in the line. Waiting for verify's 결산 to notice is too late; the user should not be the detector.
 **우회 시 책무 승계(필수)**: orchestrator 없이 진행하면 그 startup protocol 3종을 코디네이터가 명시적으로 승계한다 — ①`wiki/INDEX.md` + 해당 scope 노드 읽기 ②태스크↔산출물 사상 장부 유지 ③증거 없는 done 금지(값으로만 판정). 승계 사실을 dispatch 로그 항목에 한 줄로 남긴다.

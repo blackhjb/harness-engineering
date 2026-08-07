@@ -15,7 +15,7 @@ Wait for the answers before writing anything. If a success criterion comes back 
 
 ## 2. Size triage (규모 비례 라우팅 — do not skip)
 **먼저 `.harness/wiki/INDEX.md` 를 열고 `cost`/`workflow`/`global` 노드를 읽는다** — 아래 임계값은 그 노드가 이기는 기본값이라, 읽지 않으면 프로젝트가 이미 배운 값을 무시하게 된다.
-Classify the goal's size BEFORE scaffolding. **The change surface MUST be grep-measured first — routing on document reasoning alone is forbidden**: locate the files that actually change (the constant, the route, the component), count them, and write that count into GOAL.md 승인 섹션 next to the route. Ceremony scales with the measured change, never with the goal's importance — and unmeasured routing is this triage's most expensive error (실측: 5-file additive-field goal misrouted to the full loop → ~55 min of documents and wave management; ~300-line batch → ~1.4M subagent tokens, where every defect was caught by verification and none by ceremony).
+Classify the goal's size BEFORE scaffolding. **The change surface MUST be grep-measured first — routing on document reasoning alone is forbidden**: locate the files that actually change (the constant, the route, the component), count them, and write that count into GOAL.md 승인 섹션 next to the route. Ceremony scales with the measured change, never with the goal's importance — and unmeasured routing is this triage's most expensive error (로그 참조).
 
 - **quick 경로** — ALL of: **no compatibility-breaking contract change** · no architecture decision (no new module boundary, no tech choice) · measured diff localized and mechanical (guards, re-exports, test fixes, config/doc tweaks — roughly ≤8 files / ≤150 lines) · every success criterion directly checkable by a command.
   - breaking = 필드 제거·rename·타입/의미 변경·필수 요청 필드/인자 추가. **추가형**(새 응답 필드 · 기본값 있는 kwarg · 구 소비자가 무시하는 enum 값)은 quick 을 탈락시키지 않는다 — 둘 중 어느 쪽인지 **구 소비자 동작 근거와 함께 1줄**로 명시한다.
@@ -31,10 +31,10 @@ State the chosen route and its rationale in the confirmation message (section 5)
 
 ## 2-B. 사실 명제에는 근거를 붙인다 (재작업의 최대 원인)
 GOAL 배경·전제에 쓰는 **사실 명제**(도입 시점·인과 순서·"~가 없다"는 부재 주장·값의 형태·직전 iteration 의 결론)는 각각 `file:line`·커밋 sha·명령 출력 중 하나를 **같은 줄에 병기**한다. 근거를 댈 수 없으면 `[미검증]` 으로 표시하고 analyze 의 확인 대상으로 넘긴다 — 확신도를 섞어 쓰지 않는다.
-직전 iteration 의 verify 로그·사용자 보고를 그대로 승격하는 것이 **가장 흔한 오염 경로**다(실측: 한 iteration 의 전제 5건이 analyze 에서 전건 반증됐고, 그 교정에만 analyst 2인 212k 토큰이 쓰였다). 틀린 전제로 시작하면 그 뒤 모든 디스패치가 재작업이 된다 — 토큰을 가장 많이 태우는 지점은 작업이 아니라 **잘못된 출발**이다.
+직전 iteration 의 verify 로그·사용자 보고를 그대로 승격하는 것이 **가장 흔한 오염 경로**다 (로그 참조). 틀린 전제로 시작하면 그 뒤 모든 디스패치가 재작업이 된다 — 토큰을 가장 많이 태우는 지점은 작업이 아니라 **잘못된 출발**이다.
 
 ## 3. Handle an existing .harness/
-- **위키 상한 위반이면 새 goal 을 열기 전에 `/harness:retro` 를 먼저 돌린다** (count it: candidate ≤15, active ≤8 per scope, INDEX ≤80 lines). Over budget, INDEX stops being triageable in one pass and every later agent recalls worse — curation is a precondition for the next goal, not a nicety deferred to "someday" (실측 2026-08-06: candidate 20, qa 19/8, workflow 13/8 accumulated because retro never ran).
+- **위키 상한 위반이면 새 goal 을 열기 전에 `/harness:retro` 를 먼저 돌린다** (count it: candidate ≤15, active ≤8 per scope, INDEX ≤80 lines). Over budget, INDEX stops being triageable in one pass and every later agent recalls worse — curation is a precondition for the next goal, not a nicety deferred to "someday" (로그 2026-08-06).
 - **장부가 실제와 어긋나면 먼저 맞춘다**: if code changed since the last verdict while state.json still says `done`/PASS, that follow-up work was an unregistered iteration — register it (increment `iteration`, reset `verify`) before anything else. A ledger that disagrees with the tree makes every later status read wrong.
 - No `.harness/`: create the full structure below.
 - `.harness/` exists: NEW GOAL ITERATION. Preserve `wiki/`, `retro/`, and `logs/` — accumulated learning. (A legacy `playbook.md`/`retro/inbox.md` is also preserved untouched; note to the user that the next `/harness:retro` migrates it into wiki nodes per the `harness-ledger` skill.) Read the old state.json, increment `iteration`, and overwrite GOAL.md / analysis.md / prd.md / design.md / plan.md with fresh scaffolds. If the previous goal's phase is not `done` or `retro`, warn the user it is unfinished and get explicit confirmation before overwriting.
