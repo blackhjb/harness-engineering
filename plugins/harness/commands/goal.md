@@ -46,6 +46,7 @@ GOAL 배경·전제의 **사실 명제**(도입 시점·인과 순서·부재 �
 - `analysis.md`·`prd.md`·`design.md`·`plan.md` — **표준 루프만** 생성(헤더만). **quick 경로는 이 4개를 만들지 않는다** — quick 의 장부는 GOAL.md + state.json + 로그다.
 - `state.json` — 스킬 스키마대로: `goal_id` = `<yyyymmdd>-<short-slug>`, `base_ref` = `git rev-parse HEAD`(git 아니면 null), `phase` = "goal", `iteration`(1 또는 증가), `updated_at` = now, `approvals` 전부 false, `verify` = {"verdict": null, "date": null}, `tasks` = [].
 - `wiki/INDEX.md` — 없을 때만 헤더 + 형식 주석으로 생성; 기존 위키는 절대 덮지 않는다.
+- `measurements.jsonl` — 없으면 빈 파일로 생성(`harness-state` §측정 원장). 기존 파일은 절대 덮지 않는다 — append-only 이고 goal 을 가로질러 누적된다.
 - `retro/`·`logs/` — 없으면 생성.
 - 오늘 일간 로그에 goal-set 항목 append (누가, 무슨 goal, iteration).
 
