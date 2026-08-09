@@ -88,7 +88,7 @@ AGENTS.md             Codex 진입점 (하네스 규약 요약)
 .agents/skills/       Codex용 스킬 — 원본 심링크 9종 + cmd-* 커맨드 래퍼 8종 (생성물)
 .codex/               Codex 설정(config.toml) + 에이전트 TOML 12종 (생성물)
 tools/sync-codex.sh   Codex 산출물 재생성 스크립트 (원본 수정 후 재실행)
-docs/                 설계 문서 (GOAL · ARCHITECTURE · PROCESS)
+docs/                 설계 문서 (GOAL · DIAGNOSIS · ARCHITECTURE · PROCESS)
 install.sh            방법 2 폴백 설치 스크립트
 ```
 
@@ -180,6 +180,7 @@ harness-state · co-creation · spring-boot-dev · frontend-dev · ai-agent-dev 
 
 ## 문서
 
-- [docs/GOAL.md](docs/GOAL.md) — 이 하네스 자체의 GOAL
+- [docs/GOAL.md](docs/GOAL.md) — 이 하네스 자체의 GOAL + 품질 지표 M1~M5
+- [docs/DIAGNOSIS-2026-08-10.md](docs/DIAGNOSIS-2026-08-10.md) — 현재 상태 진단과 수정 순서
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — 설계 결정·기사 패턴 매핑
 - [docs/PROCESS.md](docs/PROCESS.md) — 단계별 사용 프로세스
