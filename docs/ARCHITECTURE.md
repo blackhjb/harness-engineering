@@ -33,6 +33,9 @@ Lilian Weng의 "Harness Engineering for Self-Improvement"(2026-07)의 핵심 패
 | sre | 사용자가 서비스 운영까지 담당. 배포·롤백·시크릿·모니터링은 개발과 다른 사고방식이 필요하고, 파괴적 작업 승인 게이트의 소유자 |
 | harness-improver | 기사 주제인 self-improvement 자체. 이게 없으면 하네스가 정적 설정에 머무름. ACE 큐레이터 + Self-Harness 제안자 역할 |
 
+### 모델 정책 (사용자 확정 2026-08-07)
+**판정 표면 5역할(analyst · orchestrator · architect · qa · code-reviewer)은 frontmatter `model: opus` 고정** — 사용자 기본 모델이 바뀌어도 판정 품질 표면은 상속시키지 않는다. 나머지 역할은 세션 모델 상속. 이 pin 은 "정리" 대상이 아니다(제거 이력 1회 → 사용자 정정으로 복원).
+
 ## 스킬 11종 (레시피북)
 
 공용: harness-state(모든 디스패치가 읽는 계약), harness-ledger(state.json·문서 정본 — orchestrator·커맨드·improver 전용), co-creation.

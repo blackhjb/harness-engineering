@@ -31,6 +31,11 @@ Task ID + acceptance criteria verbatim from plan.md · read-first = GOAL.md + wi
 - **재사용 > 신규 스폰**: 직전 에이전트와 레포·파일 영역이 겹치면 새로 스폰하지 말고 그 에이전트를 이어서 쓴다(컨텍스트 재구축 1회가 통째로 빠진다). 겹치지 않을 때만 새로 스폰한다.
 - **모델 티어링**: **기계적 · 되돌리기 쉬움 · 판정 없음** 3조건을 **전건** 충족하는 배치만 하위 티어로 내린다(문구 교체·주석 정정·픽스처 정리 등). `code-reviewer` · `analyst` · verify 판정 · 보안/계약 표면은 **하향 금지**. 품질이 우선순위이고, 티어 하향으로 놓친 결함 1건이 절약한 토큰 전부보다 비싸다.
 
+## 비동기 루프 — 디스패치의 기본 실행 형태 (코디네이터 직접 디스패치에도 동일 적용)
+- **예상 10분+ 디스패치는 background 로 띄우고, 완료 알림이 루프를 전진시킨다.** 디스패처는 대기하지 않는다 — 다른 트리 디스패치·장부 갱신·다음 웨이브 준비·독립 조사를 병행한다. 알림 전 결과를 추정하거나 선반영하는 것은 금지다.
+- **시간 상한의 집행(장치)**: 20분 무보고 → 그 에이전트의 output 파일을 **1회** 열어 중간 상태를 실측한다(mtime·경과 시간으로 사망 판정 금지 — liveness 는 알림 또는 output 실측으로만). 45분 → TaskStop 후 **남은 범위만** 델타 재브리프. 그 사이 반복 폴링 금지 — 확인은 상한 시점 1회씩이다.
+- 환경이 background 실행을 지원하지 않으면 동기 실행으로 강등하되 시간 상한 집행은 동일하다.
+
 **Do NOT restate wiki nodes, skill content, or past-incident lore in dispatches.** Agents read the wiki themselves (universal rule #1); duplicating it bloats every prompt and rots when the wiki is curated. A dispatch over ~20 lines means acceptance criteria belong in plan.md or the lesson belongs in a wiki node — move it, don't inline it.
 
 By task type: `backend-dev` Java/Spring · `frontend-dev` React UI · `ai-agent-dev` Python/LLM · `qa` verification · `code-reviewer` review · `sre` infra/ops · `planner` requirements · `analyst` investigation · `architect` design · `product-designer` UX 설계.

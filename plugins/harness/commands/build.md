@@ -22,6 +22,7 @@ Set state.json `phase` = "build".
 **한 트리의 디스패처는 항상 1인이다** — 시간에 민감한 계획 변경은 실행 중인 orchestrator 에 메시지로 보내지 말고(다음 툴 라운드까지 미배달) 그 웨이브의 **소유권을 가져와** 직접 디스패치하고 "이 웨이브 디스패치 금지" 정정을 보낸다(기전·실측은 wiki `workflow--liveness-by-notification-not-inference`).
 **웨이브 비용 감지(웨이브 종료마다 1줄)**: log cumulative dispatch count and current diff size (`git diff --shortstat <base_ref>..HEAD`). **디스패치 수 > 변경 소스 파일 수**(테스트·픽스처·문서 제외 — 회귀 가드를 성실히 쓸수록 분모가 부풀어 초과가 가려진다) means ceremony has overtaken the change — cut the remaining ceremony (merge dispatches, drop redundant verification tasks) in that same turn and say so in the line. Waiting for verify's 결산 to notice is too late; the user should not be the detector.
 **우회 시 책무 승계(필수)**: orchestrator 없이 진행하면 그 startup protocol 3종을 코디네이터가 명시적으로 승계한다 — ①`wiki/INDEX.md` + 해당 scope 노드 읽기 ②태스크↔산출물 사상 장부 유지 ③증거 없는 done 금지(값으로만 판정). 승계 사실을 dispatch 로그 항목에 한 줄로 남긴다.
+**실행 형태**: 10분+ 디스패치는 orchestrator 의 「비동기 루프」 규칙 그대로 — background + 알림 전진 + 병행 작업 + 20/45분 집행. 동기 대기는 10분 미만 단건에만.
 
 기동하는 경우 전체 build 를 `orchestrator` 에 위임한다:
 - Read `.harness/GOAL.md`, `wiki/INDEX.md` (+ workflow/global nodes), `plan.md`, `design.md`, `state.json` first (your startup protocol).

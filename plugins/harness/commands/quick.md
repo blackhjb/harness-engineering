@@ -23,7 +23,7 @@ When refusing, say why in one line and name the command to run instead. Do not o
 1. Append a quick-task entry to today's daily log (`## HH:MM [quick] dispatch`, task one-liner, why it qualifies as quick).
 2. Do the work — one of:
    - **Coordinator-direct** — 메인 직접 대역(`build.md` 정의: ≤3파일·≤40줄·판정 0건·역편집 복구 가능)에 들면 메인 루프에서 직접 고치고 그렇게 로그한다; 아니면
-   - **Dispatch ONE dev agent** — backend-dev, frontend-dev, ai-agent-dev, or sre (인프라·배포·롤백 표면) — with this brief:
+   - **Dispatch ONE dev agent** — backend-dev, frontend-dev, ai-agent-dev, or sre (인프라·배포·롤백 표면). 10분+ 예상이면 background 로 띄우고 알림으로 전진(20/45분 집행은 orchestrator 의 비동기 루프 규칙과 동일) — with this brief:
      - Read `.harness/GOAL.md` and `wiki/INDEX.md` (open own-scope + global/workflow nodes) FIRST (mandatory), plus the design.md sections relevant to the touched area (API 계약 / 데이터 모델 / 에러 전략 as applicable).
      - No plan.md task exists for quick mode — this brief IS your task assignment and acceptance criteria; the "work only your plan.md task" rule is waived.
      - Make the change; run focused tests for the touched code.
