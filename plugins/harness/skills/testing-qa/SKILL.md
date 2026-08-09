@@ -131,7 +131,23 @@ Reproduce twice before filing. Minimize first: strip payload fields, drop steps,
 
 Rule: mocks verify YOUR logic; integration verifies YOUR ASSUMPTIONS about others. A criterion about external behavior can never be PASSed on mocks alone — if integration was impossible, say so in residual risks and mark that criterion FAIL. There are only two verdicts, PASS and FAIL; a pass with named risks or conditions attached does not exist.
 
-## 8. Verifier's checklist before writing PASS
+## 8. 가드 양성 대조 — 생산자별 주입 (레시피)
+
+가드가 「X 는 되살아나지 않는다」를 지킨다고 주장할 때, **자기가 상상한 한 경로만 주입하면 나머지 경로에 대해 그 가드는 영구 초록불**이다. 주입 횟수는 1이 아니라 **X 의 생산자 수**다.
+
+절차 (값이 나오는 형태):
+1. **X 를 한 문장으로 쓴다** — 가드가 막는 관측 행동. "인구학 값이 프롬프트에 들어간다".
+2. **X 의 생산자를 열거한다 (값: N개)** — X 를 만들어낼 수 있는 서로 다른 코드 경로. 하드코딩 리터럴 · 리졸버/계산 산출값 · 외부 응답 패스스루 · 기본값/폴백 · 직렬화 부산물.
+3. **생산자마다 1회 주입** → red N회. 실패 테스트 이름 + 실패 메시지 본문을 각각 인용한다(건수만 적으면 ①②를 구분 못 한다).
+4. 역편집 원복 → green + `git status --porcelain` 0줄.
+
+**픽스처가 생산자를 실재시키는지 먼저 확인한다** — 공급자가 `None` 으로 스텁된 픽스처에서는 그 생산자 경로가 애초에 존재하지 않아 주입해도 red 가 안 난다. 이 경우 red 0 은 「가드가 튼튼함」이 아니라 **「그 경로를 테스트한 적 없음」**이다.
+
+**마커·문자열로 판정하는 가드는 산출값을 직접 확인한다** — 리터럴 목록(`연령`·`나이`…)은 계산 산출값(`30대`·`여성`)을 빗나간다. 생산자를 실행해 나온 **실제 값**을 단언에 넣는다.
+
+실측 근거(2026-08-07): 생산자 2개(하드코딩·리졸버 산출) 중 1개만 주입하고 통과 선언 → 리뷰어가 나머지 1개로 무탐지 실증(MAJOR). 픽스처의 `backoffice_client=None` 과 리터럴 마커 미포착이 각각 위 두 문단에 해당한다.
+
+## 9. Verifier's checklist before writing PASS
 
 - [ ] Full suite ran (not just focused tests) and output tail is in the log
 - [ ] Every acceptance criterion has a matrix row and a per-criterion verdict

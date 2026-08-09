@@ -76,8 +76,25 @@ Status suffix `(candidate)` only while candidate; active lines carry no suffix. 
 
 ### Caps (hard)
 
-- active ≤ 40 total AND ≤ 8 per scope — over budget: the improver merges/retires lowest-value nodes BEFORE anything new is promoted.
+- active ≤ 40 total AND ≤ 8 per scope — over budget: the improver merges/retires BEFORE anything new is promoted.
 - candidate ≤ 15 — over budget: build/verify emit the retro nudge.
+
+**은퇴 순서는 추측이 아니라 측정으로 정한다** — 「저가치」는 판단이라 오래된 노드가 남고 새 학습이 막힌다(실측 2026-08-07: 근거 3건짜리 노드가 `qa` scope 8/8 포화로 승격 보류됐다). 은퇴 후보 순서:
+1. **효과 반증** — 열린 상태에서 그 scope 의 `refutes` 가 발생한 노드(원장으로 계수). 노드가 있었는데 막지 못했다는 뜻이다.
+2. **효과 미관측** — 5회 이상 열렸으나 그 scope 에서 `refutes` 도 예방 기록도 없는 노드.
+3. 그 외 개선자 판단.
+**효과가 확인된 노드(열린 goal 에서 그 부류 실패 0)는 은퇴시키지 않는다.** 자리가 없으면 1·2 를 먼저 비운다.
+
+### 노드 효과 계수 (P5 의 유일한 입력)
+
+디스패치 종료 시 원장 `d` 레코드에 **그 세션이 실제로 연 노드 slug 를 적는다**: `"nodes":["qa--x","global--y"]`. 개선자는 이것으로 센다 —
+```
+열림   = nodes 에 그 slug 를 가진 d 레코드 수
+동반실패 = 그중 rework:true 인 d 레코드 수
+```
+「읽었다」가 아니라 **「열려 있었는데도 실패했는가」**를 센다. 노드가 조언인지 장치인지는 이 비율로만 판별된다.
+
+**이 수치는 지목이지 판결이 아니다** — 귀속이 디스패치 단위라 한 세션에서 여러 노드가 열렸으면 실패 책임이 나뉘지 않는다. 개선자는 이 표로 **조사 순서만** 정하고, 은퇴·수정은 해당 실패의 기전을 확인한 뒤에 한다. 노드 1건에 근거 goal 이 1개뿐이면 아직 데이터가 아니다.
 
 ## Log format (logs/YYYY-MM-DD.md, append-only)
 
@@ -103,12 +120,13 @@ Event types: `session-start`, `decision`, `dispatch`, `result`, `failure`, `gate
 ```jsonl
 {"t":"m","id":"m-1533-dev","agent":"ai-agent-dev","key":"pytest -q@4394fef","value":"1426 passed, 1 skipped","exit":0}
 {"t":"m","id":"m-1602-rev","agent":"code-reviewer","key":"sha256 golden@609faa4","value":"338b6ea7…","exit":0,"refutes":"m-1533-dev"}
-{"t":"d","id":"d-1505","agent":"ai-agent-dev","scope":"W1~W6","rework":false,"tokens":244829}
+{"t":"d","id":"d-1505","agent":"ai-agent-dev","scope":"W1~W6","rework":false,"tokens":244829,"nodes":["qa--zero-baseline-lint-needs-resident-fixture","global--read-before-restructure"]}
 ```
 - `t` — `m` 측정 · `d` 디스패치. `id` — `<t>-<HHMM>-<짧은식별>`, 충돌하면 뒤에 숫자.
 - `key` — **`<명령 문자열>@<sha7>`**. 이것이 승계의 유일한 키다.
 - `refutes` — 이 레코드가 뒤집은 앞선 레코드의 id(없으면 필드 자체를 생략). qa·code-reviewer 가 재측정해 다른 값이 나오거나 결함을 실증하면 **반드시** 채운다.
 - `rework` — 그 디스패치가 재작업(재개·재브리프)을 유발했으면 `true`.
+- `nodes` — 그 세션이 실제로 **연** 위키 노드 slug 배열(§노드 효과 계수). 안 열었으면 `[]`.
 
 **승계 규칙(장치)** — 측정 전에 **먼저 조회한다**:
 ```
