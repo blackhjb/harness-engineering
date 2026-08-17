@@ -25,7 +25,9 @@ Compute the verdict yourself from both reports. Severity mapping: qa uses blocks
 - FAIL: anything else. Reviewer MAJOR findings become fix tasks and the verdict is FAIL. (qa minor and reviewer MINOR/NIT do not block PASS — list them.) Partial success is FAIL with an itemized gap list.
 Record in state.json: `verify` = {"verdict": "PASS"|"FAIL", "date": now}. Append a verdict entry with evidence summary to today's log. Exactly two verdicts exist — a PASS with caveats, named risks, or conditions does not; anything short of full PASS is FAIL.
 
-**Goal 결산 (same verdict entry):** `git diff --shortstat <base_ref>..HEAD` + 커밋 수 + 디스패치 수, 그리고 **품질 지표 M1·M2·M5 를 측정 원장에서 계수해 값으로 기재**한다(계수식은 `harness-state` §측정 원장; 목표치는 하네스 `docs/GOAL.md`). 원장이 비었으면 「미측정」이라 적는다 — 100% 가 아니다. M3(상류 사실 정확도)·M4(요청 충족·과잉)는 아직 수기: 반증된 상류 사실 건수와 SC 중 출처 `제안` 행 수를 세어 적는다. 결산 없는 goal 은 retro 의 채굴 루프에 보이지 않는다.
+**Goal 결산 (same verdict entry):** `git diff --shortstat <base_ref>..HEAD` + 커밋 수 + 디스패치 수, 그리고 **품질 지표 M1·M2·M5 를 측정 원장에서 계수해 값으로 기재**한다(계수식은 `harness-state` §측정 원장; 목표치는 하네스 `docs/GOAL.md`). **계수 전에 이 goal 의 디스패치 수 ↔ 원장 `d` 레코드 수를 대조해 차이(누락 에이전트·tokens 미기재)를 값으로 병기한다** — 대조 없는 M2·M5 는 분모 불명이다. 원장은 append-only 이므로 누락 소급 기재는 금지, 차이 병기만 한다. 원장이 비었으면 「미측정」이라 적는다 — 100% 가 아니다. M3(상류 사실 정확도)·M4(요청 충족·과잉)는 아직 수기: 반증된 상류 사실 건수와 SC 중 출처 `제안` 행 수를 세어 적는다. 결산 없는 goal 은 retro 의 채굴 루프에 보이지 않는다.
+
+**백그라운드 잔여 스캔 (same verdict entry):** verdict 를 적기 전에 이 세션이 background 로 띄운 디스패치 전건의 생존을 확인한다 — "running" 표시는 생존 증거가 아니다(세션이 유휴로 넘어가면 통지는 영원히 오지 않는다, wiki `workflow--liveness-by-notification-not-inference`). 진행 중 항목은 ①재개 메시지로 결과 회수 ②kill 후 동기 재실행 ③명시 이월(로그에 소유자·재개 방법 기재) 중 하나로 처분하고, 처분 없이 세션을 넘기지 않는다.
 
 ## Step 3 — On FAIL, route fixes
 Delegate to the `orchestrator` (the ONLY writer of plan.md and state.json `tasks[]`): for each unmet criterion, qa blocks-goal/blocks-task finding, and reviewer BLOCKER/MAJOR finding, add a fix task to plan.md (new T-NNN, owner, dependencies, acceptance criteria = the exact failed check), mirror into `tasks[]`, set phase back to "build". Point the user to `/harness:build`, then `/harness:verify` again.
