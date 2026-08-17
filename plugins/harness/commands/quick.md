@@ -20,7 +20,7 @@ Quick 대역의 정본은 `goal.md` §2 다. 그 조건을 하나라도 벗어�
 1. 오늘 일간 로그에 quick 항목 append (`## HH:MM [quick] dispatch`, 작업 한 줄, quick 자격 근거).
 2. 작업 — 둘 중 하나:
    - **Coordinator-direct** — `build.md` 의 메인 직접 대역(≤3파일·≤40줄·판정 0건·역편집 복구 가능)에 들면 직접 고치고 그렇게 로그한다.
-   - **dev 에이전트 1명 디스패치** — backend-dev / frontend-dev / ai-agent-dev / sre. 브리프를 쓰기 전에 **`agents/orchestrator.md` 의 `## Dispatch contract` · `## Dispatch economy` · `## 비동기 루프` 세 절을 열어 그대로 승계한다**(orchestrator 를 기동하지 않으므로 코디네이터가 그 책무를 진다 — `build.md` §우회 시 책무 승계와 같은 구조). quick 고유 조항은 하나뿐: **plan.md 태스크가 없으므로 이 브리프가 곧 과제이자 인수 조건**이며 "자기 plan.md 태스크만" 규칙은 면제된다.
+   - **dev 에이전트 1명 디스패치** — backend-dev / frontend-dev / ai-agent-dev. 브리프를 쓰기 전에 **`agents/orchestrator.md` 의 `## Dispatch contract` · `## Dispatch economy` · `## 비동기 루프` 세 절을 열어 그대로 승계한다**(orchestrator 를 기동하지 않으므로 코디네이터가 그 책무를 진다 — `build.md` §우회 시 책무 승계와 같은 구조). quick 고유 조항은 하나뿐: **plan.md 태스크가 없으므로 이 브리프가 곧 과제이자 인수 조건**이며 "자기 plan.md 태스크만" 규칙은 면제된다.
 3. **Proportional verification (경감 불가):**
    - 항상: 프로젝트 전건 스위트(무거우면 `qa` 에 위임) — 실제 출력으로 green 확인 + 확립된 import/boot smoke. 예외는 **문서 전용 변경**뿐(스위트 생략, 리뷰어 일별 또는 렌더 자체 점검으로 갈음하고 그 예외를 썼다고 보고에 적는다).
    - 가드·lint·반드시 잡아야 하는 테스트를 추가·수정했으면 **양성 대조 필수** — 절차와 함정은 `testing-qa` §8(생산자별 주입). 대조군은 **사용자 관측 행동을 지키는 가드에만** 붙이고, 생략했으면 판단 근거를 로그에 1줄.

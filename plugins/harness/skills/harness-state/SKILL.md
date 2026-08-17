@@ -40,7 +40,7 @@ All `.harness/` content is Korean; code identifiers, file paths, technical terms
 
 One node = one file = one operational insight (엔티티). This replaces the legacy flat `playbook.md` and `retro/inbox.md` (migration at the end of this section).
 
-File name IS the node's identity: `<scope>--<kebab-slug>.md`, scope from the ONE scope enum: analysis / planning / design / backend / frontend / ai-agent / qa / review / sre / cost / workflow / global. Never reuse a slug. Node format:
+File name IS the node's identity: `<scope>--<kebab-slug>.md`, scope from the ONE scope enum: analysis / planning / design / backend / frontend / ai-agent / qa / review / infra / cost / workflow / global. Never reuse a slug. Node format:
 
 ```
 ---

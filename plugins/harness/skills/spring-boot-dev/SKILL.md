@@ -112,7 +112,7 @@ Default: the layered flow above. Move a module to hexagonal (ports & adapters: `
 ## 7. Config & profiles
 
 - `application.yml` (safe defaults) + `application-local.yml` / `-dev.yml` / `-prod.yml`; select via `SPRING_PROFILES_ACTIVE`.
-- NO secrets in any yml, ever — including dev. Env placeholders: `spring.datasource.password: ${DB_PASSWORD}`. Locally env vars or gitignored `.env`; in prod Cloud Run injects from Secret Manager (`--set-secrets`). See the sre agent for the GCP side.
+- NO secrets in any yml, ever — including dev. Env placeholders: `spring.datasource.password: ${DB_PASSWORD}`. Locally env vars or gitignored `.env`; in prod Cloud Run injects from Secret Manager (`--set-secrets`). See the mlops-gcp skill for the GCP side.
 - Bind config into `@ConfigurationProperties(prefix = "app")` records — no scattered `@Value` strings.
 
 ## 8. Observability

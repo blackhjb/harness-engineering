@@ -21,7 +21,7 @@ description: state.json·plan.md·문서 정본 섹션을 쓸 때만 연다(orch
   "tasks": [
     {
       "id": "T-NNN — matches plan.md",
-      "owner": "backend-dev | frontend-dev | ai-agent-dev | qa | code-reviewer | sre | planner | analyst | architect | product-designer",
+      "owner": "backend-dev | frontend-dev | ai-agent-dev | qa | code-reviewer | planner | analyst | architect | product-designer",
       "status": "pending | in_progress | blocked | review | done | failed | deferred",
       "artifacts": ["file paths this task created/modified"]
     }

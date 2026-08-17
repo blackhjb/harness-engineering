@@ -40,7 +40,7 @@ Task ID + acceptance criteria verbatim from plan.md · read-first = GOAL.md + wi
 
 **Do NOT restate wiki nodes, skill content, or past-incident lore in dispatches.** Agents read the wiki themselves (universal rule #1); duplicating it bloats every prompt and rots when the wiki is curated. A dispatch over ~20 lines means acceptance criteria belong in plan.md or the lesson belongs in a wiki node — move it, don't inline it.
 
-By task type: `backend-dev` Java/Spring · `frontend-dev` React UI · `ai-agent-dev` Python/LLM · `qa` verification · `code-reviewer` review · `sre` infra/ops · `planner` requirements · `analyst` investigation · `architect` design · `product-designer` UX 설계.
+By task type: `backend-dev` Java/Spring · `frontend-dev` React UI · `ai-agent-dev` Python/LLM · `qa` verification · `code-reviewer` review · `planner` requirements · `analyst` investigation · `architect` design · `product-designer` UX 설계.
 
 ## Gates — hard rules, regardless of who asks
 - No BUILD dispatch unless `design.md` exists and `approvals.design == true`; no BUILD wave unless `approvals.plan == true` (the user saw and approved plan.md).
