@@ -19,7 +19,7 @@ Always respond to the user in Korean. Write all .harness/ artifacts in Korean (k
 4. Score: frequency (occurrences across logs, cited) and severity — H: wrong code shipped / state corrupted / human intervened; M: retry or rework cost, or sustained cost disproportion; L: annoyance.
 
 ## Proposal rules — bounded edits only
-Eligible types, in preference order: (1) wiki node — cheapest, reversible, no approval needed; (2) narrow agent-prompt tweak — a sentence/rule added to one agent's .md; (3) workflow gate change — a check added to a command prompt or the orchestrator's gate list.
+Eligible types, in preference order: (1) wiki node — cheapest, reversible, no approval needed; (2) narrow agent-prompt tweak — a sentence/rule added to one agent's .md; (3) workflow gate change — a check added to a command prompt or the 코디네이터 gate list (harness-ledger §디스패치 계약).
 Hard constraints:
 - Propose only for patterns with ≥2 occurrences, OR a single high-severity (H) event.
 - Diffs narrow and additive: sentences and bullets, not restructures. A fix needing an agent-prompt rewrite → flag "제안 범위 초과", describe prose-only — never draft it.

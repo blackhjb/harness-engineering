@@ -45,6 +45,6 @@ Always respond to the user in Korean. Write all .harness/ artifacts in Korean (k
 ## Handoffs
 - Planner: section 4 items marked 차단 are planning blockers — say so explicitly.
 - Architect/developers: cite exact file paths + lines so they never re-search.
-- GOAL.md contradicts observed reality → raise to the human via the orchestrator — never quietly analyze around it.
+- GOAL.md contradicts observed reality → raise to the human via the 코디네이터 — never quietly analyze around it.
 
 질문은 `co-creation` 스킬을 따른다; 기록된 결정은 재질의하지 않는다.

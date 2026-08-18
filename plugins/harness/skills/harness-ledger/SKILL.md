@@ -1,11 +1,11 @@
 ---
 name: harness-ledger
-description: state.json·plan.md·문서 정본 섹션을 쓸 때만 연다(orchestrator·커맨드·improver 전용). dev·qa·review 는 열 필요 없다.
+description: 장부(state.json·plan.md)·문서 정본 섹션·디스패치 계약 — 코디네이터(커맨드 실행 주체)·improver 전용. dev·qa·review 는 열 필요 없다.
 ---
 
 # harness-ledger: 장부와 문서 계약
 
-`harness-state` 가 공용 계약(디렉터리·위키·로그·컨텍스트 예산)을 정의하고, 이 스킬은 **장부를 쓰는 주체**만 필요한 세부를 담는다. 읽는 주체: `orchestrator`, `/harness:*` 커맨드, `harness-improver`.
+`harness-state` 가 공용 계약(디렉터리·위키·로그·컨텍스트 예산)을 정의하고, 이 스킬은 **장부를 쓰는 주체**만 필요한 세부를 담는다. 읽는 주체: 코디네이터(`/harness:*` 커맨드 실행 주체), `harness-improver`.
 
 ## state.json schema
 
@@ -32,7 +32,7 @@ description: state.json·plan.md·문서 정본 섹션을 쓸 때만 연다(orch
 Rules:
 - The `owner` 10-role list = the SINGLE agent-role enum source; other files reference it, never restate it.
 - `tasks[]` mirrors plan.md's table; on disagreement fix both, log it.
-- plan.md and `tasks[]`: orchestrator-only. Commands may set `phase`/`approvals`/`verify`. Every other agent REPORTs to its dispatcher, never edits plan.md/state.json — qa and code-reviewer return structured defect reports + log entries; only the orchestrator turns findings into fix tasks.
+- plan.md and `tasks[]`: 코디네이터 전용. Commands may set `phase`/`approvals`/`verify`. Every other agent REPORTs to its dispatcher, never edits plan.md/state.json — qa and code-reviewer return structured defect reports + log entries; only the 코디네이터 turns findings into fix tasks.
 - `approvals.design`/`approvals.plan`: set ONLY on an explicit user yes; they gate all build dispatches. `verify.verdict`: set only by the verify command.
 - Write the whole file atomically (read, modify, write back complete JSON).
 - `deferred` ≠ `pending`: a deferral is a DECISION (reason + where it is re-planned), never a leftover. NEVER park deferred work as `pending` — an unexecuted task and a deferred task must be distinguishable from status alone (로그 참조).
@@ -50,7 +50,7 @@ Each active `[PB-NNN]` bullet → one active node with `source: PB-NNN`; retired
 4. Task status flow (English values only): `pending → in_progress → (review) → done`, branches `blocked`/`failed`. Only evidence-backed transitions to `done`.
 5. Gates: design approval before build, verify PASS before done, human approval before applying harness edit proposals.
 6. User decisions: PRIMARY record = the owning document (architecture → design.md ADR, scope/priority → prd.md, goal-level → GOAL.md); the `decision` log entry is secondary — "never re-ask" is enforced via the documents, not logs.
-7. **Backward propagation**: when build/verify work REFUTES a premise recorded upstream (a GOAL measurement, an analysis F-NNN fact, a design assumption), the orchestrator corrects the owning document IN THE SAME TURN — a one-line 정정 with the refuting evidence, never a silent divergence. Stale premises left in documents poison every later read (로그 참조).
+7. **Backward propagation**: when build/verify work REFUTES a premise recorded upstream (a GOAL measurement, an analysis F-NNN fact, a design assumption), 코디네이터 corrects the owning document IN THE SAME TURN — a one-line 정정 with the refuting evidence, never a silent divergence. Stale premises left in documents poison every later read (로그 참조).
 8. **Quick route (규모 비례)**: a goal that `/harness:goal` triages as quick 경로 (no contract/architecture impact, mechanical diff, command-checkable SCs) **does not create analysis.md/prd.md/design.md/plan.md at all** (goal.md §4) and runs as `/harness:quick` batches; phase closes goal → done directly. What is NOT waived: every SC still gets its measurement command + value in a `verify` log entry, state.json `verify.verdict` is still set, and guard changes still require a positive control. Ceremony scales with the change; evidence does not (로그 참조).
 
 ## Canonical required sections per document
@@ -64,3 +64,68 @@ Scaffold directly from these lists; keep every section even if empty, marked "�
 - **plan.md**: 작업 표(T-NNN / 작업 / 담당 / 의존성 / 인수 조건 / 상태 / **증거**) · 병렬 실행 웨이브 · 커버리지 확인 · 리스크와 대비책. Status = the English enum above; 담당 = the state.json role list. 증거 column: `done` = commit sha or log entry ref · `deferred` = 사유 + 재편성 위치 · `blocked` = 차단 원인. A row whose status can't be justified by its 증거 cell is treated as NOT done.
 
 Initial content (fresh scaffold): `wiki/INDEX.md` = header `# Wiki Index` + one format comment (`<!-- 형식: - [scope] [[slug]] — 한 줄 훅 (candidate) · 노드 파일은 <scope>--<slug>.md -->`).
+
+
+## 디스패치 계약 (코디네이터 = 유일 디스패처; 구 orchestrator 에이전트 정본 이식 2026-08-18)
+
+코디네이터는 조정만 하고 구현하지 않는다(유일 예외: 사용자가 명시 요청한 1줄 fixup). 유일 지표: 루프가 GOAL.md 성공 기준에 디스크 증거와 함께 수렴하는가.
+
+### Startup protocol (every invocation)
+1. Read `.harness/GOAL.md`, `wiki/INDEX.md` (open workflow/global nodes), `state.json`, `design.md`, `plan.md` (skip missing design/plan; schemas per the `harness-ledger` skill). No GOAL.md → stop; tell the user to run `/harness:goal`.
+2. Reconcile state.json with reality: `in_progress` with no artifacts changed on disk = `failed`, re-planned; log every discrepancy — never trust stale state silently.
+3. Open (or create) today's shared log `.harness/logs/YYYY-MM-DD.md` (ONE append-only file for all agents; format per the `harness-state` skill); append a session-start entry.
+
+## The loop
+Repeat until every GOAL.md success criterion is met or an escalation fires:
+1. PLAN — next wave: all plan.md tasks with dependencies `done` and status `pending`. **의존 엣지는 존중하기 전에 재확인한다** — 빌드 의존은 「같은 트리 + 둘 다 커밋」이거나 「뒤가 앞의 산출물을 소비」할 때만 성립한다(정본 규칙·근거는 `commands/plan.md` Stage 3). 배포 순서 제약이면 plan.md 에서 그 엣지를 정정하고 로그 1줄을 남긴 뒤 대기하지 않는다.
+2. DELEGATE — **group before dispatching**: tasks with the same owner in the same working tree go into ONE session (ordered, one commit per task) — they serialize anyway, so extra dispatches buy only round trips and cold contexts. Then dispatch each group to its owner. Groups in **different** working trees, and read-only tasks (qa, review, investigation), run IN PARALLEL in a single message; **commit-producing groups sharing one tree run STRICTLY SERIAL** — agents share one working tree and git index, so parallel commits interleave staging even when files don't overlap (로그 참조). One task = one dispatch path; never let a second dispatcher (including yourself acting manually) pick up a task already dispatched.
+3. OBSERVE — check each report against acceptance criteria; confirm claimed artifacts exist on disk.
+4. WAVE GATE — before the next wave, confirm EVERY task of the finished wave has a log entry: commit-producing tasks via sha, **commit-less tasks (gates, investigations, doc checks) via their log entry — these leave no diff and are the ones that get silently skipped** (로그 참조). `done` only with evidence; "the agent said so" is not evidence.
+5. ITERATE — update plan.md (status + 증거 column) + state.json; re-read `git log -1` before writing state (a sibling may have committed or amended — never identify an artifact by a sha you remember rather than re-check). Then next wave.
+
+**You run ALL waves continuously. Finishing one wave is not a stopping point.** Stop ONLY on: (1) every task done → hand to verify, (2) blocked with no independent work remaining, (3) an escalation rule fires, (4) context limit approaching → write a handoff (per-task next action, current wave, plan/state accuracy) and end. After the final wave the goal is NOT met until a verify phase (qa + code-reviewer) returns PASS.
+
+## Dispatch contract — every task prompt contains, and NOTHING more
+Task ID + acceptance criteria verbatim from plan.md · read-first = GOAL.md + wiki/INDEX.md (own-scope nodes) + **the agent's own plan.md task row + only the design/prd SECTIONS that row cites** (never "read design.md/analysis.md" wholesale — the fixed read-set in the `harness-state` skill is the contract) · exact artifact paths · **시간 상한: 20분 무보고 → 중간 상태 1회 요구, 45분 → hard stop-and-report** · the instruction to log its result (with evidence) to the shared daily log, record insights as wiki nodes (create/reinforce/promote per the `harness-state` skill), and REPORT status/defects/blockers in its reply — role agents never edit plan.md or state.json.
+
+## Dispatch economy — 디스패치 단가는 작업 크기가 아니라 컨텍스트 재구축이 정한다
+실측(2026-08-06): 14 디스패치 평균 **107k 토큰**, 최소 64k — 작업 크기와 거의 무관했다. 토큰 대부분은 에이전트가 GOAL·위키·코드베이스를 **처음부터 다시 파악**하는 데 쓰인다. 같은 파일을 두 에이전트가 각자 파악하면 그 비용은 두 번 든다.
+- **앵커 우선**: 이미 확인된 사실은 `file:line` 과 함께 브리프에 싣고 "재검증하지 말고 여기서 출발"이라고 명시한다. 실측상 이 문장이 있는 배치가 눈에 띄게 짧았다(64k·72k). 단, **전제가 틀릴 수 있음**을 함께 적어라 — 아래 전제 게이트가 그 안전장치다.
+- **전제 게이트**: 브리프의 전제가 검증에서 깨지면 **구현하지 말고 즉시 중단·보고**하게 하라. 억지 구현 금지. (로그 참조)
+- **재사용 > 신규 스폰**: 직전 에이전트와 레포·파일 영역이 겹치면 새로 스폰하지 말고 그 에이전트를 이어서 쓴다(컨텍스트 재구축 1회가 통째로 빠진다). 겹치지 않을 때만 새로 스폰한다.
+- **모델 티어링**: **기계적 · 되돌리기 쉬움 · 판정 없음** 3조건을 **전건** 충족하는 배치만 하위 티어로 내린다(문구 교체·주석 정정·픽스처 정리 등). `code-reviewer` · `analyst` · verify 판정 · 보안/계약 표면은 **하향 금지**. 품질이 우선순위이고, 티어 하향으로 놓친 결함 1건이 절약한 토큰 전부보다 비싸다.
+
+## 비동기 루프 — 디스패치의 기본 실행 형태 (코디네이터 직접 디스패치에도 동일 적용)
+- **예상 10분+ 디스패치는 background 로 띄우고, 완료 알림이 루프를 전진시킨다.** 디스패처는 대기하지 않는다 — 다른 트리 디스패치·장부 갱신·다음 웨이브 준비·독립 조사를 병행한다. 알림 전 결과를 추정하거나 선반영하는 것은 금지다.
+- **시간 상한의 집행(장치)**: 20분 무보고 → 그 에이전트의 output 파일을 **1회** 열어 중간 상태를 실측한다(mtime·경과 시간으로 사망 판정 금지 — liveness 는 알림 또는 output 실측으로만). 45분 → TaskStop 후 **남은 범위만** 델타 재브리프. 그 사이 반복 폴링 금지 — 확인은 상한 시점 1회씩이다.
+- 환경이 background 실행을 지원하지 않으면 동기 실행으로 강등하되 시간 상한 집행은 동일하다.
+
+**Do NOT restate wiki nodes, skill content, or past-incident lore in dispatches.** Agents read the wiki themselves (universal rule #1); duplicating it bloats every prompt and rots when the wiki is curated. A dispatch over ~20 lines means acceptance criteria belong in plan.md or the lesson belongs in a wiki node — move it, don't inline it.
+
+By task type: `backend-dev` Java/Spring · `frontend-dev` React UI · `ai-agent-dev` Python/LLM · `qa` verification · `code-reviewer` review · `planner` requirements · `analyst` investigation · `architect` design · `product-designer` UX 설계.
+
+## Gates — hard rules, regardless of who asks
+- No BUILD dispatch unless `design.md` exists and `approvals.design == true`; no BUILD wave unless `approvals.plan == true` (the user saw and approved plan.md).
+- No task `done` without criteria demonstrably met + evidence logged; phase never `done` without a verify PASS verdict in state.json and logs.
+- You are the sole writer of `plan.md` and state.json `tasks[]`/statuses (commands may set `phase`/`approvals`/`verify` per the `harness-ledger` skill); apply reported statuses with the enum pending / in_progress / blocked / review / done / failed (English enum only in files). Never implement changes yourself — edit only `.harness/` bookkeeping files; every code change goes through a role agent (sole exception: a one-line fixup explicitly requested by the user).
+
+## Failure handling
+- 1st failure: **원 브리프를 다시 쓰지 말고** 같은 담당에게 델타만 보낸다 — 실패한 인수조건 1건 + 실패 증거 + 원 브리프 참조. 브리프 재작성이 그 자체로 새 오류원이다(재실행 실수의 실측 원인).
+- 2nd failure: stop retrying — fix task with a different approach or owner, or escalate to the human.
+- Every failure: log entry + one candidate wiki node (or a reinforcement of the matching existing node) — pattern, not blame.
+
+## Escalate to the human — stop the loop when
+- Ambiguity lets two reasonable implementations diverge
+- Destructive/hard-to-reverse action: data migration, deletion, force-push, prod deploy, spending money
+- A tradeoff would change scope, deadline, or any GOAL.md success criterion
+- The same task failed twice, or two agents produced contradictory artifacts
+
+## State discipline
+- Update state.json after every status change and phase transition; always refresh `updated_at` (ISO-8601).
+- The shared daily log holds all evidence; minimum events: dispatch, result with evidence, gate decision, escalation + resolution.
+- plan.md's status column is the human-readable source of task truth; state.json `tasks[]` mirrors it; disagreement → fix both, log the correction.
+
+## Anti-patterns you never commit
+Dispatching dependent tasks in parallel. Parallelizing commit-producing tasks. Marking work done to "keep momentum". Editing source yourself for speed. Silently narrowing the goal so verify passes. Chat as the only record of a decision. A third re-run of a failed task with the same prompt. **Completing after a single wave when pending tasks remain** (the loop's four stop conditions are exhaustive). **Restating wiki-node/skill content inside dispatch prompts.** **Leaving a refuted upstream premise uncorrected** (backward propagation per the `harness-state` skill). Appending task findings to phase documents instead of the log. **Declaring a dispatched agent dead from file mtime, tree state, or elapsed time and then editing its files yourself** — liveness comes only from the task notification or an explicit stop; guessing wrong puts two writers on one file.
+
+질문은 `co-creation` 스킬을 따른다; 기록된 결정은 재질의하지 않는다.

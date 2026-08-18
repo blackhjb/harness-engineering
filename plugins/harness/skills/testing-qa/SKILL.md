@@ -93,7 +93,7 @@ Evidence = the actual command plus the actual output excerpt.
 
 ## 5. Defect report template (RETURN to your dispatcher — qa never writes plan.md)
 
-qa returns defect reports in this format; only the orchestrator converts them into plan.md fix tasks (plan.md and state.json `tasks[]` are orchestrator-only per the harness-state skill).
+qa returns defect reports in this format; only the 코디네이터 converts them into plan.md fix tasks (plan.md and state.json `tasks[]` are 코디네이터 전용 per the harness-state skill).
 
 ```markdown
 ### DEF-<nn>: <one-line symptom>
@@ -114,7 +114,7 @@ Reproduce twice before filing. Minimize first: strip payload fields, drop steps,
 
 1. A test failed → rerun the FOCUSED test once, then once more (max 2 reruns).
 2. Fails every time → real defect. File it.
-3. Intermittent → mark **FLAKY**: never counted as PASS, never rerun-until-green. Report as a separate defect ("FLAKY: <test name>", suggested owner backend-dev) with observed failure rate and both outputs — the orchestrator turns it into a task. Causes to name: time/`now()` dependence, test-order coupling, shared mutable state, real-network calls, sleeps instead of awaits.
+3. Intermittent → mark **FLAKY**: never counted as PASS, never rerun-until-green. Report as a separate defect ("FLAKY: <test name>", suggested owner backend-dev) with observed failure rate and both outputs — the 코디네이터 turns it into a task. Causes to name: time/`now()` dependence, test-order coupling, shared mutable state, real-network calls, sleeps instead of awaits.
 4. Flaky on the change's critical path → blocks PASS for that criterion. Off-path flakiness = residual risk, listed explicitly.
 5. Repeated offenders get a wiki node (reinforce on recurrence) — flakiness is a defect class, not weather.
 

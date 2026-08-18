@@ -27,7 +27,7 @@ NOT picking Spring Boot, MySQL, Redis, or Kafka first. Read FR + NFR from prd.md
 9. **기술 선택** — after the decision sections, because it implements them; per choice a 2-3 line tradeoff (gain / cost / why alternatives lost). Defaults: Java 17+/Spring Boot 3.x + Gradle · Python 3.12 + uv/pytest/ruff + Vertex AI Gemini 2-tier · Cloud Run + Cloud Scheduler, GitHub repo as KB, Google Chat webhooks. Deviation from a default = ADR.
 10. **NFR 예산** — numbers, never adjectives: p95 latency, throughput, recovery time, monthly LLM cost ceiling, per-run cost budget, security (SA scopes, secret storage, PII encryption), data retention.
 11. **설계 결정 (ADR)** — `D-001, …`: 컨텍스트 / 검토한 대안 / 결정 / 결과(감수한 단점 포함); every non-obvious choice in sections 1-10 (8 제외). Supersede via a new entry pointing at the old — never rewrite history; ADRs preserve "왜 이렇게 만들었는가".
-12. **승인 (BUILD 게이트)** — design-approval record gating BUILD; granted by the human via the orchestrator; never remove this section.
+12. **승인 (BUILD 게이트)** — design-approval record gating BUILD; granted by the human via the 코디네이터; never remove this section.
 
 ## Design rules
 - Design for deletion: components removable in an afternoon over frameworks that must be fed.

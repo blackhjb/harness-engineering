@@ -1,5 +1,5 @@
 ---
-description: VERIFY phase — qa and code-reviewer run in parallel to check tests and GOAL.md success criteria; produces a PASS/FAIL verdict with evidence, FAIL spawns fix tasks via the orchestrator
+description: VERIFY phase — qa and code-reviewer run in parallel to check tests and GOAL.md success criteria; produces a PASS/FAIL verdict with evidence, FAIL spawns fix tasks via the 코디네이터
 argument-hint: "[optional: specific success criteria or areas to focus on]"
 ---
 
@@ -12,7 +12,7 @@ Read `.harness/state.json` and `plan.md`. If build tasks are still `pending`/`in
 
 ## Step 1 — Parallel verification (qa fans out per criterion; one code-reviewer per tree)
 **qa 는 SC 단위로 팬아웃한다** — one small agent per success criterion (plus one for the regression suite), all launched in a single message. Verification is embarrassingly parallel at the criterion level: each check is 3~8 minutes on its own, and stacking nine of them into one session serializes what could have finished at once (실측 2026-08-06). `code-reviewer` stays ONE per working tree — a diff review needs the whole diff.
-Delegate these IN PARALLEL (single message), background 로 — 알림으로 결과를 모으고 그동안 결산 집계·장부 정리를 병행한다(20/45분 집행은 orchestrator 의 비동기 루프 규칙과 동일). Both RETURN structured reports and append log entries; neither edits plan.md or state.json — only the orchestrator (Step 3) converts findings into fix tasks.
+Delegate these IN PARALLEL (single message), background 로 — 알림으로 결과를 모으고 그동안 결산 집계·장부 정리를 병행한다(20/45분 집행은 `harness-ledger` §디스패치 계약의 비동기 루프와 동일). Both RETURN structured reports and append log entries; neither edits plan.md or state.json — only the 코디네이터 (Step 3) converts findings into fix tasks.
 **Multi-repo goals split by working tree, and a tree's pair starts as soon as THAT tree is frozen** — its tasks are `done` and no further commits are planned — without waiting for another tree's build. State the tree and its `git log <base>..HEAD` range in each brief; if commits later land in that tree, re-review only the delta. Review scope is per-tree, so a sibling repo still building never justifies idling (로그 2026-08-06).
 **측정 승계는 원장으로 집행한다** (`harness-state` §측정 원장): 검증자는 측정 전 `grep -F '"key":"<명령>@<sha7>"' .harness/measurements.jsonl` 을 **먼저** 돌리고, 히트가 있고 이후 커밋이 없으면 재실행하지 않고 그 값을 인용한다. 재실행 의무는 셋뿐 — ①히트 없음 ②이후 커밋 존재 ③red 이력 없는 회귀 pin(goal 당 표본 1건만 격리 worktree 재현). 재측정해 **다른 값이 나오거나 결함을 실증하면 `refutes` 필드에 앞선 레코드 id 를 채워 원장에 append** — 이것이 M1(자기보고 정확도)의 유일한 입력이다. CPU 바운드 검증은 트리당 1세션.
 
@@ -30,7 +30,7 @@ Record in state.json: `verify` = {"verdict": "PASS"|"FAIL", "date": now}. Append
 **백그라운드 잔여 스캔 (same verdict entry):** verdict 를 적기 전에 이 세션이 background 로 띄운 디스패치 전건의 생존을 확인한다 — "running" 표시는 생존 증거가 아니다(세션이 유휴로 넘어가면 통지는 영원히 오지 않는다, wiki `workflow--liveness-by-notification-not-inference`). 진행 중 항목은 ①재개 메시지로 결과 회수 ②kill 후 동기 재실행 ③명시 이월(로그에 소유자·재개 방법 기재) 중 하나로 처분하고, 처분 없이 세션을 넘기지 않는다.
 
 ## Step 3 — On FAIL, route fixes
-Delegate to the `orchestrator` (the ONLY writer of plan.md and state.json `tasks[]`): for each unmet criterion, qa blocks-goal/blocks-task finding, and reviewer BLOCKER/MAJOR finding, add a fix task to plan.md (new T-NNN, owner, dependencies, acceptance criteria = the exact failed check), mirror into `tasks[]`, set phase back to "build". Point the user to `/harness:build`, then `/harness:verify` again.
+코디네이터가 직접 (the ONLY writer of plan.md and state.json `tasks[]`): for each unmet criterion, qa blocks-goal/blocks-task finding, and reviewer BLOCKER/MAJOR finding, add a fix task to plan.md (new T-NNN, owner, dependencies, acceptance criteria = the exact failed check), mirror into `tasks[]`, set phase back to "build". Point the user to `/harness:build`, then `/harness:verify` again.
 
 ## Report to the user (Korean)
 Verdict up front (PASS/FAIL), criteria table, qa blocks-goal/blocks-task and reviewer BLOCKER/MAJOR findings, next step:

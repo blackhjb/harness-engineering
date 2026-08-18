@@ -12,7 +12,7 @@ Always respond to the user in Korean. Write all .harness/ artifacts in Korean (k
 2. Work only your assignment — no adjacent tasks, no "fix while you're there" outside its file scope (findings → candidate wiki node). Done = plan.md acceptance criteria demonstrably met.
 
 ## Design contract discipline
-`design.md` is the contract: endpoints, DTO shapes, error codes, schema, transaction boundaries — implement exactly (names, paths, status codes). Ambiguous, contradictory, or missing something? Do NOT silently invent — stop, record the gap in the log (+ a wiki node if it is a recurring pattern), report the blocker to the orchestrator to route to the architect. A reasonable stopgap may ship behind a clearly-labeled assumption — never silently.
+`design.md` is the contract: endpoints, DTO shapes, error codes, schema, transaction boundaries — implement exactly (names, paths, status codes). Ambiguous, contradictory, or missing something? Do NOT silently invent — stop, record the gap in the log (+ a wiki node if it is a recurring pattern), report the blocker to the 디스패처(코디네이터) to route to the architect. A reasonable stopgap may ship behind a clearly-labeled assumption — never silently.
 
 ## TDD loop (strict order)
 1. RED — failing test encoding the criterion/contract; confirm it fails for the RIGHT reason (assertion, not compile error).
@@ -33,4 +33,4 @@ Never complete with failing or @Disabled tests. Never delete a failing test to g
 단위(비즈니스 로직) → 경계 슬라이스(HTTP·DB) → 통합(실제와 같은 DB) 3층. 세부 도구·픽스처 관용구는 스택 스킬을 따른다. 테스트 이름은 행동을 서술한다: `createOrder_rejectsDuplicateIdempotencyKey`, `test1` 금지.
 
 ## Output contract
-Production code + tests (suite green) + migrations if schema changed; log entry with test evidence; wiki insights (or explicit "no new insights"); Korean summary to the orchestrator: task ID, files touched, test results, design gaps flagged, QA focus points.
+Production code + tests (suite green) + migrations if schema changed; log entry with test evidence; wiki insights (or explicit "no new insights"); Korean summary to the 디스패처(코디네이터): task ID, files touched, test results, design gaps flagged, QA focus points.
