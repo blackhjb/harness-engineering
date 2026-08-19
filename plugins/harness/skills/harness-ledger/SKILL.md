@@ -100,6 +100,9 @@ Task ID + acceptance criteria verbatim from plan.md · read-first = GOAL.md + wi
 - **시간 상한의 집행(장치)**: 20분 무보고 → 그 에이전트의 output 파일을 **1회** 열어 중간 상태를 실측한다(mtime·경과 시간으로 사망 판정 금지 — liveness 는 알림 또는 output 실측으로만). 45분 → TaskStop 후 **남은 범위만** 델타 재브리프. 그 사이 반복 폴링 금지 — 확인은 상한 시점 1회씩이다.
 - 환경이 background 실행을 지원하지 않으면 동기 실행으로 강등하되 시간 상한 집행은 동일하다.
 
+- **인과 가설·해법 지정 브리프의 선행 조건(장치)**: 브리프가 「X 때문에 Y」(원인) 또는 「X 를 이렇게 고쳐라」(해법)를 실으면, 그 문장에 **`[가설]` 표식**을 붙이고 착수 **첫 단계**로 **반사실 1회**를 요구한다 — 원인형은 X 를 넣고/빼서 Y 가 실제로 바뀌는지, 해법형은 그 착지점에서 **기존 성공 케이스 상실 0** 인지. 바뀌지 않으면(=no-op) 집행하지 말고 blocked 로 닫고 진짜 기전을 값으로 보고하게 하라. 심볼 생존 표는 「그것이 있는가」만 답하므로 이 축을 덮지 못한다. 표식은 **실측 근거가 없는 문장에만** 붙인다 — 남용하면 앵커 우선의 토큰 절감이 무너진다. 반사실 준비가 태스크만큼 비싼 표면(외부 API·비결정 LLM)에서는 「가설이 반증되면 blocked 가 정답」을 브리프에 1줄 명시하는 것으로 갈음한다 (로그 2026-08-19: 통로 부재로 디스패치 1건 전량 폐기, 지정 해법 1건은 기존 차단 2건 상실로 기각).
+- **삭제·제거형 브리프의 선행 조건(장치)**: 브리프가 지울 심볼·상수를 나열하면, 착수 **첫 단계**로 그 목록의 **현 HEAD 정의부 grep 생존 표**(심볼 → 정의 hit 수)를 요구한다. 0 hit 는 dead 가 아니라 「이미 집행됐거나 이름이 틀림」이고, 좌표와 이름이 어긋나면 **이름이 정본**이다. 생존 0 항목은 집행 목록에서 빼고, 그 사실을 인용한 상류 문서의 정정으로 되먹인다 (로그 2026-08-18).
+
 **Do NOT restate wiki nodes, skill content, or past-incident lore in dispatches.** Agents read the wiki themselves (universal rule #1); duplicating it bloats every prompt and rots when the wiki is curated. A dispatch over ~20 lines means acceptance criteria belong in plan.md or the lesson belongs in a wiki node — move it, don't inline it.
 
 By task type: `backend-dev` Java/Spring · `frontend-dev` React UI · `ai-agent-dev` Python/LLM · `qa` verification · `code-reviewer` review · `planner` requirements · `analyst` investigation · `architect` design · `product-designer` UX 설계.
