@@ -21,6 +21,14 @@ Set state.json `phase` = "build".
 **디스패치 프롬프트에 위키·스킬 내용을 재서술하지 않는다**: point the agent at `wiki/INDEX.md` + its own scope and give it the task's criteria. Pasting the rules in yourself bypasses the recall path the wiki exists for — the knowledge stops being retrievable and becomes your copy-paste (2026-08-06: recorded lessons never reached the agents that needed them for exactly this reason).
 **가드·lint·측정 스크립트를 신설·수정하는 태스크의 브리프에는 qa scope 의 측정 규율 노드(양성 대조 red 선실증 · 축별 주입)를 slug 로 지정 포함한다** — 내용 재서술 금지, 지정만. 이 규율의 위반 생산자는 검증자가 아니라 빌더인데 qa 노드는 빌더의 기본 읽기 세트 밖이다 (실측 2026-08-07·08-14: 지정 태스크 무결, 미지정 태스크 3건에서 가드 무탐·red 1축 과대 보고로 rework). 판별은 인수조건에 test/lint 파일 신설·수정이 있는지로 한다.
 
+**성과의 정의 — 브리프에 값으로 박는다 (사용자 정책 2026-08-20).** 삭제형·구조형 goal 의 헤드라인은 **프로덕션 순삭제 줄수 + 분기 델타**다. 다음 셋은 성과가 아니므로 목표치·헤드라인으로 쓰지 말고, 브리프에 금지로 명시한다: ①**계측기·게이트·측정 인프라 신설** — 그건 비용이고, 소비(삭제)가 같은 배치에 없으면 빚만 남는다 ②**테스트 파일·테스트 줄수 삭제** — 언제든 지울 수 있어 진척을 나타내지 않는다(prod/test 분리 보고 필수) ③**이관·개명·재수출** — 위치만 바뀐다. 판정 질문: 이 커밋이 `src/` 프로덕션 줄수와 분기 계수를 줄였는가.
+
+**Ablation 우선 — 계측은 ablation 이 불가능할 때만 (사용자 정책 2026-08-20).** 「죽은 것 같은 코드」의 기본 처분은 **지우고 정답률로 판정**이다. 계측→수집→판정→삭제 4단계는 ablation 이 구조적으로 불가능한 경우(외부 상태 의존·측정 자체가 목적)에만 쓴다. 계측 경로를 택하면 **왜 ablation 이 불가능한지 1줄**을 브리프에 남긴다 — 남기지 못하면 ablation 으로 간다. (실측 2026-08-19~20: 계측 전담 iteration 이 게이트 20종을 낳고 상수 2~12종 처분에 그쳐 원복으로 닫혔다.)
+
+**선언과 디스패치는 같은 턴이다.** 「다음은 X 를 디스패치한다」를 사용자에게 보고했으면 **그 턴 안에서 실제로 Agent 를 호출**한다. 보고만 하고 턴을 끝내면 루프가 조용히 정지한다 — 웨이브 착지 처리는 「장부 갱신 → **디스패치**」를 한 턴에 붙여서 하고, 디스패치 없이 턴을 닫을 때는 정지 조건 4종 중 어느 것인지 로그에 남긴다. (실측 2026-08-19: 선언 후 미호출로 19시간 유휴.)
+
+**장수 측정의 수확 주체는 코디네이터다.** 측정 에이전트가 Golden·벤치를 백그라운드로 띄우고 세션을 끝내면 프로세스는 살아도(nohup·PPID 1) **결과를 수확할 주체가 사라진다**. 측정 디스패치 브리프에는 「이 세션 안에서 완주」를 요구하고, 그래도 조기 종료하면 코디네이터가 러너 종료를 기다려 직접 수확한다(추가 디스패치 금지 — 왕복만 늘어난다).
+
 **디스패처는 코디네이터 1인이다** (orchestrator 에이전트는 2026-08-18 은퇴 — 23 iteration 실사용 0, 계약은 `harness-ledger` §디스패치 계약으로 이식). 대형 웨이브도 코디네이터가 그 계약을 그대로 집행한다.
 **한 트리의 디스패처는 항상 1인이다** — 실행 중인 장수명 에이전트에 시간 민감한 계획 변경을 메시지로 보내지 않는다(다음 툴 라운드까지 미배달; 기전·실측은 wiki `workflow--liveness-by-notification-not-inference`).
 **웨이브 비용 감지(웨이브 종료마다 1줄)**: log cumulative dispatch count and current diff size (`git diff --shortstat <base_ref>..HEAD`). **디스패치 수 > 변경 소스 파일 수**(테스트·픽스처·문서 제외 — 회귀 가드를 성실히 쓸수록 분모가 부풀어 초과가 가려진다) means ceremony has overtaken the change — cut the remaining ceremony (merge dispatches, drop redundant verification tasks) in that same turn and say so in the line. Waiting for verify's 결산 to notice is too late; the user should not be the detector.
