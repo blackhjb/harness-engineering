@@ -30,7 +30,7 @@ All `.harness/` content is Korean; code identifiers, file paths, technical terms
 | `logs/YYYY-MM-DD.md` | ONE shared append-only daily log, ALL agents | every agent (append) | Continuously |
 | `measurements.jsonl` | 측정·디스패치 원장 (기계 판독, 승계·지표 계수의 유일 출처) | every agent (append 1줄) | 측정할 때마다 · 디스패치 종료 시 |
 | `retro/YYYY-MM-DD.md` | Retro report + edit proposals | harness-improver | Retro |
-| `logs/archive/`, `retro/*archive*` | Cold storage: mined logs, legacy playbook/inbox archives | harness-improver | Retro; never read in normal work |
+| `logs/archive/` · `measurements.archive.jsonl` · `retro/archive/` | Cold storage: mined logs · rotated ledger rows · past retro reports (legacy playbook/inbox archives 포함) | harness-improver | Retro; never read in normal work |
 
 ## 장부·문서 계약은 별도 스킬
 
@@ -157,10 +157,9 @@ The harness must get smarter WITHOUT per-task context growing; learning lives in
 
 0-a. **스킬은 통째로 읽지 않는다** — `grep -n '^## ' <스킬>` 로 목차를 얻고 필요한 섹션만 offset 으로 읽는다. 스킬은 레시피북이고 한 태스크에 필요한 레시피는 1~2개다.
 0. **1회 디스패치 읽기 예산 ≤3,500단어** — 에이전트 파일 + 도메인 스킬 **1개** + 이 공용 스킬. 초과 시 절단 순서: ①사건 서사를 위키 노드·로그 날짜 참조로 강등 ②1디스패치 1스킬(둘째 스킬 금지) ③스킬을 청중 기준 분할 ④태스크 분할. **예외는 코디네이터 하나** — 장부 소유자라 `harness-ledger` 를 함께 읽는다.
-1. **Wiki reads are INDEX-driven**: read `wiki/INDEX.md` (≤80 lines), open only own-scope + `global`/`workflow` nodes (≤10 lines each). Never bulk-read `wiki/`; never quote other scopes' nodes into outputs.
-2. **Node text stays compressed**: reinforcement sharpens wording, it never appends narrative. Incident stories belong in the daily log, referenced from the node by date.
+1–2. **Wiki reads are INDEX-driven, node text stays compressed**: read `wiki/INDEX.md` (≤80 lines), open only own-scope + `global`/`workflow` nodes (≤10 lines each); never bulk-read `wiki/`, never quote other scopes' nodes. Reinforcement sharpens wording, never appends narrative — incident stories live in the daily log, referenced by date.
 3. **Fixed read-set per task**: GOAL.md + wiki/INDEX.md + own-scope nodes + own plan.md task row + documents the role owns/consumes (e.g. dev → design.md) + **`measurements.jsonl` 을 `grep -F` 키 조회로만**(통독 금지 — 승계 판정에 필요한 것은 그 키의 히트 여부뿐이다). NEVER read `logs/`, `retro/`, or archives in normal work — past decisions live in the owning DOCUMENTS (design.md ADR / prd.md / GOAL.md), never mined from logs.
-4. **Logs: write-heavy, read-rarely**: only harness-improver reads them (only newer than the last retro report), then moves them to `logs/archive/`. `/harness:status` reads only today's log.
-5. **Archives = cold storage**: read only when a human asks.
+4–5. **Logs write-heavy read-rarely · Archives = cold storage**: only harness-improver reads logs (newer than the last retro report), then rotates them to `logs/archive/`; `/harness:status` reads only today's log; archives are read only when a human asks.
 6. **Every document is capped, not just the playbook**: analysis.md ≤ 80 lines · prd.md ≤ 100 · design.md ≤ 150 · GOAL.md ≤ 80. Documents carry CONCLUSIONS + file:line references; raw evidence (command output, matrices, reproduction transcripts) goes to the daily log, referenced by date. A document over budget is a defect the owner must compress before handoff (로그 참조).
 7. **Task outputs never append to phase documents**: a task's findings go to the log (+ a one-line conclusion with an F-NNN update if it changes a fact). Appending task appendices to analysis.md/design.md is how documents bloat past their caps.
+8. **1회 디스패치 산출 예산 — 증거의 양이 아니라 서식을 조인다**: 증거 전문(표·덤프·재현 로그)은 파일로 남기고 경로·원장 id 로 인용한다. **RETURN 보고 ≤40줄 · 로그 result 항목 ≤20줄**, 문서는 §6 상한 — 브리프가 값을 지정하면 그것이 계약, 미지정이면 이것이 기본값이다. 디스패치 종료 시 `d.tokens` > **250k** 면 로그에 「산출 예산 초과: <사유 1줄>」을 남긴다 (실측 2026-08-20: 55건 평균 149k·최대 530k, qa 97k·architect 86k 는 이미 성립 — 초과분의 지배 항은 보고·표 산문이었다).
