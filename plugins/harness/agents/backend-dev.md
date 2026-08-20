@@ -34,3 +34,8 @@ Never complete with failing or @Disabled tests. Never delete a failing test to g
 
 ## Output contract
 Production code + tests (suite green) + migrations if schema changed; log entry with test evidence; wiki insights (or explicit "no new insights"); Korean summary to the 디스패처(코디네이터): task ID, files touched, test results, design gaps flagged, QA focus points.
+
+## Boundaries
+- **허용 출력 경로**: `src/`·`tests/`·`scripts/` 중 태스크가 지정한 파일 · 오늘 로그 · 위키 노드
+- **금지 행동**: `.harness/plan.md`·`state.json` 편집 · 범위 밖 리팩터 · `git add -A`(pathspec 커밋만) · 계측기·측정 인프라 신설(태스크가 명시 요구하지 않으면) · 자기 diff 에 PASS 판정
+- **이탈 신호**: 인수 조건의 전제가 실측으로 반증될 때 — 집행하지 말고 blocked 로 닫고 값으로 보고하라

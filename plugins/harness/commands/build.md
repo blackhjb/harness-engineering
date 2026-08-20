@@ -31,7 +31,7 @@ Set state.json `phase` = "build".
 
 **디스패처는 코디네이터 1인이다** (orchestrator 에이전트는 2026-08-18 은퇴 — 23 iteration 실사용 0, 계약은 `harness-ledger` §디스패치 계약으로 이식). 대형 웨이브도 코디네이터가 그 계약을 그대로 집행한다.
 **한 트리의 디스패처는 항상 1인이다** — 실행 중인 장수명 에이전트에 시간 민감한 계획 변경을 메시지로 보내지 않는다(다음 툴 라운드까지 미배달; 기전·실측은 wiki `workflow--liveness-by-notification-not-inference`).
-**웨이브 비용 감지(웨이브 종료마다 1줄)**: log cumulative dispatch count and current diff size (`git diff --shortstat <base_ref>..HEAD`). **디스패치 수 > 변경 소스 파일 수**(테스트·픽스처·문서 제외 — 회귀 가드를 성실히 쓸수록 분모가 부풀어 초과가 가려진다) means ceremony has overtaken the change — cut the remaining ceremony (merge dispatches, drop redundant verification tasks) in that same turn and say so in the line. Waiting for verify's 결산 to notice is too late; the user should not be the detector.
+**웨이브 비용 감지(웨이브 종료마다 1줄)**: log cumulative dispatch count and current diff size (`git diff --shortstat <base_ref>..HEAD`). **디스패치 수 > 변경 소스 파일 수**(테스트·픽스처·문서 제외 — 회귀 가드를 성실히 쓸수록 분모가 부풀어 초과가 가려진다) means ceremony has overtaken the change — cut the remaining ceremony (merge dispatches, drop redundant verification tasks) in that same turn and say so in the line. Waiting for verify's 결산 to notice is too late; the user should not be the detector. **집행**: 이 1줄을 오늘 로그에 남기지 않고는 다음 웨이브를 열지 않는다(WAVE GATE 항목에 포함). 초과가 감지되면 그 턴에 ①남은 세리머니를 실제로 잘라내거나 ②goal 을 축소 종결하거나 ③사용자에게 표적 교체를 제안한다 — 셋 중 하나를 로그에 값으로 적는다. **감지만 하고 계속 도는 것은 위반이다** (실측 2026-08-20: 디스패치 11 > 변경 소스 9 로 트리거 조건을 충족했는데 비용 줄이 1회만 기록돼 루프가 그대로 진행됐고, 사용자가 탐지자가 됐다).
 **코디네이터 상시 책무**: ①`wiki/INDEX.md` + 해당 scope 노드 읽기 ②태스크↔산출물 사상 장부 유지 ③증거 없는 done 금지(값으로만 판정) — `harness-ledger` §디스패치 계약이 정본.
 **실행 형태**: 10분+ 디스패치는 `harness-ledger` §디스패치 계약의 「비동기 루프」 그대로 — background + 알림 전진 + 병행 작업 + 20/45분 집행. 동기 대기는 10분 미만 단건에만.
 

@@ -44,3 +44,8 @@ Developers report contract gaps and forced deviations instead of silently diverg
 Quality attributes ranked with named sacrifices (conflicts → ADR) · architecture style is an explicit ADR, every module has data ownership + transaction boundaries · every prd.md requirement maps to a component and an API/CLI contract · every external dependency has a failure-mode row + isolation strategy · every schema field has type + data source (no `etc`/`misc`/`data`) · all NFR budgets are numbers · each LLM call has tier/schema/cost/failure behavior · implementable without a single question. Anything unmet → iterate before handing off.
 
 질문은 `co-creation` 스킬을 따른다; 기록된 결정은 재질의하지 않는다.
+
+## Boundaries
+- **허용 출력 경로**: `.harness/design.md` · 오늘 로그
+- **금지 행동**: 코드 수정 · 커밋 · 태스크 분해(plan.md 는 코디네이터 소관) · 측정 실행
+- **이탈 신호**: 설계를 확정하려면 실측이 필요할 때 — analyze 로 되돌릴 사안이다. `[가설]` 표식 + 확인 방법을 적고 보고하라

@@ -23,3 +23,8 @@ model: opus
 
 ## Definition of done
 plan.md 기준 충족 · pytest green + ruff clean · dry-run 전체 커버 · eval 점수 기록, 미설명 회귀 0 · 호출 로깅·예산 내 · 스키마가 source/confidence 강제, 한국어 출력은 eval 로 검증 · 프롬프트 버전·changelog · 이탈은 design.md 로 해소(우회 금지).
+
+## Boundaries
+- **허용 출력 경로**: `prompts/`·모델 호출 구성 모듈·지정된 eval 스크립트 · 오늘 로그 · 위키 노드
+- **금지 행동**: 순수 라우트·DB 작업(backend-dev 소관) · `.harness/plan.md`·`state.json` 편집 · 정규식·어휘 테이블 확장(판정은 LLM 호출로) · `git add -A`
+- **이탈 신호**: 프롬프트로 못 고치고 파이프라인 배치를 바꿔야 할 때 — architect 라우팅 요청으로 보고하라

@@ -46,3 +46,8 @@ Hard constraints:
 Finally append the retro-complete log entry.
 
 Logs too thin for a real pattern → say so; an honest empty retro beats invented insights — every node taxes every future agent that opens it.
+
+## Boundaries
+- **허용 출력 경로**: `.harness/retro/*.md` · `.harness/wiki/**` · 오늘 로그
+- **금지 행동**: `src/` 등 프로덕션 코드 수정 · 하네스 수정 직접 적용(제안만, 적용은 사용자 승인 후) · `state.json` 편집
+- **이탈 신호**: 회고 재료가 로그에 없어 추측으로 패턴을 쓰게 될 때 — 「채굴 불가」로 보고하라

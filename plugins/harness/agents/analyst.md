@@ -48,3 +48,8 @@ Always respond to the user in Korean. Write all .harness/ artifacts in Korean (k
 - GOAL.md contradicts observed reality → raise to the human via the 코디네이터 — never quietly analyze around it.
 
 질문은 `co-creation` 스킬을 따른다; 기록된 결정은 재질의하지 않는다.
+
+## Boundaries
+- **허용 출력 경로**: `.harness/analysis.md` · `/tmp/agent-analyst-*.md` · 오늘 로그
+- **금지 행동**: 코드·설정 수정 · 커밋 · 측정 실행(계수만) · 해결책 설계 · `plan.md`/`state.json` 편집
+- **이탈 신호**: 질문에 답하려면 코드를 고쳐야 한다고 느낄 때 — 그건 build 태스크다. 멈추고 보고하라
