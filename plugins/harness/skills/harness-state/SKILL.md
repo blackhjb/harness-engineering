@@ -11,7 +11,7 @@ description: 모든 에이전트가 매 디스패치에 여는 공용 계약 —
 2. Results go to files, not just chat — not in `.harness/` (or the codebase) = did not happen.
 3. **Destructive git commands are forbidden for every agent**: `git reset` · `git checkout -- <path>` · `git stash` · `git clean` · `git restore`. Undo an experimental edit by REVERSE-EDITING; read past versions via `git show <sha>:<path>`; reproduce old states in an isolated `git worktree add` (remove it after). Agents share one working tree — one agent's reset destroys every sibling's uncommitted work, and untracked files are unrecoverable (로그 참조).
 
-4. **공용 디스패치 프로토콜** — every role agent, every invocation: ①시작 전 `GOAL.md` + `wiki/INDEX.md` 를 읽고 **자기 scope + `global`/`workflow`** 노드만 연다 ②배정된 것만 한다 — 결과·결함은 디스패처에게 **RETURN**, `plan.md`·`state.json` 은 건드리지 않는다(코디네이터 제외) ③**측정 전 원장을 조회하고**(`grep -F '"key":"<명령>@<sha7>"' .harness/measurements.jsonl` — 히트하면 재실행 금지, 값 인용), 새로 측정했으면 원장에 한 줄 append ④끝나면 공용 일간 로그에 result 항목 1건(원장 id + `읽음`) + 얻은 통찰을 wiki 노드로 create/reinforce/promote 하고 그 사실을 같은 항목에 1줄로 적는다. 에이전트 파일은 이 네 가지를 **다시 쓰지 않고** 자기 역할의 델타만 적는다.
+4. **공용 디스패치 프로토콜** — every role agent, every invocation: ①시작 전 `GOAL.md` + `wiki/INDEX.md` 를 읽고 **자기 scope + `global`/`workflow`** 노드만 연다 ②배정된 것만 한다 — 결과·결함은 디스패처에게 **RETURN**, `plan.md`·`state.json` 은 건드리지 않는다(코디네이터 제외) ③**측정 전 원장을 조회하고**(`grep -F '<명령>@<sha7>' .harness/measurements.jsonl        # 키 값만 · 따옴표/콜론 공백에 무관` — 히트하면 재실행 금지, 값 인용), 새로 측정했으면 원장에 한 줄 append ④끝나면 공용 일간 로그에 result 항목 1건(원장 id + `읽음`) + 얻은 통찰을 wiki 노드로 create/reinforce/promote 하고 그 사실을 같은 항목에 1줄로 적는다. 에이전트 파일은 이 네 가지를 **다시 쓰지 않고** 자기 역할의 델타만 적는다.
 
 All `.harness/` content is Korean; code identifiers, file paths, technical terms as-is. This skill is the SINGLE schema authority for `.harness/` — its section lists and formats override any other file. Scaffolding creates files directly from the section lists below.
 
@@ -110,7 +110,7 @@ Event types: `session-start`, `decision`, `dispatch`, `result`, `failure`, `gate
 
 **필수 필드 2종(이것 말고 더 만들지 않는다)**
 - `dispatch` 항목: `- 계기: 인수조건 N/8 · 브리프 L/20 · 계약근거 design §5 L<n>` — 셋 다 값이다. 상한 초과면 디스패치하지 말고 쪼갠다.
-- `result` 항목: `- 원장: <id> … · 읽음: INDEX+<scope>` — 측정값 본체는 산문이 아니라 **측정 원장**(다음 절)에 쓰고 여기엔 id 만 적는다. `읽음` 이 비면 위키에 도달하지 않은 것이다. Never edit/delete past entries; corrections = new entries referencing the old one.
+- `result` 항목: `- 원장: <id> … · 읽음: INDEX+<scope>` — 측정값 본체는 산문이 아니라 **측정 원장**(다음 절)에 쓰고 여기엔 id 만 적는다. **`원장: <id>` 를 적는 턴에 그 id 의 실재를 확인한다** — `grep -c -F '<id>' .harness/measurements.jsonl` 이 0 이면 로그를 쓰기 전에 append 한다. 로그 줄은 append 의 증거가 아니다(실측 2026-08-24 재계수: 인용 35건 중 **결손 5**, 전건 코디네이터 — 그 구간의 M1·M2 만 산정 불가. 2026-08-20 회고의 「27건 중 7」은 분모를 **인용 목록**으로 잡은 과잉 진단이었고, **결손 진단의 분모는 원장 전체**다). **코디네이터도 예외가 아니다**: 디스패치·판정 턴마다 `d` 레코드 1줄. `읽음` 이 비면 위키에 도달하지 않은 것이다. Never edit/delete past entries; corrections = new entries referencing the old one.
 
 ## 측정 원장 — `.harness/measurements.jsonl` (append-only, 기계 판독)
 
@@ -133,6 +133,7 @@ Event types: `session-start`, `decision`, `dispatch`, `result`, `failure`, `gate
 ```
 grep -F '"key":"<명령>@<sha7>"' .harness/measurements.jsonl
 ```
+**패턴에 `"key":` 를 붙이지 않는다** — append 를 `json.dumps` 로 하면 `"key": "…"`(콜론 뒤 공백)가 되고 그 행은 조회에 영원히 안 잡힌다(실측 2026-08-24: 활성 494행 중 **20행**이 spaced). id 실재 대조도 `grep -c -F '<id>'` 로 한다.
 히트가 있고 그 트리에 이후 커밋이 없으면 **재실행하지 않고 그 값을 인용**한다. 재실행 의무는 셋뿐 — ①히트 없음 ②이후 커밋 존재 ③red 이력 없는 회귀 pin(goal 당 표본 1건만 격리 worktree 재현).
 
 **추가는 한 줄이다** — 부담이 커지면 아무도 안 쓴다:

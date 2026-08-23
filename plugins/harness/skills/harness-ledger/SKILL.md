@@ -86,13 +86,14 @@ Repeat until every GOAL.md success criterion is met or an escalation fires:
 **You run ALL waves continuously. Finishing one wave is not a stopping point.** Stop ONLY on: (1) every task done → hand to verify, (2) blocked with no independent work remaining, (3) an escalation rule fires, (4) context limit approaching → write a handoff (per-task next action, current wave, plan/state accuracy) and end. After the final wave the goal is NOT met until a verify phase (qa + code-reviewer) returns PASS.
 
 ## Dispatch contract — every task prompt contains, and NOTHING more
-Task ID + acceptance criteria verbatim from plan.md · read-first = GOAL.md + wiki/INDEX.md (own-scope nodes) + **the agent's own plan.md task row + only the design/prd SECTIONS that row cites** (never "read design.md/analysis.md" wholesale — the fixed read-set in the `harness-state` skill is the contract) · exact artifact paths · **시간 상한: 20분 무보고 → 중간 상태 1회 요구, 45분 → hard stop-and-report** · the instruction to log its result (with evidence) to the shared daily log, record insights as wiki nodes (create/reinforce/promote per the `harness-state` skill), and REPORT status/defects/blockers in its reply — role agents never edit plan.md or state.json.
+Task ID + acceptance criteria verbatim from plan.md · read-first = GOAL.md + wiki/INDEX.md (own-scope nodes) + **the agent's own plan.md task row + only the design/prd SECTIONS that row cites** (never "read design.md/analysis.md" wholesale — the fixed read-set in the `harness-state` skill is the contract) · exact artifact paths · **시간 상한: 20분 무보고 → 중간 상태 1회 요구, 45분 → hard stop-and-report** · **착수 증거: 착수 5분 내에 지정 산출물 파일에 헤더(제목 + 착수 시각 + 읽기 목록)만이라도 기록** — 디스패처는 그 파일의 존재·mtime 으로 생존을 값으로 확인한다(파일 부재 = 정지, 추론 불필요) · the instruction to log its result (with evidence) to the shared daily log, record insights as wiki nodes (create/reinforce/promote per the `harness-state` skill), and REPORT status/defects/blockers in its reply — role agents never edit plan.md or state.json.
 
 ## Dispatch economy — 디스패치 단가는 작업 크기가 아니라 컨텍스트 재구축이 정한다
 실측(2026-08-06): 14 디스패치 평균 **107k 토큰**, 최소 64k — 작업 크기와 거의 무관했다. 토큰 대부분은 에이전트가 GOAL·위키·코드베이스를 **처음부터 다시 파악**하는 데 쓰인다. 같은 파일을 두 에이전트가 각자 파악하면 그 비용은 두 번 든다.
 - **앵커 우선**: 이미 확인된 사실은 `file:line` 과 함께 브리프에 싣고 "재검증하지 말고 여기서 출발"이라고 명시한다. 실측상 이 문장이 있는 배치가 눈에 띄게 짧았다(64k·72k). 단, **전제가 틀릴 수 있음**을 함께 적어라 — 아래 전제 게이트가 그 안전장치다.
 - **전제 게이트**: 브리프의 전제가 검증에서 깨지면 **구현하지 말고 즉시 중단·보고**하게 하라. 억지 구현 금지. (로그 참조)
 - **재사용 > 신규 스폰**: 직전 에이전트와 레포·파일 영역이 겹치면 새로 스폰하지 말고 그 에이전트를 이어서 쓴다(컨텍스트 재구축 1회가 통째로 빠진다). 겹치지 않을 때만 새로 스폰한다.
+- **모델 티어링 — 집행 2줄**: ①디스패치 로그 항목에 `model=<값>` 을 **값으로 적는다**(오버라이드를 안 걸었으면 에이전트 정의값이 적용되므로, 그 값을 적으려면 frontmatter 를 실제로 읽어야 한다 — 값 없는 디스패치 항목 = 계약 위반) ②사용자가 티어 정책을 바꾸면 **같은 턴에** `agents/*.md` frontmatter 의 `model:` 을 편집한다 — 지시는 정본이 아니고 frontmatter 가 정본이다(2026-08-20: 지시는 메모리에 있었고 frontmatter 는 `fable` 이라 디스패치 2건 전손).
 - **모델 티어링**: **기계적 · 되돌리기 쉬움 · 판정 없음** 3조건을 **전건** 충족하는 배치만 하위 티어로 내린다(문구 교체·주석 정정·픽스처 정리 등). `code-reviewer` · `analyst` · verify 판정 · 보안/계약 표면은 **하향 금지**. 품질이 우선순위이고, 티어 하향으로 놓친 결함 1건이 절약한 토큰 전부보다 비싸다.
 
 ## 비동기 루프 — 디스패치의 기본 실행 형태 (코디네이터 직접 디스패치에도 동일 적용)
