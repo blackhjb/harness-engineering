@@ -123,7 +123,7 @@ Event types: `session-start`, `decision`, `dispatch`, `result`, `failure`, `gate
 {"t":"d","id":"d-1505","agent":"ai-agent-dev","scope":"W1~W6","rework":false,"tokens":244829,"nodes":["qa--zero-baseline-lint-needs-resident-fixture","global--read-before-restructure"]}
 ```
 - `t` — `m` 측정 · `d` 디스패치. `id` — `<t>-<HHMM>-<짧은식별>`, 충돌하면 뒤에 숫자.
-- `key` — **`<명령 문자열>@<sha7>`**. 이것이 승계의 유일한 키다.
+- `key` — **`<명령 문자열>@<sha7>@<env>`**. 이것이 승계의 유일한 키다. **`<env>` 는 그 측정을 낸 인터프리터·환경 식별자**(conda env 이름·venv 경로·`python -V` 중 하나)이며, 실행 환경에 의존하는 측정(pytest·import·모델 로드·자 스캔) 전건에 **필수**다 — 없으면 그 행은 승계 대상이 아니고 인용도 불가다. 환경 무관 측정(`git grep`·`git diff`)은 `@<sha7>` 까지로 충분하다. **같은 명령·같은 sha 도 인터프리터가 다르면 다른 값이다**(실측 2026-08-24 iter32·33: 시스템 `python3` 3.13.5 로 잰 pytest 기준선 `7 failed … 8 errors` 가 정본 env `faq-agent`/3.11.14 에서는 `0 failed / 1599 passed` — 「선재 red 15건」이 실재하지 않았고 두 iteration 의 회귀 판정 전건이 그 값 위에 있었다. `global--baseline-provenance-and-interpreter` 노드는 그날 열려 있었다).
 - `refutes` — 이 레코드가 뒤집은 앞선 레코드의 id(없으면 필드 자체를 생략). qa·code-reviewer 가 재측정해 다른 값이 나오거나 결함을 실증하면 **반드시** 채운다.
 - `rework` — 그 디스패치가 재작업(재개·재브리프)을 유발했으면 `true`.
   **브리프 전제(사실·인과 가설·해법 지정)가 반증돼 산출 0 으로 닫힌 디스패치도 `rework:true` 다** — 「blocked 로 잘 닫았다」는 에이전트의 정확한 행동이지만, 왕복 1회는 이미 소비됐고 원인은 브리프에 있다. `scope` 끝에 `(전제반증)` 을 붙여 재작업형과 구분한다. 이 구분이 없으면 M2 가 100% 로 나오면서 회고가 매번 같은 패턴을 산문에서만 발견한다. **주의**: 이 정의 변경은 M2 기준선을 이동시키므로 적용 goal 의 결산에 「M2 정의 변경」을 병기하고, 적용 전후 값을 직접 비교하지 않는다.
@@ -133,8 +133,8 @@ Event types: `session-start`, `decision`, `dispatch`, `result`, `failure`, `gate
 ```
 grep -F '"key":"<명령>@<sha7>"' .harness/measurements.jsonl
 ```
-**패턴에 `"key":` 를 붙이지 않는다** — append 를 `json.dumps` 로 하면 `"key": "…"`(콜론 뒤 공백)가 되고 그 행은 조회에 영원히 안 잡힌다(실측 2026-08-24: 활성 494행 중 **20행**이 spaced). id 실재 대조도 `grep -c -F '<id>'` 로 한다.
-히트가 있고 그 트리에 이후 커밋이 없으면 **재실행하지 않고 그 값을 인용**한다. 재실행 의무는 셋뿐 — ①히트 없음 ②이후 커밋 존재 ③red 이력 없는 회귀 pin(goal 당 표본 1건만 격리 worktree 재현).
+**패턴에 `"key":` 를 붙이지 않는다** — `json.dumps` append 는 콜론 뒤 공백을 넣어 그 행이 영구 미검출된다(2026-08-24: 494행 중 20행). id 대조도 `grep -c -F '<id>'`.
+히트가 있고 그 트리에 이후 커밋이 없으면 **재실행하지 않고 인용**한다. 재실행 의무는 넷 — ①히트 없음 ②이후 커밋 존재 ③red 이력 없는 회귀 pin(goal 당 1건 격리 worktree) ④**키의 `<env>` 가 지금 쓰는 환경과 다름**.
 
 **추가는 한 줄이다** — 부담이 커지면 아무도 안 쓴다:
 ```
