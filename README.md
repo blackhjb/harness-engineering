@@ -2,7 +2,7 @@
 
 1인 개발자를 위한 목표 지향(goal-driven) 멀티 에이전트 개발 하네스.
 Java/Spring Boot 백엔드, React/TS 프론트, Python LLM 에이전트, 데이터 파이프라인, GCP 운영까지
-기획→분석→설계→구현→검증→회고 전 과정을 12개 역할 에이전트가 분담한다.
+기획→분석→설계→구현→검증→회고 전 과정을 10개 역할 에이전트가 분담한다(루프 운영은 코디네이터 = 메인 세션).
 
 설계 근거: Lilian Weng, [Harness Engineering for Self-Improvement](https://lilianweng.github.io/posts/2026-07-04-harness/) (2026-07)
 
@@ -51,8 +51,8 @@ codex          # repo 루트에서 실행 → trust 승인
 
 trust를 승인하면 repo 안의 다음이 자동 인식된다:
 
-- `.agents/skills/` — 스킬 9종 + 커맨드 래퍼 8종(`cmd-goal` 등)
-- `.codex/agents/` — 에이전트 12종 (TOML)
+- `.agents/skills/` — 스킬 11종 + 커맨드 래퍼 8종(`cmd-goal` 등)
+- `.codex/agents/` — 에이전트 10종 (TOML)
 - `AGENTS.md` — 하네스 규약(한국어 응답, `.harness/` 계약, 워크플로우)
 
 사용법:
@@ -85,8 +85,8 @@ MCP 경유(선택): `codex mcp add harness-skills -- npx -y skills-mcp -s "$PWD/
 .claude-plugin/       마켓플레이스 매니페스트 (Claude Code)
 plugins/harness/      원본(source of truth) — agents/ · commands/ · skills/
 AGENTS.md             Codex 진입점 (하네스 규약 요약)
-.agents/skills/       Codex용 스킬 — 원본 심링크 9종 + cmd-* 커맨드 래퍼 8종 (생성물)
-.codex/               Codex 설정(config.toml) + 에이전트 TOML 12종 (생성물)
+.agents/skills/       Codex용 스킬 — 원본 심링크 11종 + cmd-* 커맨드 래퍼 8종 (생성물)
+.codex/               Codex 설정(config.toml) + 에이전트 TOML 10종 (생성물)
 tools/sync-codex.sh   Codex 산출물 재생성 스크립트 (원본 수정 후 재실행)
 docs/                 설계 문서 (GOAL · DIAGNOSIS · ARCHITECTURE · PROCESS)
 install.sh            방법 2 폴백 설치 스크립트
@@ -97,31 +97,29 @@ install.sh            방법 2 폴백 설치 스크립트
 |--------|------|
 | `/harness:goal` | 목표·성공 기준 확정, `.harness/` 생성 |
 | `/harness:analyze` | 분석 (analyst) |
-| `/harness:plan` | 기획+설계+태스크 분해 (planner→architect→orchestrator), 승인 게이트 |
-| `/harness:build` | 병렬 구현 (orchestrator 디스패치) |
-| `/harness:verify` | 검증 (qa + code-reviewer 병렬) |
+| `/harness:plan` | 기획+설계+태스크 분해 (planner→architect→코디네이터), 승인 게이트 |
+| `/harness:build` | 병렬 구현 (코디네이터 디스패치) |
+| `/harness:verify` | 검증 (qa SC별 팬아웃 + code-reviewer 1인, 비가역 경계면 codex 적대 리뷰 조건부) |
 | `/harness:retro` | 회고·하네스 개선 (harness-improver) |
 | `/harness:status` | 상태 보고 |
 | `/harness:quick` | S-size 단일 작업 경량 경로 — analyze/plan 생략, 에이전트 1명 디스패치 |
 
-### 에이전트 12종 (실리콘밸리 10년+ 시니어 페르소나)
+### 에이전트 10종 (실리콘밸리 10년+ 시니어 페르소나)
 | 에이전트 | 역할 |
 |---------|------|
-| orchestrator | 하네스 루프 운영·병렬 디스패치·게이트 집행 |
 | planner | 기획자(PM) — PRD, 우선순위, 최소 슬라이스 |
 | analyst | 분석자 — 현황·리스크·근본원인 |
 | architect | 설계자 — 아키텍처·API 계약·ADR |
 | product-designer | 상품설계자 — UX 플로우·화면 상태 스펙 |
-| backend-dev | Java/Spring Boot (TDD) |
+| backend-dev | 서버 구현(스택 중립) — Java/Spring · Python/FastAPI · 배치 |
 | frontend-dev | React/TypeScript |
 | ai-agent-dev | Python LLM 파이프라인/에이전트 (Vertex AI) |
 | qa | 성공 기준 대비 검증, PASS/FAIL |
 | code-reviewer | 코드 품질·보안·레포 장기 건강성 |
-| sre | GCP 배포·런북·롤백·시크릿 |
 | harness-improver | 실패 마이닝→플레이북·하네스 개선 제안 |
 
-### 스킬 9종 (도메인 플레이북)
-harness-state · co-creation · spring-boot-dev · frontend-dev · ai-agent-dev · data-pipeline · mlops-gcp · testing-qa · product-spec
+### 스킬 11종 (도메인 플레이북)
+harness-state · harness-ledger · co-creation · spring-boot-dev · python-service · frontend-dev · ai-agent-dev · data-pipeline · mlops-gcp · testing-qa · product-spec
 
 > **co-creation**: 핵심 분기점에서만 선택지(2~4개)+추천안+트레이드오프 형식으로 사용자에게 질문하고, 답변을 ADR/PRD에 기록해 같은 질문을 반복하지 않는 공동 제작 프로토콜.
 

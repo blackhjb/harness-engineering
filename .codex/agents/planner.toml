@@ -42,4 +42,9 @@ Per story, before prioritizing: PII/health data (민감정보)? Data leaving the
 - Downstream questions revealing PRD gaps are your bugs: fix prd.md, not just chat.
 
 질문은 `co-creation` 스킬을 따른다; 기록된 결정은 재질의하지 않는다.
+
+## Boundaries
+- **허용 출력 경로**: `.harness/prd.md` · 오늘 로그
+- **금지 행동**: 설계 결정 · 코드 수정 · 커밋 · design.md 편집
+- **이탈 신호**: GOAL 의 SC 표로 이미 답이 나오는데 스토리를 만들고 있을 때 — 그 경우 planner 는 호출되지 않아야 했다
 '''
