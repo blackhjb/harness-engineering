@@ -16,7 +16,7 @@ Set state.json `phase` = "build".
 세션 기본 추론 강도가 높을수록 **호출 1건이 길어진다** — 그 설정에서 빨라지는 유일한 수단은 호출을 **적게·작게** 하는 것이다. 아래 두 값이 그 수단이다.
 **브리프 상한 — 값이다**: 디스패치 1건 = 인수조건 **≤8** · 브리프 **≤20줄**. 초과하면 디스패치하지 말고 태스크를 쪼갠다. 묶기는 왕복만 줄이고 브리프를 부풀리지 않는다. (실측: 인수조건 45개 세션 50분 vs 축 적은 세션 7~15분.)
 **산출 계약도 값이다**: 브리프에 반환 보고 줄 상한·증거 파일 경로를 지정한다 — 미지정이면 `harness-state` §Context budget 8(보고 ≤40줄 · 로그 result ≤20줄 · `d.tokens` 250k 트립)이 계약이다. 코디네이터도 면제되지 않는다: 실행 중 에이전트로 보내는 추가 지시(SendMessage)는 1회 **≤20줄**, 이 상한을 넘는 정정은 지시가 아니라 재브리프다.
-**모델 티어링 (사용자 정책 2026-08-18)**: 에이전트 frontmatter 가 기본값(설계·분석=fable, 빌드·검증=opus)이다. **`model: sonnet` 오버라이드는 코드를 편집하지 않는 실행 디스패치(골든 측정·스크립트 실행·계수)에만 허용** — 삭제·치환·이동을 포함해 **코드 편집이 1줄이라도 있으면 최소 opus** (사용자 정정 2026-08-18: "실수하면 안 된다" — 검증된 지도 위 삭제도 호출부 패치 판단이 남는다).
+**모델 티어링**: 정본은 **`agents/*.md` frontmatter 의 `model:` 하나뿐이다** — 문서·커맨드·기억의 서술은 정본이 아니다. 오버라이드 규칙과 집행은 `harness-ledger` §Dispatch economy.
 **특화 스킬 지정 — 유연한 판별 + 선택의 강제 (사용자 정책 2026-08-18)**: 정본은 GOAL 1-B 의 「표면 → 스킬」 표와 design §9. 디스패치마다 **이 태스크가 실제로 만지는 표면**으로 스킬을 정해 브리프에 slug 지정한다 — 태스크 표면이 goal 판별과 다르면(예: Python goal 안의 프롬프트 태스크 → `ai-agent-dev`) **그 태스크만 오버라이드**하고 사유 1줄을 브리프에 남긴다. 들어맞는 스킬이 없으면 「특화 스킬 없음 — 범용 진행」 명기. **§9/1-B 가 비어 있으면 디스패치 금지 — 먼저 채운다.** 무지정(중립) 브리프 금지.
 **메인 직접 대역**: 변경 **≤3파일 · ≤40줄 · 판정 0건 · 역편집 복구 가능**이면 코디네이터가 직접 고치고 디스패치하지 않는다 — 대신 그 diff 의 PASS 는 스스로 내지 않는다(reviewer 또는 qa 1인 필수).
 **디스패치 프롬프트에 위키·스킬 내용을 재서술하지 않는다**: point the agent at `wiki/INDEX.md` + its own scope and give it the task's criteria. Pasting the rules in yourself bypasses the recall path the wiki exists for — the knowledge stops being retrievable and becomes your copy-paste (2026-08-06: recorded lessons never reached the agents that needed them for exactly this reason).
@@ -30,7 +30,7 @@ Set state.json `phase` = "build".
 
 **장수 측정의 수확 주체는 코디네이터다.** 측정 에이전트가 Golden·벤치를 백그라운드로 띄우고 세션을 끝내면 프로세스는 살아도(nohup·PPID 1) **결과를 수확할 주체가 사라진다**. 측정 디스패치 브리프에는 「이 세션 안에서 완주」를 요구하고, 그래도 조기 종료하면 코디네이터가 러너 종료를 기다려 직접 수확한다(추가 디스패치 금지 — 왕복만 늘어난다).
 
-**디스패처는 코디네이터 1인이다** (orchestrator 에이전트는 2026-08-18 은퇴 — 23 iteration 실사용 0, 계약은 `harness-ledger` §디스패치 계약으로 이식). 대형 웨이브도 코디네이터가 그 계약을 그대로 집행한다.
+**디스패처는 코디네이터 1인이다** — 대형 웨이브도 코디네이터가 `harness-ledger` §디스패치 계약을 그대로 집행한다.
 **한 트리의 디스패처는 항상 1인이다** — 실행 중인 장수명 에이전트에 시간 민감한 계획 변경을 메시지로 보내지 않는다(다음 툴 라운드까지 미배달; 기전·실측은 wiki `workflow--liveness-by-notification-not-inference`).
 **웨이브 비용 감지(웨이브 종료마다 1줄)**: log cumulative dispatch count and current diff size (`git diff --shortstat <base_ref>..HEAD`). **디스패치 수 > 변경 소스 파일 수**(테스트·픽스처·문서 제외 — 회귀 가드를 성실히 쓸수록 분모가 부풀어 초과가 가려진다) means ceremony has overtaken the change — cut the remaining ceremony (merge dispatches, drop redundant verification tasks) in that same turn and say so in the line. Waiting for verify's 결산 to notice is too late; the user should not be the detector. **집행**: 이 1줄을 오늘 로그에 남기지 않고는 다음 웨이브를 열지 않는다(WAVE GATE 항목에 포함). 초과가 감지되면 그 턴에 ①남은 세리머니를 실제로 잘라내거나 ②goal 을 축소 종결하거나 ③사용자에게 표적 교체를 제안한다 — 셋 중 하나를 로그에 값으로 적는다. **절단 대상을 고르기 전에 초과분을 분해한다**: 누적 디스패치 중 **실패·재디스패치분**(모델 한도·무성 정지·브리프 결함 기인 재측정)을 **분리 계상**해 값으로 적는다 — 실패는 분자에만 남고 분모를 늘리지 않으므로, 분해 없이 자르면 실패의 벌을 멀쩡한 검증 단계가 받는다(2026-08-20: 초과분 3 = 한도 2 + 정지 1 이었는데 verify 의 SC 팬아웃을 7→2 로 축약했다). **검증 엄격도는 절단 대상이 아니다** — 실패분이 초과를 설명하면 세리머니가 아니라 실패를 보고한다. **감지만 하고 계속 도는 것은 위반이다** (실측 2026-08-20: 디스패치 11 > 변경 소스 9 로 트리거 조건을 충족했는데 비용 줄이 1회만 기록돼 루프가 그대로 진행됐고, 사용자가 탐지자가 됐다).
 **코디네이터 상시 책무**: ①`wiki/INDEX.md` + 해당 scope 노드 읽기 ②태스크↔산출물 사상 장부 유지 ③증거 없는 done 금지(값으로만 판정) — `harness-ledger` §디스패치 계약이 정본.

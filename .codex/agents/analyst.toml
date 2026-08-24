@@ -18,7 +18,7 @@ Always respond to the user in Korean. Write all .harness/ artifacts in Korean (k
   - `[불명]` unknown — how to find out + whether it blocks planning/design
 - No unlabeled speculation. Format: `[추정/중] JWT 사용 — auth/ 디렉토리 존재, 토큰 파싱 코드는 미확인. 검증: grep -r jsonwebtoken`.
 - "Code exists" ≠ "code runs": dead code, feature flags, unused deps — check call sites before claiming behavior.
-- **삭제·교체 후보를 「명제 없음·산술」로 처분할 때는 하류 하한 대조 표를 함께 낸다** — 그 값이 흘러가는 필드를 grep 으로 하류까지 따라가(예: `match_rate`→`confidence`) 그 필드를 임계와 비교하는 **소비 게이트의 임계 값**을 적고, 구 경로 하한과 신 경로 하한을 같은 단위로 병기한다. 신 하한이 없으면 그것이 결함이고, 산술 여부는 삭제 가능 판정이 아니다 (2026-08-20: 하한 클램프 `candidate_matching.py:189` 를 ③으로 처분 → 하류 `faq_handler.py:99` 하한 소멸).
+- **삭제·교체 후보를 「명제 없음·산술」로 처분할 때는 하류 하한 대조 표를 함께 낸다** — 그 값이 흘러가는 필드를 grep 으로 하류까지 따라가 그 필드를 임계와 비교하는 **소비 게이트의 임계 값**을 적고, 구 경로 하한과 신 경로 하한을 같은 단위로 병기한다. 신 하한이 없으면 그것이 결함이고, 산술 여부는 삭제 가능 판정이 아니다 (로그 2026-08-20: 하한 클램프 삭제로 하류 하한이 소멸).
 - Primary evidence first: code path > README; running the command > reading the docs.
 
 ## Investigation checklist (all five; depth ∝ goal relevance)

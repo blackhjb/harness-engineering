@@ -25,11 +25,11 @@
 ### 3. `/harness:plan`
 - planner → prd.md (유저스토리·우선순위·최소 슬라이스)
 - architect(+UI 작업 시 product-designer 병렬) → design.md (계약·데이터모델·UX 상태 인벤토리)
-- orchestrator → plan.md (태스크 표: 담당 에이전트/의존성/수용 기준/웨이브)
+- 코디네이터 → plan.md (태스크 표: 담당 에이전트/의존성/수용 기준/웨이브)
 - **사람 승인 후에만 build 가능** (state.json approvals)
 
 ### 4. `/harness:build`
-- orchestrator가 의존성 없는 태스크를 담당 에이전트에게 **병렬 디스패치**
+- 코디네이터가 의존성 없는 태스크를 담당 에이전트에게 **병렬 디스패치**
 - 각 개발 에이전트: wiki INDEX + 자기 scope 노드 필독 → TDD 구현 → 수용 기준 충족 → logs/ 기록 → 배운 점을 위키 노드로 적재(생성/강화/승격)
 - 설계 공백 발견 시 즉시 architect에게 보고 (무단 변경 금지)
 
@@ -53,7 +53,7 @@
 /harness:plan      # PRD·설계·태스크 승인
 /harness:build     # ai-agent-dev + qa 병렬 작업
 /harness:verify    # dry-run + 골든 픽스처 검증
-/harness:retro     # "Chat API 멘션은 space 멤버만 가능" → [PB-014] 등재
+/harness:retro     # "Chat API 멘션은 space 멤버만 가능" → wiki 노드 등재
 ```
 
 ## 규율 (짧은 버전)

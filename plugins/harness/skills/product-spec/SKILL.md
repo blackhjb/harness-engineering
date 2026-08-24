@@ -5,9 +5,9 @@ description: PRD·UX 스펙을 쓰거나 리뷰할 때 연다 — 사용자 스�
 
 # Product Spec Playbook
 
-Templates and quality bars for `.harness/prd.md` and the `## UX 설계` section of `.harness/design.md`. The canonical PRD section list lives in the harness-state skill — this playbook elaborates it, never diverges. Artifacts in Korean; IDs and technical terms as-is.
+Templates and quality bars for `.harness/prd.md` and the `## UX 설계` section of `.harness/design.md`. The canonical PRD section list lives in the harness-ledger skill — this playbook elaborates it, never diverges. Artifacts in Korean; IDs and technical terms as-is.
 
-## 1. PRD template (`.harness/prd.md` — canonical sections per the harness-state skill)
+## 1. PRD template (`.harness/prd.md` — canonical sections per the harness-ledger skill)
 
 ```markdown
 # PRD: <목표 한 줄>

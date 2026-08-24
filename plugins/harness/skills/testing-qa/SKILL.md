@@ -93,7 +93,7 @@ Evidence = the actual command plus the actual output excerpt.
 
 ## 5. Defect report template (RETURN to your dispatcher — qa never writes plan.md)
 
-qa returns defect reports in this format; only the 코디네이터 converts them into plan.md fix tasks (plan.md and state.json `tasks[]` are 코디네이터 전용 per the harness-state skill).
+qa returns defect reports in this format; only the 코디네이터 converts them into plan.md fix tasks (plan.md and state.json `tasks[]` are 코디네이터 전용 per the harness-ledger skill).
 
 ```markdown
 ### DEF-<nn>: <one-line symptom>
@@ -120,7 +120,7 @@ Reproduce twice before filing. Minimize first: strip payload fields, drop steps,
 
 ## 7. Dry-run vs full integration — when to demand which
 
-**Dry-run / fixture level suffices** for pure logic, parsing/mapping, prompt construction, or config wiring — anything fully expressible in recorded fixtures. The Python AI worker's dry-run mode is the default gate for its logic changes: `uv run pytest -q -m dry_run`.
+**Dry-run / fixture level suffices** for pure logic, parsing/mapping, prompt construction, or config wiring — anything fully expressible in recorded fixtures. Where the project has a dry-run fixture suite, it is the default gate for logic changes (e.g. `uv run pytest -q -m dry_run`).
 
 **Demand full integration (real DB via Testcontainers / staged environment / real deploy with `--no-traffic`)** when the change touches:
 - SQL/JPA queries, migrations, transaction or locking behavior (H2/mocks lie here)

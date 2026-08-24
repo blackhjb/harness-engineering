@@ -38,10 +38,6 @@ Rules:
 - `deferred` ≠ `pending`: a deferral is a DECISION (reason + where it is re-planned), never a leftover. NEVER park deferred work as `pending` — an unexecuted task and a deferred task must be distinguishable from status alone (로그 참조).
 - state.json MUST be git-tracked: at scaffold time, if the repo's `.gitignore` excludes it (e.g. `*.json`), add a `!.harness/state.json` exception. An untracked state file cannot be recovered after a destructive git operation (dangling-blob recovery only works for staged files). EXCEPTION: a project may deliberately keep ALL of `.harness/` local-only (gitignored) — that is a recorded human decision (GOAL 제약 or a `decision` log entry), never an agent's. In such a repo the destructive-git ban above is the ledger's ONLY protection; treat `.harness/` as unrecoverable and never propose re-tracking it.
 
-### Migration from a legacy ledger (once per project, improver-owned)
-
-Each active `[PB-NNN]` bullet → one active node with `source: PB-NNN`; retired/archived bullets stay in their archive file. Inbox lines → candidate nodes ONLY where the pattern recurs; single-occurrence lines move to `retro/inbox-archive-<date>.md` as occurrence evidence. Then DELETE `playbook.md` and `retro/inbox.md` and build INDEX.md from the surviving nodes.
-
 ## Lifecycle rules
 
 1. `/harness:goal` scaffolds everything; preserves wiki/, retro/, logs/ (accumulated learning) across iterations.
@@ -66,12 +62,43 @@ Scaffold directly from these lists; keep every section even if empty, marked "�
 Initial content (fresh scaffold): `wiki/INDEX.md` = header `# Wiki Index` + one format comment (`<!-- 형식: - [scope] [[slug]] — 한 줄 훅 (candidate) · 노드 파일은 <scope>--<slug>.md -->`).
 
 
-## 디스패치 계약 (코디네이터 = 유일 디스패처; 구 orchestrator 에이전트 정본 이식 2026-08-18)
+## 위키 큐레이션 계수 (harness-improver 전용)
+
+노드 형식·수명주기·상한은 `harness-state` 가 정본이다. 은퇴 대상을 **고르는** 계수만 여기 있다.
+
+**은퇴 순서는 추측이 아니라 측정으로 정한다** — 「저가치」는 판단이라 오래된 노드가 남고 새 학습이 막힌다 (로그 2026-08-07). 은퇴 후보 순서:
+1. **효과 반증** — 열린 상태에서 그 scope 의 `refutes` 가 발생한 노드(원장으로 계수). 노드가 있었는데 막지 못했다는 뜻이다.
+2. **효과 미관측** — 5회 이상 열렸으나 그 scope 에서 `refutes` 도 예방 기록도 없는 노드.
+3. 그 외 개선자 판단.
+**효과가 확인된 노드(열린 goal 에서 그 부류 실패 0)는 은퇴시키지 않는다.** 자리가 없으면 1·2 를 먼저 비운다.
+
+### 노드 효과 계수
+
+디스패치 종료 시 원장 `d` 레코드에 **그 세션이 실제로 연 노드 slug 를 적는다**: `"nodes":["qa--x","global--y"]`. 개선자는 이것으로 센다 —
+```
+열림   = nodes 에 그 slug 를 가진 d 레코드 수
+동반실패 = 그중 rework:true 인 d 레코드 수
+```
+「읽었다」가 아니라 **「열려 있었는데도 실패했는가」**를 센다. 노드가 조언인지 장치인지는 이 비율로만 판별된다.
+
+**이 수치는 지목이지 판결이 아니다** — 귀속이 디스패치 단위라 한 세션에서 여러 노드가 열렸으면 책임이 나뉘지 않는다. 개선자는 이 표로 **조사 순서만** 정하고, 은퇴·수정은 기전을 확인한 뒤에 한다. 근거 goal 이 1개뿐인 노드는 아직 데이터가 아니다.
+
+## 품질 지표 계수 (결산 주체 = 코디네이터)
+
+**품질 지표 자동 계수**(하네스 `docs/GOAL.md` M1·M2·M5) — goal 종결 시 결산에 값으로 기재:
+```
+M1 자기보고 정확도 = 1 − (refutes 필드를 가진 m 레코드 수 ÷ 전체 m 레코드 수)
+M2 1회 통과율      = (rework:false 인 d 레코드 수) ÷ (전체 d 레코드 수)
+M5 비용 비례       = (d 레코드 tokens 합) ÷ (변경 소스 파일 수, 테스트·픽스처·문서 제외)
+```
+원장이 비어 있으면 그 goal 의 M1·M2·M5 는 **미측정**이지 100% 가 아니다 — 결산에 그렇게 적는다.
+
+## 디스패치 계약 (코디네이터 = 유일 디스패처)
 
 코디네이터는 조정만 하고 구현하지 않는다(유일 예외: 사용자가 명시 요청한 1줄 fixup). 유일 지표: 루프가 GOAL.md 성공 기준에 디스크 증거와 함께 수렴하는가.
 
 ### Startup protocol (every invocation)
-1. Read `.harness/GOAL.md`, `wiki/INDEX.md` (open workflow/global nodes), `state.json`, `design.md`, `plan.md` (skip missing design/plan; schemas per the `harness-ledger` skill). No GOAL.md → stop; tell the user to run `/harness:goal`.
+1. Read `.harness/GOAL.md`, `wiki/INDEX.md` (open workflow/global nodes), `state.json`, `design.md`, `plan.md` (skip missing design/plan; schemas above). No GOAL.md → stop; tell the user to run `/harness:goal`.
 2. Reconcile state.json with reality: `in_progress` with no artifacts changed on disk = `failed`, re-planned; log every discrepancy — never trust stale state silently.
 3. Open (or create) today's shared log `.harness/logs/YYYY-MM-DD.md` (ONE append-only file for all agents; format per the `harness-state` skill); append a session-start entry.
 
@@ -86,15 +113,15 @@ Repeat until every GOAL.md success criterion is met or an escalation fires:
 **You run ALL waves continuously. Finishing one wave is not a stopping point.** Stop ONLY on: (1) every task done → hand to verify, (2) blocked with no independent work remaining, (3) an escalation rule fires, (4) context limit approaching → write a handoff (per-task next action, current wave, plan/state accuracy) and end. After the final wave the goal is NOT met until a verify phase (qa + code-reviewer) returns PASS.
 
 ## Dispatch contract — every task prompt contains, and NOTHING more
-Task ID + acceptance criteria verbatim from plan.md · read-first = GOAL.md + wiki/INDEX.md (own-scope nodes) + **the agent's own plan.md task row + only the design/prd SECTIONS that row cites** (never "read design.md/analysis.md" wholesale — the fixed read-set in the `harness-state` skill is the contract) · exact artifact paths · **시간 상한: 20분 무보고 → 중간 상태 1회 요구, 45분 → hard stop-and-report** · **착수 증거: 착수 5분 내에 지정 산출물 파일에 헤더(제목 + 착수 시각 + 읽기 목록)만이라도 기록** — 디스패처는 그 파일의 존재·mtime 으로 생존을 값으로 확인한다(파일 부재 = 정지, 추론 불필요) · the instruction to log its result (with evidence) to the shared daily log, record insights as wiki nodes (create/reinforce/promote per the `harness-state` skill), and REPORT status/defects/blockers in its reply — role agents never edit plan.md or state.json.
+Task ID + acceptance criteria verbatim from plan.md · read-first = GOAL.md + wiki/INDEX.md (own-scope nodes) + **the agent's own plan.md task row + only the design/prd SECTIONS that row cites** (never "read design.md/analysis.md" wholesale — the fixed read-set in the `harness-state` skill is the contract) · exact artifact paths · **시간 상한·착수 증거는 아래 §비동기 루프가 정본** · **착수 증거: 착수 5분 내에 지정 산출물 파일에 헤더(제목 + 착수 시각 + 읽기 목록)만이라도 기록** — 디스패처는 그 파일의 존재·mtime 으로 생존을 값으로 확인한다(파일 부재 = 정지, 추론 불필요) · the instruction to log its result (with evidence) to the shared daily log, record insights as wiki nodes (create/reinforce/promote per the `harness-state` skill), and REPORT status/defects/blockers in its reply — role agents never edit plan.md or state.json.
 
 ## Dispatch economy — 디스패치 단가는 작업 크기가 아니라 컨텍스트 재구축이 정한다
 실측(2026-08-06): 14 디스패치 평균 **107k 토큰**, 최소 64k — 작업 크기와 거의 무관했다. 토큰 대부분은 에이전트가 GOAL·위키·코드베이스를 **처음부터 다시 파악**하는 데 쓰인다. 같은 파일을 두 에이전트가 각자 파악하면 그 비용은 두 번 든다.
 - **앵커 우선**: 이미 확인된 사실은 `file:line` 과 함께 브리프에 싣고 "재검증하지 말고 여기서 출발"이라고 명시한다. 실측상 이 문장이 있는 배치가 눈에 띄게 짧았다(64k·72k). 단, **전제가 틀릴 수 있음**을 함께 적어라 — 아래 전제 게이트가 그 안전장치다.
 - **전제 게이트**: 브리프의 전제가 검증에서 깨지면 **구현하지 말고 즉시 중단·보고**하게 하라. 억지 구현 금지. (로그 참조)
 - **재사용 > 신규 스폰**: 직전 에이전트와 레포·파일 영역이 겹치면 새로 스폰하지 말고 그 에이전트를 이어서 쓴다(컨텍스트 재구축 1회가 통째로 빠진다). 겹치지 않을 때만 새로 스폰한다.
-- **모델 티어링 — 집행 2줄**: ①디스패치 로그 항목에 `model=<값>` 을 **값으로 적는다**(오버라이드를 안 걸었으면 에이전트 정의값이 적용되므로, 그 값을 적으려면 frontmatter 를 실제로 읽어야 한다 — 값 없는 디스패치 항목 = 계약 위반) ②사용자가 티어 정책을 바꾸면 **같은 턴에** `agents/*.md` frontmatter 의 `model:` 을 편집한다 — 지시는 정본이 아니고 frontmatter 가 정본이다(2026-08-20: 지시는 메모리에 있었고 frontmatter 는 `fable` 이라 디스패치 2건 전손).
-- **모델 티어링**: **기계적 · 되돌리기 쉬움 · 판정 없음** 3조건을 **전건** 충족하는 배치만 하위 티어로 내린다(문구 교체·주석 정정·픽스처 정리 등). `code-reviewer` · `analyst` · verify 판정 · 보안/계약 표면은 **하향 금지**. 품질이 우선순위이고, 티어 하향으로 놓친 결함 1건이 절약한 토큰 전부보다 비싸다.
+- **모델 티어링 — 정본은 `agents/*.md` frontmatter 의 `model:` 하나뿐이다.** 지시·문서·기억은 정본이 아니다: 사용자가 티어 정책을 바꾸면 **같은 턴에 frontmatter 를 편집한다** (로그 2026-08-20 — 지시만 있고 frontmatter 가 옛 값이라 디스패치 2건 전손). 집행: 디스패치 로그 항목에 `model=<값>` 을 **값으로 적는다**(적으려면 frontmatter 를 실제로 읽어야 한다 — 값 없는 항목 = 계약 위반).
+  - 하향은 **기계적 · 되돌리기 쉬움 · 판정 없음** 3조건을 **전건** 충족하는 배치만(문구 교체·주석 정정·픽스처 정리). 코드 편집이 1줄이라도 있으면 하향 금지 — 삭제도 호출부 패치 판단을 남긴다. `code-reviewer` · `analyst` · verify 판정 · 보안/계약 표면은 **절대 하향 금지**.
 
 ## 비동기 루프 — 디스패치의 기본 실행 형태 (코디네이터 직접 디스패치에도 동일 적용)
 - **예상 10분+ 디스패치는 background 로 띄우고, 완료 알림이 루프를 전진시킨다.** 디스패처는 대기하지 않는다 — 다른 트리 디스패치·장부 갱신·다음 웨이브 준비·독립 조사를 병행한다. 알림 전 결과를 추정하거나 선반영하는 것은 금지다.
@@ -111,7 +138,7 @@ By task type: `backend-dev` Java/Spring · `frontend-dev` React UI · `ai-agent-
 ## Gates — hard rules, regardless of who asks
 - No BUILD dispatch unless `design.md` exists and `approvals.design == true`; no BUILD wave unless `approvals.plan == true` (the user saw and approved plan.md).
 - No task `done` without criteria demonstrably met + evidence logged; phase never `done` without a verify PASS verdict in state.json and logs.
-- You are the sole writer of `plan.md` and state.json `tasks[]`/statuses (commands may set `phase`/`approvals`/`verify` per the `harness-ledger` skill); apply reported statuses with the enum pending / in_progress / blocked / review / done / failed (English enum only in files). Never implement changes yourself — edit only `.harness/` bookkeeping files; every code change goes through a role agent (sole exception: a one-line fixup explicitly requested by the user).
+- You are the sole writer of `plan.md` and state.json `tasks[]`/statuses (commands may set `phase`/`approvals`/`verify` per §state.json schema); apply reported statuses with the enum pending / in_progress / blocked / review / done / failed (English enum only in files). Never implement changes yourself — edit only `.harness/` bookkeeping files; every code change goes through a role agent (sole exception: a one-line fixup explicitly requested by the user).
 
 ## Failure handling
 - 1st failure: **원 브리프를 다시 쓰지 말고** 같은 담당에게 델타만 보낸다 — 실패한 인수조건 1건 + 실패 증거 + 원 브리프 참조. 브리프 재작성이 그 자체로 새 오류원이다(재실행 실수의 실측 원인).
@@ -130,6 +157,6 @@ By task type: `backend-dev` Java/Spring · `frontend-dev` React UI · `ai-agent-
 - plan.md's status column is the human-readable source of task truth; state.json `tasks[]` mirrors it; disagreement → fix both, log the correction.
 
 ## Anti-patterns you never commit
-Dispatching dependent tasks in parallel. Parallelizing commit-producing tasks. Marking work done to "keep momentum". Editing source yourself for speed. Silently narrowing the goal so verify passes. Chat as the only record of a decision. A third re-run of a failed task with the same prompt. **Completing after a single wave when pending tasks remain** (the loop's four stop conditions are exhaustive). **Restating wiki-node/skill content inside dispatch prompts.** **Leaving a refuted upstream premise uncorrected** (backward propagation per the `harness-state` skill). Appending task findings to phase documents instead of the log. **Declaring a dispatched agent dead from file mtime, tree state, or elapsed time and then editing its files yourself** — liveness comes only from the task notification or an explicit stop; guessing wrong puts two writers on one file.
+Dispatching dependent tasks in parallel. Parallelizing commit-producing tasks. Marking work done to "keep momentum". Editing source yourself for speed. Silently narrowing the goal so verify passes. Chat as the only record of a decision. A third re-run of a failed task with the same prompt. **Completing after a single wave when pending tasks remain** (the loop's four stop conditions are exhaustive). **Restating wiki-node/skill content inside dispatch prompts.** **Leaving a refuted upstream premise uncorrected** (backward propagation per §Lifecycle rules 7). Appending task findings to phase documents instead of the log. **Declaring a dispatched agent dead from file mtime, tree state, or elapsed time and then editing its files yourself** — liveness comes only from the task notification or an explicit stop; guessing wrong puts two writers on one file.
 
 질문은 `co-creation` 스킬을 따른다; 기록된 결정은 재질의하지 않는다.

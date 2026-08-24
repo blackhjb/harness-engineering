@@ -11,7 +11,7 @@ description: 모든 에이전트가 매 디스패치에 여는 공용 계약 —
 2. Results go to files, not just chat — not in `.harness/` (or the codebase) = did not happen.
 3. **Destructive git commands are forbidden for every agent**: `git reset` · `git checkout -- <path>` · `git stash` · `git clean` · `git restore`. Undo an experimental edit by REVERSE-EDITING; read past versions via `git show <sha>:<path>`; reproduce old states in an isolated `git worktree add` (remove it after). Agents share one working tree — one agent's reset destroys every sibling's uncommitted work, and untracked files are unrecoverable (로그 참조).
 
-4. **공용 디스패치 프로토콜** — every role agent, every invocation: ①시작 전 `GOAL.md` + `wiki/INDEX.md` 를 읽고 **자기 scope + `global`/`workflow`** 노드만 연다 ②배정된 것만 한다 — 결과·결함은 디스패처에게 **RETURN**, `plan.md`·`state.json` 은 건드리지 않는다(코디네이터 제외) ③**측정 전 원장을 조회하고**(`grep -F '<명령>@<sha7>' .harness/measurements.jsonl        # 키 값만 · 따옴표/콜론 공백에 무관` — 히트하면 재실행 금지, 값 인용), 새로 측정했으면 원장에 한 줄 append ④끝나면 공용 일간 로그에 result 항목 1건(원장 id + `읽음`) + 얻은 통찰을 wiki 노드로 create/reinforce/promote 하고 그 사실을 같은 항목에 1줄로 적는다. 에이전트 파일은 이 네 가지를 **다시 쓰지 않고** 자기 역할의 델타만 적는다.
+4. **공용 디스패치 프로토콜** — every role agent, every invocation: ①시작 전 `GOAL.md` + `wiki/INDEX.md` 를 읽고 **자기 scope + `global`/`workflow`** 노드만 연다 ②배정된 것만 한다 — 결과·결함은 디스패처에게 **RETURN**, `plan.md`·`state.json` 은 건드리지 않는다(코디네이터 제외) ③**측정 전 원장을 조회하고**(§측정 원장 §승계 규칙 — 히트하면 재실행 금지, 값 인용), 새로 측정했으면 원장에 한 줄 append ④끝나면 공용 일간 로그에 result 항목 1건(원장 id + `읽음`) + 얻은 통찰을 wiki 노드로 create/reinforce/promote 하고 그 사실을 같은 항목에 1줄로 적는다. 에이전트 파일은 이 네 가지를 **다시 쓰지 않고** 자기 역할의 델타만 적는다.
 
 All `.harness/` content is Korean; code identifiers, file paths, technical terms as-is. This skill is the SINGLE schema authority for `.harness/` — its section lists and formats override any other file. Scaffolding creates files directly from the section lists below.
 
@@ -30,7 +30,7 @@ All `.harness/` content is Korean; code identifiers, file paths, technical terms
 | `logs/YYYY-MM-DD.md` | ONE shared append-only daily log, ALL agents | every agent (append) | Continuously |
 | `measurements.jsonl` | 측정·디스패치 원장 (기계 판독, 승계·지표 계수의 유일 출처) | every agent (append 1줄) | 측정할 때마다 · 디스패치 종료 시 |
 | `retro/YYYY-MM-DD.md` | Retro report + edit proposals | harness-improver | Retro |
-| `logs/archive/` · `measurements.archive.jsonl` · `retro/archive/` | Cold storage: mined logs · rotated ledger rows · past retro reports (legacy playbook/inbox archives 포함) | harness-improver | Retro; never read in normal work |
+| `logs/archive/` · `measurements.archive.jsonl` · `retro/archive/` | Cold storage: mined logs · rotated ledger rows · past retro reports | harness-improver | Retro; never read in normal work |
 
 ## 장부·문서 계약은 별도 스킬
 
@@ -38,7 +38,7 @@ All `.harness/` content is Korean; code identifiers, file paths, technical terms
 
 ## wiki/ — the self-evolving knowledge layer
 
-One node = one file = one operational insight (엔티티). This replaces the legacy flat `playbook.md` and `retro/inbox.md` (migration at the end of this section).
+One node = one file = one operational insight (엔티티).
 
 File name IS the node's identity: `<scope>--<kebab-slug>.md`, scope from the ONE scope enum: analysis / planning / design / backend / frontend / ai-agent / qa / review / infra / cost / workflow / global. Never reuse a slug. Node format:
 
@@ -48,7 +48,7 @@ scope: qa                          # exactly one scope from the enum
 status: active                     # candidate | active | retired
 evidence: 2026-08-03, 2026-08-04   # dates the pattern was observed — append-only
 links: [qa--other-node]            # related nodes; a link to a not-yet-written node marks future work, not an error
-source: PB-003                     # optional: provenance (legacy bullet ID, task ID, retro date)
+source: T-014                      # optional: provenance (task ID, retro date)
 ---
 운영 규칙 1–3줄 (when Y, do X — 한국어, 코드 식별자는 원문).
 근거 1–2줄: 날짜 + 사건 한 줄. 반례·미탐 형태가 있으면 함께 적는다.
@@ -79,22 +79,7 @@ Status suffix `(candidate)` only while candidate; active lines carry no suffix. 
 - active ≤ 40 total AND ≤ 8 per scope — over budget: the improver merges/retires BEFORE anything new is promoted.
 - candidate ≤ 15 — over budget: build/verify emit the retro nudge.
 
-**은퇴 순서는 추측이 아니라 측정으로 정한다** — 「저가치」는 판단이라 오래된 노드가 남고 새 학습이 막힌다(실측 2026-08-07: 근거 3건짜리 노드가 `qa` scope 8/8 포화로 승격 보류됐다). 은퇴 후보 순서:
-1. **효과 반증** — 열린 상태에서 그 scope 의 `refutes` 가 발생한 노드(원장으로 계수). 노드가 있었는데 막지 못했다는 뜻이다.
-2. **효과 미관측** — 5회 이상 열렸으나 그 scope 에서 `refutes` 도 예방 기록도 없는 노드.
-3. 그 외 개선자 판단.
-**효과가 확인된 노드(열린 goal 에서 그 부류 실패 0)는 은퇴시키지 않는다.** 자리가 없으면 1·2 를 먼저 비운다.
-
-### 노드 효과 계수 (P5 의 유일한 입력)
-
-디스패치 종료 시 원장 `d` 레코드에 **그 세션이 실제로 연 노드 slug 를 적는다**: `"nodes":["qa--x","global--y"]`. 개선자는 이것으로 센다 —
-```
-열림   = nodes 에 그 slug 를 가진 d 레코드 수
-동반실패 = 그중 rework:true 인 d 레코드 수
-```
-「읽었다」가 아니라 **「열려 있었는데도 실패했는가」**를 센다. 노드가 조언인지 장치인지는 이 비율로만 판별된다.
-
-**이 수치는 지목이지 판결이 아니다** — 귀속이 디스패치 단위라 한 세션에서 여러 노드가 열렸으면 실패 책임이 나뉘지 않는다. 개선자는 이 표로 **조사 순서만** 정하고, 은퇴·수정은 해당 실패의 기전을 확인한 뒤에 한다. 노드 1건에 근거 goal 이 1개뿐이면 아직 데이터가 아니다.
+**은퇴 순서·노드 효과 계수는 `harness-ledger` §위키 큐레이션 계수** 소관이다(집행 주체 = harness-improver). 여기서는 상한만 안다.
 
 ## Log format (logs/YYYY-MM-DD.md, append-only)
 
@@ -108,13 +93,16 @@ ONE shared file per day for ALL agents — NO per-agent/per-task logs; "today's 
 
 Event types: `session-start`, `decision`, `dispatch`, `result`, `failure`, `gate`, `escalation`, `verify`, `goal-set`, `retro-complete`, `wiki`.
 
+- `HH:MM` is the wall-clock time AT WRITE TIME — run `date +%H:%M` and copy its output; never reuse the dispatch prompt's time, estimate, or write placeholders (`15:__`, `13:2x`).
+- Readers (gates, status, retro mining) treat APPEND ORDER as the authoritative sequence; header times are informational and may lag when an agent finishes late.
+
 **필수 필드 2종(이것 말고 더 만들지 않는다)**
 - `dispatch` 항목: `- 계기: 인수조건 N/8 · 브리프 L/20 · 계약근거 design §5 L<n>` — 셋 다 값이다. 상한 초과면 디스패치하지 말고 쪼갠다.
-- `result` 항목: `- 원장: <id> … · 읽음: INDEX+<scope>` — 측정값 본체는 산문이 아니라 **측정 원장**(다음 절)에 쓰고 여기엔 id 만 적는다. **`원장: <id>` 를 적는 턴에 그 id 의 실재를 확인한다** — `grep -c -F '<id>' .harness/measurements.jsonl` 이 0 이면 로그를 쓰기 전에 append 한다. 로그 줄은 append 의 증거가 아니다(실측 2026-08-24 재계수: 인용 35건 중 **결손 5**, 전건 코디네이터 — 그 구간의 M1·M2 만 산정 불가. 2026-08-20 회고의 「27건 중 7」은 분모를 **인용 목록**으로 잡은 과잉 진단이었고, **결손 진단의 분모는 원장 전체**다). **코디네이터도 예외가 아니다**: 디스패치·판정 턴마다 `d` 레코드 1줄. `읽음` 이 비면 위키에 도달하지 않은 것이다. Never edit/delete past entries; corrections = new entries referencing the old one.
+- `result` 항목: `- 원장: <id> … · 읽음: INDEX+<scope>` — 측정값 본체는 산문이 아니라 **측정 원장**(다음 절)에 쓰고 여기엔 id 만 적는다. **`원장: <id>` 를 적는 턴에 그 id 의 실재를 확인한다** — `grep -c -F '<id>' .harness/measurements.jsonl` 이 0 이면 로그를 쓰기 전에 append 한다. 로그 줄은 append 의 증거가 아니다 (로그 2026-08-24). **결손 진단의 분모는 인용 목록이 아니라 원장 전체다.** **코디네이터도 예외가 아니다**: 디스패치·판정 턴마다 `d` 레코드 1줄. `읽음` 이 비면 위키에 도달하지 않은 것이다. Never edit/delete past entries; corrections = new entries referencing the old one.
 
 ## 측정 원장 — `.harness/measurements.jsonl` (append-only, 기계 판독)
 
-산문 로그로는 다음 사람이 「이 명령을 이 sha 에서 이미 돌렸나」를 **조회할 수 없다**. 그래서 같은 측정이 반복된다(실측: 한 goal 에서 전건 pytest 8회·골든 재생성 6회, 승계 규칙이 존재했음에도). 측정값과 디스패치 결과는 **한 줄 JSON** 으로 남긴다.
+산문 로그로는 다음 사람이 「이 명령을 이 sha 에서 이미 돌렸나」를 **조회할 수 없고**, 그래서 같은 측정이 반복된다 (로그 참조). 측정값과 디스패치 결과는 **한 줄 JSON** 으로 남긴다.
 
 레코드 2종. 한 줄 = 한 레코드, 필드는 아래가 전부다.
 ```jsonl
@@ -123,34 +111,21 @@ Event types: `session-start`, `decision`, `dispatch`, `result`, `failure`, `gate
 {"t":"d","id":"d-1505","agent":"ai-agent-dev","scope":"W1~W6","rework":false,"tokens":244829,"nodes":["qa--zero-baseline-lint-needs-resident-fixture","global--read-before-restructure"]}
 ```
 - `t` — `m` 측정 · `d` 디스패치. `id` — `<t>-<HHMM>-<짧은식별>`, 충돌하면 뒤에 숫자.
-- `key` — **`<명령 문자열>@<sha7>@<env>`**. 이것이 승계의 유일한 키다. **`<env>` 는 그 측정을 낸 인터프리터·환경 식별자**(conda env 이름·venv 경로·`python -V` 중 하나)이며, 실행 환경에 의존하는 측정(pytest·import·모델 로드·자 스캔) 전건에 **필수**다 — 없으면 그 행은 승계 대상이 아니고 인용도 불가다. 환경 무관 측정(`git grep`·`git diff`)은 `@<sha7>` 까지로 충분하다. **같은 명령·같은 sha 도 인터프리터가 다르면 다른 값이다**(실측 2026-08-24 iter32·33: 시스템 `python3` 3.13.5 로 잰 pytest 기준선 `7 failed … 8 errors` 가 정본 env `faq-agent`/3.11.14 에서는 `0 failed / 1599 passed` — 「선재 red 15건」이 실재하지 않았고 두 iteration 의 회귀 판정 전건이 그 값 위에 있었다. `global--baseline-provenance-and-interpreter` 노드는 그날 열려 있었다).
+- `key` — **`<명령 문자열>@<sha7>@<env>`**. 이것이 승계의 유일한 키다. **`<env>` 는 그 측정을 낸 인터프리터·환경 식별자**(conda env 이름·venv 경로·`python -V` 중 하나)이며, 실행 환경에 의존하는 측정(pytest·import·모델 로드·정적 스캔) 전건에 **필수**다 — 없으면 그 행은 승계 대상이 아니고 인용도 불가다. 환경 무관 측정(`git grep`·`git diff`)은 `@<sha7>` 까지로 충분하다. **같은 명령·같은 sha 도 인터프리터가 다르면 다른 값이다** (로그 2026-08-24, wiki `global--baseline-provenance-and-interpreter`).
 - `refutes` — 이 레코드가 뒤집은 앞선 레코드의 id(없으면 필드 자체를 생략). qa·code-reviewer 가 재측정해 다른 값이 나오거나 결함을 실증하면 **반드시** 채운다.
-- `rework` — 그 디스패치가 재작업(재개·재브리프)을 유발했으면 `true`.
-  **브리프 전제(사실·인과 가설·해법 지정)가 반증돼 산출 0 으로 닫힌 디스패치도 `rework:true` 다** — 「blocked 로 잘 닫았다」는 에이전트의 정확한 행동이지만, 왕복 1회는 이미 소비됐고 원인은 브리프에 있다. `scope` 끝에 `(전제반증)` 을 붙여 재작업형과 구분한다. 이 구분이 없으면 M2 가 100% 로 나오면서 회고가 매번 같은 패턴을 산문에서만 발견한다. **주의**: 이 정의 변경은 M2 기준선을 이동시키므로 적용 goal 의 결산에 「M2 정의 변경」을 병기하고, 적용 전후 값을 직접 비교하지 않는다.
-- `nodes` — 그 세션이 실제로 **연** 위키 노드 slug 배열(§노드 효과 계수). 안 열었으면 `[]`.
+- `rework` — 그 디스패치가 재작업(재개·재브리프)을 유발했으면 `true`. **브리프 전제(사실·인과 가설·해법 지정)가 반증돼 산출 0 으로 닫힌 디스패치도 `true` 다** — blocked 로 잘 닫는 것은 에이전트의 정확한 행동이지만 왕복 1회는 이미 소비됐고 원인은 브리프에 있다. `scope` 끝에 `(전제반증)` 을 붙여 재작업형과 구분한다. **주의**: 이 정의는 M2 기준선을 이동시키므로 결산에 「M2 정의 변경」을 병기하고 적용 전후 값을 직접 비교하지 않는다.
+- `nodes` — 그 세션이 실제로 **연** 위키 노드 slug 배열. 안 열었으면 `[]` (계수는 `harness-ledger` §노드 효과 계수).
 
-**승계 규칙(장치)** — 측정 전에 **먼저 조회한다**:
+**승계 규칙(장치)** — 측정 전에 **먼저 조회한다**. 패턴은 **키 값만** 쓴다(`"key":` 를 붙이면 `json.dumps` 의 콜론 뒤 공백 때문에 영구 미검출):
 ```
-grep -F '"key":"<명령>@<sha7>"' .harness/measurements.jsonl
+grep -F '<명령>@<sha7>@<env>' .harness/measurements.jsonl
 ```
-**패턴에 `"key":` 를 붙이지 않는다** — `json.dumps` append 는 콜론 뒤 공백을 넣어 그 행이 영구 미검출된다(2026-08-24: 494행 중 20행). id 대조도 `grep -c -F '<id>'`.
-히트가 있고 그 트리에 이후 커밋이 없으면 **재실행하지 않고 인용**한다. 재실행 의무는 넷 — ①히트 없음 ②이후 커밋 존재 ③red 이력 없는 회귀 pin(goal 당 1건 격리 worktree) ④**키의 `<env>` 가 지금 쓰는 환경과 다름**.
+id 대조도 `grep -c -F '<id>'`. 히트가 있고 그 트리에 이후 커밋이 없으면 **재실행하지 않고 인용**한다. 재실행 의무는 넷 — ①히트 없음 ②이후 커밋 존재 ③red 이력 없는 회귀 pin(goal 당 1건 격리 worktree) ④**키의 `<env>` 가 지금 쓰는 환경과 다름**. 이 넷이 승계의 정본이고, 커맨드·에이전트 파일은 여기를 가리킬 뿐 다시 적지 않는다.
 
 **추가는 한 줄이다** — 부담이 커지면 아무도 안 쓴다:
 ```
 echo '{"t":"m","id":"...","agent":"...","key":"...","value":"...","exit":0}' >> .harness/measurements.jsonl
 ```
-
-**품질 지표 자동 계수**(하네스 `docs/GOAL.md` M1·M2·M5) — goal 종결 시 결산에 값으로 기재:
-```
-M1 자기보고 정확도 = 1 − (refutes 필드를 가진 m 레코드 수 ÷ 전체 m 레코드 수)
-M2 1회 통과율      = (rework:false 인 d 레코드 수) ÷ (전체 d 레코드 수)
-M5 비용 비례       = (d 레코드 tokens 합) ÷ (변경 소스 파일 수, 테스트·픽스처·문서 제외)
-```
-원장이 비어 있으면 그 goal 의 M1·M2·M5 는 **미측정**이지 100% 가 아니다 — 결산에 그렇게 적는다.
-
-- `HH:MM` is the wall-clock time AT WRITE TIME — run `date +%H:%M` and copy its output; never reuse the dispatch prompt's time, estimate, or write placeholders (`15:__`, `13:2x`).
-- Readers (gates, status, retro mining) treat APPEND ORDER as the authoritative sequence; header times are informational and may lag when an agent finishes late.
 
 ## Context budget (token control — hard rules)
 
@@ -161,6 +136,6 @@ The harness must get smarter WITHOUT per-task context growing; learning lives in
 1–2. **Wiki reads are INDEX-driven, node text stays compressed**: read `wiki/INDEX.md` (≤80 lines), open only own-scope + `global`/`workflow` nodes (≤10 lines each); never bulk-read `wiki/`, never quote other scopes' nodes. Reinforcement sharpens wording, never appends narrative — incident stories live in the daily log, referenced by date.
 3. **Fixed read-set per task**: GOAL.md + wiki/INDEX.md + own-scope nodes + own plan.md task row + documents the role owns/consumes (e.g. dev → design.md) + **`measurements.jsonl` 을 `grep -F` 키 조회로만**(통독 금지 — 승계 판정에 필요한 것은 그 키의 히트 여부뿐이다). NEVER read `logs/`, `retro/`, or archives in normal work — past decisions live in the owning DOCUMENTS (design.md ADR / prd.md / GOAL.md), never mined from logs.
 4–5. **Logs write-heavy read-rarely · Archives = cold storage**: only harness-improver reads logs (newer than the last retro report), then rotates them to `logs/archive/`; `/harness:status` reads only today's log; archives are read only when a human asks.
-6. **Every document is capped, not just the playbook**: analysis.md ≤ 80 lines · prd.md ≤ 100 · design.md ≤ 150 · GOAL.md ≤ 80. Documents carry CONCLUSIONS + file:line references; raw evidence (command output, matrices, reproduction transcripts) goes to the daily log, referenced by date. A document over budget is a defect the owner must compress before handoff (로그 참조).
+6. **Every document is capped**: analysis.md ≤ 80 lines · prd.md ≤ 100 · design.md ≤ 150 · GOAL.md ≤ 80. Documents carry CONCLUSIONS + file:line references; raw evidence (command output, matrices, reproduction transcripts) goes to the daily log, referenced by date. A document over budget is a defect the owner must compress before handoff (로그 참조).
 7. **Task outputs never append to phase documents**: a task's findings go to the log (+ a one-line conclusion with an F-NNN update if it changes a fact). Appending task appendices to analysis.md/design.md is how documents bloat past their caps.
-8. **1회 디스패치 산출 예산 — 증거의 양이 아니라 서식을 조인다**: 증거 전문(표·덤프·재현 로그)은 파일로 남기고 경로·원장 id 로 인용한다. **RETURN 보고 ≤40줄 · 로그 result 항목 ≤20줄**, 문서는 §6 상한 — 브리프가 값을 지정하면 그것이 계약, 미지정이면 이것이 기본값이다. 디스패치 종료 시 `d.tokens` > **250k** 면 로그에 「산출 예산 초과: <사유 1줄>」을 남긴다 (실측 2026-08-20: 55건 평균 149k·최대 530k, qa 97k·architect 86k 는 이미 성립 — 초과분의 지배 항은 보고·표 산문이었다).
+8. **1회 디스패치 산출 예산 — 증거의 양이 아니라 서식을 조인다**: 증거 전문(표·덤프·재현 로그)은 파일로 남기고 경로·원장 id 로 인용한다. **RETURN 보고 ≤40줄 · 로그 result 항목 ≤20줄**, 문서는 §6 상한 — 브리프가 값을 지정하면 그것이 계약, 미지정이면 이것이 기본값이다. 디스패치 종료 시 `d.tokens` > **250k** 면 로그에 「산출 예산 초과: <사유 1줄>」을 남긴다 — 초과분의 지배 항은 보고·표 산문이다 (로그 2026-08-20).
