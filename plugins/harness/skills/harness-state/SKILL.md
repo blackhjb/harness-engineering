@@ -70,7 +70,7 @@ Status suffix `(candidate)` only while candidate; active lines carry no suffix. 
 ### Node lifecycle — the always-on evolution loop (no human gate)
 
 - **create (candidate)**: ANY agent, immediately after a failure, surprising success, or refuted assumption — write the node AND its INDEX line in the same turn. Check INDEX for an existing node covering the pattern FIRST; if one exists, reinforce it instead of creating a near-duplicate.
-- **reinforce**: on re-observing an existing node's pattern, append the evidence date; sharpen the rule text if the new case narrows or extends it (keep the sharper wording, never append prose).
+- **reinforce**: on re-observing an existing node's pattern, append the evidence date; sharpen the rule text if the new case narrows or extends it (keep the sharper wording, never append prose). **본문 단어 수 순증은 0 이다** — 새 절을 넣으려면 같은 분량의 기존 절을 지우고, 전후 `wc -w` 두 값을 로그 result 에 1줄로 적는다. 지울 것을 못 고르면 그 노드는 이미 둘이므로 분할하거나 신규 노드를 만든다. 이 규약 아래서 **상한 초과 노드의 강화는 곧 압축**이라 동결이 발생하지 않는다.
 - **promote (candidate → active)**: any agent, once the node has ≥2 evidence dates from independent tasks — flip `status` in place, remove the INDEX suffix. Promotion does not wait for a retro. **단 승격으로 active 총량(40) 또는 그 scope 상한(8)을 넘기게 되면 candidate 로 유지하고 로그에 「승격 보류(상한)」 1줄만 남긴다** — 자리는 improver 가 은퇴로 만든 뒤에만 승격한다.
 - **merge / split / retire**: harness-improver only (at retro, or on demand). Merge = union the evidence into the survivor, add a `links` entry, mark the absorbed node `status: retired` and drop its INDEX line. Retired files STAY in `wiki/` as tombstones — cold storage in place.
 - Human approval is NOT required for any wiki edit. It remains required for agent-prompt / command / gate edit proposals (retro), and permission/safety rules stay untouchable.
@@ -79,6 +79,7 @@ Status suffix `(candidate)` only while candidate; active lines carry no suffix. 
 
 - active ≤ 40 total AND ≤ 8 per scope — over budget: the improver merges/retires BEFORE anything new is promoted.
 - candidate ≤ 15 — over budget: build/verify emit the retro nudge.
+- **계수는 INDEX 가 아니라 노드 파일의 `status:` 로 낸다** — `grep -l "^status: candidate" .harness/wiki/*.md | wc -l` · `grep -l "^status: active" .harness/wiki/*.md | wc -l` · scope 별은 `| cut -d- -f1 | sort | uniq -c`. INDEX 를 grep 하면 형식 주석 1행과 승격 후 미제거 접미사가 함께 세어져 **상시 과대**다(실측 2026-08-25: 실측 14 를 17 로 읽어 세 세션이 노드 생성을 보류했고, 같은 결손으로 active 41/40 승격이 통과했다).
 
 **은퇴 순서·노드 효과 계수는 `harness-ledger` §위키 큐레이션 계수** 소관이다(집행 주체 = harness-improver). 여기서는 상한만 안다.
 
