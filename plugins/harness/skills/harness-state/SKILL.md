@@ -99,22 +99,21 @@ Event types: `session-start`, `decision`, `dispatch`, `result`, `failure`, `gate
 
 **필수 필드 2종(이것 말고 더 만들지 않는다)**
 - `dispatch` 항목: `- 계기: 인수조건 N/8 · 브리프 L/20 · 계약근거 design §5 L<n>` — 셋 다 값이다. 상한 초과면 디스패치하지 말고 쪼갠다.
-- `result` 항목: `- 원장: <id> … · 읽음: INDEX+<scope>` — 측정값 본체는 산문이 아니라 **측정 원장**(다음 절)에 쓰고 여기엔 id 만 적는다. **`원장: <id>` 를 적는 턴에 그 id 의 실재를 확인한다** — `grep -c -F '<id>' .harness/measurements.jsonl` 이 0 이면 로그를 쓰기 전에 append 한다. 로그 줄은 append 의 증거가 아니다 (로그 2026-08-24). **결손 진단의 분모는 인용 목록이 아니라 원장 전체다.** **코디네이터도 예외가 아니다**: 디스패치·판정 턴마다 `d` 레코드 1줄. `읽음` 이 비면 위키에 도달하지 않은 것이다. Never edit/delete past entries; corrections = new entries referencing the old one.
+- `result` 항목: `- 원장: <id> @행<N> · 읽음: INDEX+<scope>` — 측정값 본체는 산문이 아니라 **측정 원장**(다음 절)에 쓰고 여기엔 id 와 행 수만 적는다. **`N` 은 append 직후의 `wc -l < .harness/measurements.jsonl` 이고 append 없이는 증가하지 않는다** — 연속한 두 result 항목의 `N` 이 같으면 결손이 그 자리에서 드러난다. 「적는 턴에 grep 하라」는 문장형 조항은 3회 연속 재발했다(로그 2026-08-20·24·25; 실측 2026-08-25: 인용 447건 중 77건 미실재). 다건이면 `원장: <id> · <id>… · @행<N>` — `@행` 은 **항목당 1회, 맨 뒤에 ` · ` 로 접합**한다(id 에 공백 접합하면 분할 소비자가 마지막 id 를 놓친다). id 대조는 `grep -c -F '<id>'`. **결손 진단의 분모는 인용 목록이 아니라 원장 전체다.** `읽음` 이 비면 위키에 도달하지 않은 것이다. Never edit/delete past entries; corrections = new entries referencing the old one.
 
 ## 측정 원장 — `.harness/measurements.jsonl` (append-only, 기계 판독)
 
-산문 로그로는 다음 사람이 「이 명령을 이 sha 에서 이미 돌렸나」를 **조회할 수 없고**, 그래서 같은 측정이 반복된다 (로그 참조). 측정값과 디스패치 결과는 **한 줄 JSON** 으로 남긴다.
-
-레코드 2종. 한 줄 = 한 레코드, 필드는 아래가 전부다.
+산문으로는 「이 명령을 이 sha 에서 이미 돌렸나」를 조회할 수 없어 같은 측정이 반복된다 (로그 참조). 측정값과 디스패치 결과는 **한 줄 JSON** 으로 남긴다. 레코드 2종, 한 줄 = 한 레코드, 필드는 아래가 전부다.
 ```jsonl
 {"t":"m","id":"m-1533-dev","agent":"ai-agent-dev","key":"pytest -q@4394fef","value":"1426 passed, 1 skipped","exit":0}
 {"t":"m","id":"m-1602-rev","agent":"code-reviewer","key":"sha256 golden@609faa4","value":"338b6ea7…","exit":0,"refutes":"m-1533-dev"}
 {"t":"d","id":"d-1505","agent":"ai-agent-dev","scope":"W1~W6","rework":false,"cause":null,"tokens":244829,"nodes":["qa--zero-baseline-lint-needs-resident-fixture","global--read-before-restructure"]}
 ```
 - `t` — `m` 측정 · `d` 디스패치. `id` — `<t>-<HHMM>-<짧은식별>`, 충돌하면 뒤에 숫자.
-- `key` — **`<명령 문자열>@<sha7>@<env>`**. 이것이 승계의 유일한 키다. **`<env>` 는 그 측정을 낸 인터프리터·환경 식별자**(conda env 이름·venv 경로·`python -V` 중 하나)이며, 실행 환경에 의존하는 측정(pytest·import·모델 로드·정적 스캔) 전건에 **필수**다 — 없으면 그 행은 승계 대상이 아니고 인용도 불가다. 환경 무관 측정(`git grep`·`git diff`)은 `@<sha7>` 까지로 충분하다. **같은 명령·같은 sha 도 인터프리터가 다르면 다른 값이다** (로그 2026-08-24, wiki `global--baseline-provenance-and-interpreter`).
+- `key` — **`<복사해 실행 가능한 명령 문자열>@<sha7>@<env>`**. 이것이 승계의 유일한 키다. **`<env>` 는 그 측정을 낸 인터프리터·환경 식별자**(conda env 이름·venv 경로·`python -V` 중 하나)이며, 실행 환경에 의존하는 측정(pytest·import·모델 로드·정적 스캔) 전건에 **필수**다 — 없으면 그 행은 승계 대상이 아니고 인용도 불가다. 환경 무관 측정(`git grep`·`git diff`)은 `@<sha7>` 까지로 충분하다. **같은 명령·같은 sha 도 인터프리터가 다르면 다른 값이다** (로그 2026-08-24, wiki `global--baseline-provenance-and-interpreter`).
 - `refutes` — 이 레코드가 뒤집은 앞선 레코드의 id(없으면 필드 자체를 생략). qa·code-reviewer 가 재측정해 다른 값이 나오거나 결함을 실증하면 **반드시** 채운다.
 - `agent` — **에이전트 정의의 `name` 을 그대로 쓴다**(디스패처는 `코디네이터` 로 고정). 같은 역할을 두 표기로 적으면 역할별 집계가 조용히 갈라진다 (실측 2026-08-25: 한 원장에 `coordinator`/`코디네이터` 혼재).
+- `tokens` — **`d` 는 왕복 1건당 1행이고 작성자는 그 왕복을 수행한 세션이다.** 디스패처가 위임 왕복의 행을 대신 쓰면 M2 분모가 부푼다(실측 2026-08-25: 코디네이터 `d` 15건 중 14건 null/0). **위임 `d` 는 null·0 금지** — 디스패처는 위임 세션의 토큰을 모르므로 그 행을 쓸 수 없다. 코디네이터가 **직접 수행한** 배치는 자신이 수행 세션이므로 자기 `d` 를 쓰고 `tokens` 는 `null` 로 둔다(자기 토큰은 세션 종료 전 알 수 없다) — M6 분모가 이 행들이다.
 - `rework` — 그 디스패치가 재작업(재개·재브리프)을 유발했으면 `true`. **`true` 면 `cause` 를 함께 적는다**: `brief`(브리프 전제·처방 오류) · `design`(설계 결함) · `agent`(집행 오류) · `env`(환경·도구). 산문으로 「원인은 …」이라고 적어도 계수되지 않는다 — 값이어야 회고가 분포를 낸다. **브리프 전제가 반증돼 산출 0 으로 닫힌 디스패치도 `true`/`cause:brief` 다** — blocked 로 잘 닫는 것은 에이전트의 정확한 행동이지만 왕복 1회는 이미 소비됐고 원인은 브리프에 있다.
 - `nodes` — 그 세션이 실제로 **연** 위키 노드 slug 배열. 안 열었으면 `[]` (계수는 `harness-ledger` §노드 효과 계수).
 
@@ -122,7 +121,7 @@ Event types: `session-start`, `decision`, `dispatch`, `result`, `failure`, `gate
 ```
 grep -F '<명령>@<sha7>@<env>' .harness/measurements.jsonl
 ```
-id 대조도 `grep -c -F '<id>'`. 히트가 있고 그 트리에 이후 커밋이 없으면 **재실행하지 않고 인용**한다. 재실행 의무는 넷 — ①히트 없음 ②이후 커밋 존재 ③red 이력 없는 회귀 pin(goal 당 1건 격리 worktree) ④**키의 `<env>` 가 지금 쓰는 환경과 다름**. 이 넷이 승계의 정본이고, 커맨드·에이전트 파일은 여기를 가리킬 뿐 다시 적지 않는다.
+id 대조도 `grep -c -F '<id>'`. 히트가 있고 그 트리에 이후 커밋이 없으면 **재실행하지 않고 인용**한다. 재실행 의무는 넷 — ①히트 없음 ②이후 커밋 존재 ③red 이력 없는 회귀 pin(goal 당 1건 격리 worktree) ④**키의 `<env>` 가 지금 쓰는 환경과 다름**. 이 넷이 승계의 정본이고, 커맨드·에이전트 파일은 여기를 가리킬 뿐 다시 적지 않는다. **재실행할 때는 명령을 새로 타이핑하지 말고 히트 레코드 `key` 의 `@` 앞 명령 문자열을 그대로 복사해 실행한다** — 키의 `<env>` 가 인터프리터 절대경로라 복사하면 셸 기본값(homebrew `python3`)으로 낙하하는 경로가 구조적으로 사라진다. 노드를 열어 두는 것만으로는 같은 오사용이 2회 났다(로그 2026-08-24·25).
 
 **추가는 한 줄이다** — 부담이 커지면 아무도 안 쓴다:
 ```
