@@ -67,6 +67,7 @@ GOAL 배경·전제의 **사실 명제**(도입 시점·인과 순서·부재 �
 ## 3. 기존 .harness/ 처리
 - **위키 상한 위반이면 새 goal 전에 `/harness:retro` 먼저** (candidate ≤15, active ≤8 per scope, INDEX ≤80줄) — 큐레이션은 다음 goal 의 선행 조건이다 (로그 참조).
 - **장부가 실제와 어긋나면 먼저 맞춘다**: 마지막 verdict 이후 코드가 바뀌었는데 state.json 이 여전히 `done`/PASS 면 그 후속 작업은 미등록 iteration 이다 — `iteration` 증가 + `verify` 리셋으로 등록부터.
+- **직전 회고 §4 제안의 처분을 값으로 판정한다** — 「미승인」을 승계하지 않는다. 각 제안 diff 에서 **추가 문장의 고유 어구 1개**를 뽑아 **런타임이 실제로 읽는 플러그인 캐시**(`~/.claude/plugins/cache/<mp>/<plugin>/<로드된 버전>/`, `.in_use` mtime 최신 디렉터리)에 `grep -rl` 한다. hit = **적용됨**(이월 아님), 0 hit 만 이월. 소스 레포·커밋 메시지·버전 번호 대조는 근거가 아니다. **적용된 제안이 이번 goal 에서 또 실패하면 이월이 아니라 그 규칙의 효과 반증**이므로 원장에 `refutes` 로 적는다(2026-08-27 iter52: 적용·로드된 §2-B 가 배경 명제 층에서만 걸려 ADR 층 실패를 못 막았는데 「미승인」 오인으로 반증 미계상).
 - **직전 세션의 백그라운드 잔여를 스캔한다**: ListAgents 로 이 프로젝트의 실행 중 표시 에이전트를 확인하고, 직전 로그의 디스패치 대비 미착지 건은 ①재개 메시지 회수 ②kill+동기 재실행 ③명시 이월 중 하나로 처분 후 진행 — "running" 표시는 생존 증거가 아니다 — 무성 정지는 실행 중으로 표시된 채 몇 시간 간다.
 - `.harness/` 없음: 아래 전체 구조 생성.
 - `.harness/` 있음: 새 goal iteration. `wiki/`·`retro/`·`logs/` 는 보존(축적 학습). 구 state.json 을 읽어 `iteration` 증가, GOAL/analysis/prd/design/plan 은 새 스캐폴드로 덮는다. 직전 goal 의 phase 가 `done`/`retro` 가 아니면 미완임을 경고하고 명시 확인 후 덮는다.
