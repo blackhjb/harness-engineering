@@ -30,6 +30,7 @@ Then check design.md answers every P0 story and does not contradict GOAL.md on a
 ## Stage 4 — Approval gate (do not skip)
 Present in Korean: prd.md priorities summary, design.md key decisions and tradeoffs, and the full plan.md task table with waves. Ask explicitly: "이 설계와 계획을 승인하시겠습니까? 수정할 부분이 있으면 알려주세요."
 - Before presenting, cross-check GOAL.md/prd.md against design.md for the SAME proposition stated differently — above all "what does the user see when the feature is off, the gate fails, or the default applies". Such a contradiction yields identical code under either reading, so task decomposition never surfaces it; list every mismatch in the approval request as a decision the user must settle.
+- **대조 축은 둘이다. 두 번째는 수량이다**: design 이 GOAL 의 수량 제약(「순삭제 ±0」·「신규 계측기 0」·「분기 델타 0」·「신규 파일 0」)에 **예외를 승인**하면, 그 예외의 **정수**(부착 행수·신설 파일수)를 뽑아 GOAL 해당 SC 목표치의 정수와 **산술 대조**한다 — 합이 목표치를 넘으면 승인 요청에 「GOAL SC-N 목표치를 X → Y 로 개정」을 **같은 턴의 결정 항목으로 올리고**, 개정 없이는 `approvals.design` 을 세우지 않는다. 이 모순은 사용자 가시 행동 축에서 보이지 않고 build 도 통과시키므로 **verify 가 FAIL 로 되돌려주는 것이 유일한 검출 경로**가 된다(2026-08-27 iter51: 승인된 `record_gate` 1행 + WHY 주석 → 실측 −4, verdict FAIL 후 목표치를 낮춰서만 PASS).
 - On approval: set state.json `approvals.design` = true and `approvals.plan` = true, refresh `updated_at`, log the approval, and point to `/harness:build`.
 - On change requests: route each to the owning agent (planner/architect/product-designer) 또는 코디네이터, then re-present. Never set approvals without an explicit yes.
 

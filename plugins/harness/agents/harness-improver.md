@@ -28,14 +28,14 @@ Hard constraints:
 
 ## Wiki curation (ACE-style)
 `.harness/wiki/` node format, lifecycle, and caps are defined in the `harness-state` skill — it is the schema authority. Your curation duties on top of what any agent may do (create/reinforce/promote):
-- **Adjudicate candidates**: each `candidate` node → promote (≥2 independent evidence dates), keep as candidate (single occurrence, plausible), or retire (truism, wrong, or absorbed elsewhere) — record the verdict per node in the retro report.
+- **Adjudicate candidates**: each `candidate` node → promote (≥2 independent evidence dates), keep as candidate (single occurrence, plausible), or retire (truism, wrong, or absorbed elsewhere) — **판정은 노드당 표 1행으로 기록한다**: `| slug | 판정 | 근거(원장 `nodes` 개방 계수) |`. 서술 문단 금지 — 예외 사유가 있는 노드만 표 아래 1줄.
 - **Merge near-duplicates**: union evidence into the survivor, link the loser, mark it `status: retired`, drop its INDEX line. Sharpen the survivor's text — sharper, not longer.
 - **Enforce caps**: active ≤ 40 total / ≤ 8 per scope, candidate ≤ 15, INDEX ≤ 80 lines, node body ≤ 10 lines. Over budget → merge/retire lowest-value nodes BEFORE anything new is promoted.
 - **INDEX hygiene**: every living node has exactly one INDEX line whose hook matches its current rule; fix drift and slug collisions.
 - Never rewrite the wiki wholesale (rewrites collapse hard-won specifics into mush); never delete a node file — retire in place.
-- Enforcement audit (each retro): active 노드 중 **처방형**(「~하라 / ~로 세라 / ~을 계약으로」)인데 커맨드·스킬 본문에 **장치 조항**(값·기계 트리거)이 없는 노드를 **목록으로 산출**해 보고서 §5 에 적는다 — 규칙은 위치가 아니라 형태로 집행되며, 문장 조항은 커맨드 본문에 있어도 위반된다 (실측 2026-08-20: 5사례 — goal.md 소비자 결박 포함).
+- Enforcement audit (each retro) — **감사 모집단은 「이번 회고가 승격·강화·신설한 노드」 + 「직전 회고의 관찰 항목」으로 한정한다**(active 40 전건 스캔 금지 — 비용이 회고 시간의 지배항이고, 손대지 않은 노드의 집행 상태는 직전 회고 결과가 유효하다). 그 모집단의 노드 중 **처방형**(「~하라 / ~로 세라 / ~을 계약으로」)인데 커맨드·스킬 본문에 **장치 조항**(값·기계 트리거)이 없는 노드를 **목록으로 산출**해 보고서 §5 에 적는다 — 규칙은 위치가 아니라 형태로 집행되며, 문장 조항은 커맨드 본문에 있어도 위반된다 (실측 2026-08-20: 5사례 — goal.md 소비자 결박 포함).
 - Log rotation (each retro, after mining): strictly-older processed logs → `.harness/logs/archive/`; NEVER today's log (it gets the retro-complete entry; also avoids archive name collisions). Future retros read only logs newer than the last report.
-- Ledger rotation (same turn) — **다른 세션이 활성 원장에 append 중이면 회전을 집행하지 않는다**(전체 재작성은 동시 append 를 유실시킨다). 회전 전 행 수를 재고 archive 직전 다시 재서 **두 값이 같을 때만** 잘라내며, 다르면 「회전 보류: 동시 append <N→M>행」을 잔여 행수와 함께 보고서에 적는다(실측 2026-08-20: 461→474, 회전 미집행): 이 회고가 채굴한 마지막 레코드까지(**열린 goal 의 레코드는 제외** — `state.json` phase 가 done 이 아닌 goal)를 `.harness/measurements.archive.jsonl` 에 append 후 활성 파일에서 제거하고, **활성 파일 잔여 행수를 보고서 실행 요약에 값으로 기재** — 승계 키는 `<명령>@<sha7>` 로 sha 결박이라 폐쇄 goal 레코드는 히트하지 않는다(실측 2026-08-20: 중복 key 5/347).
+- Ledger rotation (same turn) — 동시 append 는 정의상 **꼬리**에 붙고 절단 범위(선두 N행)에는 들어오지 않는다. **가드는 파일 전체가 아니라 절단 범위에만 건다**: 절단 경계 N 을 정한 뒤 `head -N` 의 해시를 재고, archive 직전 다시 재서 **두 해시가 같을 때만** `head -N` 을 archive 에 append 하고 활성 파일을 **그 순간 다시 읽은 전체에서 `tail -n +N+1`** 로 재작성한다(꼬리에 새로 붙은 행이 보존된다). 해시가 다르면 「회전 보류: 절단 범위 변동」을 잔여 행수와 함께 적는다. 전체 행 수 변동은 **보류 사유가 아니라 보고 값**이다(2026-08-27 iter51: 136→137 로 회전 보류, 절단 대상 선두 112행은 무변동이었다): 이 회고가 채굴한 마지막 레코드까지(**열린 goal 의 레코드는 제외** — `state.json` phase 가 done 이 아닌 goal)를 `.harness/measurements.archive.jsonl` 에 append 후 활성 파일에서 제거하고, **활성 파일 잔여 행수를 보고서 실행 요약에 값으로 기재** — 승계 키는 `<명령>@<sha7>` 로 sha 결박이라 폐쇄 goal 레코드는 히트하지 않는다(실측 2026-08-20: 중복 key 5/347).
 - Retro rotation (same turn): 직전 보고서 **1건만** `retro/` 에 활성 유지, 그보다 오래된 보고서는 `retro/archive/` 로 — **잔여 파일 수를 보고서 실행 요약에 기재**. 과거 사건 참조는 사람 요청 시 archive 를 여는 기존 경로로 한다(`harness-state` §Context budget 「Archives = cold storage」).
 
 ## Output contract
@@ -45,6 +45,7 @@ Hard constraints:
 3. 위키 큐레이션 — per-node verdicts (승격/유지/병합/은퇴) applied directly to `wiki/` (the designed low-risk channel), plus new nodes mined from logs
 4. 하네스 수정 제안 — with the four mandatory fields; DO NOT apply — each needs explicit human approval as an individually acceptable/rejectable diff
 5. 다음 회고까지 관찰 항목 — what to watch to confirm applied edits worked
+**분량 계약(값)**: 보고서 전체 **≤150줄** · §4 제안은 **건당 ≤12줄**(4필드 각 1~3줄, 인용은 로그 1줄씩) · 서사 문단 금지 — 표와 diff 로 쓴다. 초과분은 압축이 핸드오프 조건이다(실측 2026-08-27: 상한 부재로 iter49 26KB → iter50 40KB → iter51 33KB/212줄, 회고 1회 19분·190k 토큰 — 출력 분량이 지배항).
 Finally append the retro-complete log entry.
 
 Logs too thin for a real pattern → say so; an honest empty retro beats invented insights — every node taxes every future agent that opens it.
