@@ -51,7 +51,7 @@ codex          # repo 루트에서 실행 → trust 승인
 
 trust를 승인하면 repo 안의 다음이 자동 인식된다:
 
-- `.agents/skills/` — 스킬 11종 + 커맨드 래퍼 8종(`cmd-goal` 등)
+- `.agents/skills/` — 스킬 12종 + 커맨드 래퍼 8종(`cmd-goal` 등)
 - `.codex/agents/` — 에이전트 10종 (TOML)
 - `AGENTS.md` — 하네스 규약(한국어 응답, `.harness/` 계약, 워크플로우)
 
@@ -95,7 +95,7 @@ git config core.hooksPath tools/hooks
 .claude-plugin/       마켓플레이스 매니페스트 (Claude Code)
 plugins/harness/      원본(source of truth) — agents/ · commands/ · skills/
 AGENTS.md             Codex 진입점 (하네스 규약 요약)
-.agents/skills/       Codex용 스킬 — 원본 심링크 11종 + cmd-* 커맨드 래퍼 8종 (생성물)
+.agents/skills/       Codex용 스킬 — 원본 심링크 12종 + cmd-* 커맨드 래퍼 8종 (생성물)
 .codex/               Codex 설정(config.toml) + 에이전트 TOML 10종 (생성물)
 tools/sync-codex.sh   Codex 산출물 재생성 스크립트 (원본 수정 후 재실행)
 docs/                 설계 문서 (GOAL · DIAGNOSIS · ARCHITECTURE · PROCESS)
@@ -128,8 +128,8 @@ install.sh            방법 2 폴백 설치 스크립트
 | code-reviewer | 코드 품질·보안·레포 장기 건강성 |
 | harness-improver | 실패 마이닝→플레이북·하네스 개선 제안 |
 
-### 스킬 11종 (도메인 플레이북)
-harness-state · harness-ledger · co-creation · spring-boot-dev · python-service · frontend-dev · ai-agent-dev · data-pipeline · mlops-gcp · testing-qa · product-spec
+### 스킬 12종 (도메인 플레이북)
+harness-state · harness-ledger · harness-experiment · co-creation · spring-boot-dev · python-service · frontend-dev · ai-agent-dev · data-pipeline · mlops-gcp · testing-qa · product-spec
 
 > **co-creation**: 핵심 분기점에서만 선택지(2~4개)+추천안+트레이드오프 형식으로 사용자에게 질문하고, 답변을 ADR/PRD에 기록해 같은 질문을 반복하지 않는 공동 제작 프로토콜.
 

@@ -116,9 +116,9 @@ Event types: `session-start`, `decision`, `dispatch`, `result`, `failure`, `gate
 
 산문으로는 「이 명령을 이 sha 에서 이미 돌렸나」를 조회할 수 없어 같은 측정이 반복된다 (로그 참조). 측정값과 디스패치 결과는 **한 줄 JSON** 으로 남긴다. 레코드 2종, 한 줄 = 한 레코드, 필드는 아래가 전부다.
 ```jsonl
-{"t":"m","id":"m-1533-dev","agent":"ai-agent-dev","key":"pytest -q@4394fef","value":"1426 passed, 1 skipped","exit":0}
-{"t":"m","id":"m-1602-rev","agent":"code-reviewer","key":"sha256 golden@609faa4","value":"338b6ea7…","exit":0,"refutes":"m-1533-dev"}
-{"t":"d","id":"d-1505","agent":"ai-agent-dev","scope":"W1~W6","rework":false,"cause":null,"tokens":244829,"nodes":["qa--zero-baseline-lint-needs-resident-fixture","global--read-before-restructure"]}
+{"t":"m","id":"m-1533-dev","goal":"g-0912-idem","agent":"ai-agent-dev","key":"pytest -q@4394fef","value":"1426 passed, 1 skipped","exit":0}
+{"t":"m","id":"m-1602-rev","goal":"g-0912-idem","agent":"code-reviewer","key":"sha256 golden@609faa4","value":"338b6ea7…","exit":0,"refutes":"m-1533-dev"}
+{"t":"d","id":"d-1505","goal":"g-0912-idem","agent":"ai-agent-dev","scope":"W1~W6","rework":false,"cause":null,"tokens":244829,"prompt_words":186,"read_words":4166,"nodes":["qa--zero-baseline-lint-needs-resident-fixture"]}
 ```
 - `t` — `m` 측정 · `d` 디스패치. `id` — `<t>-<HHMM>-<짧은식별>`, 충돌하면 뒤에 숫자.
 - `key` — **`<복사해 실행 가능한 명령 문자열>@<sha7>@<env>`**. 이것이 승계의 유일한 키다. **`<env>` 는 그 측정을 낸 인터프리터·환경 식별자**(conda env 이름·venv 경로·`python -V` 중 하나)이며, 실행 환경에 의존하는 측정(pytest·import·모델 로드·정적 스캔) 전건에 **필수**다 — 없으면 그 행은 승계 대상이 아니고 인용도 불가다. 환경 무관 측정(`git grep`·`git diff`)은 `@<sha7>` 까지로 충분하다. **같은 명령·같은 sha 도 인터프리터가 다르면 다른 값이다** (로그 2026-08-24, wiki `global--baseline-provenance-and-interpreter`).
@@ -128,6 +128,10 @@ Event types: `session-start`, `decision`, `dispatch`, `result`, `failure`, `gate
 **토큰 수를 읽을 수 없는 세션은 `d` 행을 생략하지 말고 `"tokens":"unknown"` 으로 적는다** — 행 자체가 없으면 M2·M6 의 **분모**까지 사라져 실패한 디스패치가 성공률에서 조용히 빠진다(실측 2026-08-25: analyst 가 null 금지 조항 때문에 `d` 행을 통째로 안 씀). `"unknown"` 은 M5 분자에서만 제외되고 M2·M6 분모에는 남는다. 로그 result 에 「tokens 미확인: <사유 1줄>」을 병기한다. **`"unknown"` 이 쓰인 디스패치는 디스패처가 보정 `m` 행을 append 한다** — 서브에이전트 토큰이 보이는 주체는 완료 알림을 받는 디스패처뿐이다. 형식: `{"t":"m","id":"m-<HHMM>-coord-tokens","agent":"coordinator","key":"Task 완료 알림 subagent tokens@<sha7>","value":{"<d-id>":<정수>,...}}`. **M5 분자는 이 행 또는 `d.tokens` 정수에서만 온다 — 결산 산문에 적힌 정수는 분자가 아니다.** 보정 행이 없으면 M5 는 「미측정(위임 d <n>건 unknown)」으로 적는다 (2026-08-26: 위임 3/3 unknown, 결산의 569,582 가 원장 밖이라 재현 불가).
 - `rework` — 그 디스패치가 재작업(재개·재브리프)을 유발했으면 `true`. **`true` 면 `cause` 를 함께 적는다**: `brief`(브리프 전제·처방 오류) · `design`(설계 결함) · `agent`(집행 오류) · `env`(환경·도구). 산문으로 「원인은 …」이라고 적어도 계수되지 않는다 — 값이어야 회고가 분포를 낸다. **브리프 전제가 반증돼 산출 0 으로 닫힌 디스패치도 `true`/`cause:brief` 다** — blocked 로 잘 닫는 것은 에이전트의 정확한 행동이지만 왕복 1회는 이미 소비됐고 원인은 브리프에 있다.
 - `nodes` — 그 세션이 실제로 **연** 위키 노드 slug 배열. 안 열었으면 `[]` (계수는 `harness-ledger` §노드 효과 계수).
+- `goal` — `state.json` 의 goal id 를 **모든 m·d 에 복사**한다. 없으면 원장이 goal 경계로 분리되지 않아 goal 간 비교(기준선·A/B·회귀)가 전부 불가능하다.
+- `prompt_words`, `read_words` — `d` 전용, 디스패치 **직후** 잰다: 브리프 본문과 그 세션이 실제로 연 지침 파일들을 `wc -w` 로. `tokens` 는 세션 전체라 **지침 적재량과 코드 추론을 분리하지 못한다** — 이 둘이 그 분리다. 못 재면 필드를 생략한다(0 으로 적지 않는다 — 0 은 「안 읽었다」는 값이다).
+
+**프롬프트 A/B 실험을 돌 때만** `arm`·`prompt_sha`·`case_id`·`decision` 이 추가된다 — 절차·판정 규칙·표본 수는 `harness-experiment` 스킬이 정본이고, 실험을 집행하는 세션만 연다. 평시 디스패치는 이 절만으로 충분하다.
 
 **승계 규칙(장치)** — 측정 전에 **먼저 조회한다**. 패턴은 **키 값만** 쓴다(`"key":` 를 붙이면 `json.dumps` 의 콜론 뒤 공백 때문에 영구 미검출):
 ```

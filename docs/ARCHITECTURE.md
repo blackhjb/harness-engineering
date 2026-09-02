@@ -36,11 +36,11 @@ Lilian Weng의 "Harness Engineering for Self-Improvement"(2026-07)의 핵심 패
 ### 모델 정책
 **정본은 `plugins/harness/agents/*.md` frontmatter 의 `model:` 하나뿐이다** — 이 문서를 포함해 어떤 산문도 정본이 아니다(2026-08-25 확정: 과거 3곳이 서로 다르게 서술해 실제 값과 전부 어긋나 있었다). 판정 표면(analyst · qa · code-reviewer)의 pin 은 "정리" 대상이 아니다. 하향 규칙은 `harness-ledger` §Dispatch economy.
 
-## 스킬 11종 (레시피북)
+## 스킬 12종 (레시피북)
 
 공용: harness-state(모든 디스패치가 읽는 계약), harness-ledger(state.json·문서 정본·디스패치 계약 — 코디네이터·improver 전용), co-creation.
 스택: spring-boot-dev, python-service, frontend-dev, ai-agent-dev, data-pipeline, mlops-gcp.
-방법: testing-qa, product-spec.
+방법: testing-qa, product-spec, harness-experiment(프롬프트 A/B 판정 — 실험 집행 세션만 연다).
 
 스킬 = 재사용 도메인 지식, 에이전트 = 역할·판단. **선택은 description(인덱스 한 줄)으로, 읽기는 섹션 단위로** —
 `grep -n '^## '` 로 목차를 얻고 필요한 레시피만 연다. 1 디스패치 = 1 스택 스킬.
@@ -65,7 +65,7 @@ Lilian Weng의 "Harness Engineering for Self-Improvement"(2026-07)의 핵심 패
 ## Codex 호환
 
 - 원본은 `plugins/harness/` 하나. Codex 쪽 산출물 — `.agents/skills/` 심링크 11종, `cmd-*` 커맨드 래퍼 스킬 8종, `.codex/agents/` 에이전트 TOML 10종 — 은 전부 `tools/sync-codex.sh`가 생성한다. 생성물은 수동 편집 금지, 수정은 원본에서 하고 스크립트를 재실행.
-- 공통 분모는 Anthropic Agent Skills 표준: Codex(2025-12+)가 `$REPO_ROOT/.agents/skills`를 네이티브로 발견하므로 스킬 11종은 심링크만으로 두 도구에 공유된다.
+- 공통 분모는 Anthropic Agent Skills 표준: Codex(2025-12+)가 `$REPO_ROOT/.agents/skills`를 네이티브로 발견하므로 스킬 12종은 심링크만으로 두 도구에 공유된다.
 - Claude 커맨드는 Codex에서 `cmd-*` 래퍼 스킬(`$cmd-goal` 호출)로, 서브에이전트는 동명 TOML로 매핑된다. Codex는 자동 위임이 없어 AGENTS.md가 명시적 스폰 규칙과 `.harness/` 계약 요약을 안내한다.
 
 ## 주요 게이트 (사람 개입 지점)
