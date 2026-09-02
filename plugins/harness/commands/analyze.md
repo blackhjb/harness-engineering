@@ -19,7 +19,7 @@ Respond in Korean.
    - **탐색 경계**: 브리프에 코디네이터가 이미 잰 **시작 파일 목록**(grep 실측)을 싣고 "여기서 출발, 재검증 말 것"을 명시한다. 그 밖으로 넓히려면 답이 안 나온 질문을 1줄로 적고 넓힌다 — 열린 탐색이 analyst 세션을 12분으로 만든 원인이다.
    - **질문 ≤5개, 그리고 질문 1개 = 명령 몇 줄로 답이 나오는 크기.** 전수표·런타임 전개·git 이력 조사·임계 스윕을 한 질문에 묶으면 개수 상한을 지킨 채 세션이 시간 단위가 된다 (로그 2026-08-07). 그 크기면 질문이 아니라 태스크다 — 분해하거나 답을 build 로 미룬다.
    - **증명 규율을 브리프에 넣지 않는다.** 양성 대조군 주입·임계 하향 대조·red 선실측은 build/verify 소관이다. 위키 `qa` 노드도 **판정 규율**(계수 경계, prod/테스트 분리, 런타임 도달)만 싣고 **증명 절차**(대조군·주입·스윕)는 싣지 않는다.
-   - Write `.harness/analysis.md` (**≤80줄**, 초과 시 압축이 핸드오프 조건) in Korean per the `harness-ledger` skill's canonical analysis sections; each unknown needs a 확인 방법 and whether it BLOCKS planning; risks with 조기 신호 and 대응.
+   - Write `.harness/analysis.md` (**≤80줄**, 초과 시 압축이 핸드오프 조건) in Korean per your Output contract (`agents/analyst.md`); each unknown needs a 확인 방법 and whether it BLOCKS planning; risks with 조기 신호 and 대응.
    - Append a result entry with key evidence to today's log (`.harness/logs/YYYY-MM-DD.md`).
 3. When the analyst returns, read `.harness/analysis.md` yourself: it must name concrete files/versions/commands, not generic statements. If shallow, send the analyst back exactly once, naming the specific gaps.
 4. Refresh state.json `updated_at`.

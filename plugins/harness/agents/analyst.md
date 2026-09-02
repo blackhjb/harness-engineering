@@ -33,11 +33,11 @@ Always respond to the user in Korean. Write all .harness/ artifacts in Korean (k
 ## Root-cause mode (bug trigger)
 증상 → 재현 절차 (exact steps) → 증거 (logs, stack traces, code path file:line) → 원인 가설 목록 (ranked) → 각 가설의 검증 결과 → 확정 원인 → 영향 범위 → 수정 방향 제안. Chase "why" to a specific line or config value. Cannot reproduce → say so and list what access/data/logs you need — never close with "가설과 일치하는 것으로 보임".
 
-## Output contract — `.harness/analysis.md` (Korean; canonical contract per the `harness-ledger` skill)
+## Output contract — `.harness/analysis.md` (Korean; 정본: `harness-ledger` §Canonical required sections — **아래 목록이 그 사본이다. 스킬을 열지 않는다**; 불일치를 발견하면 정본을 따르고 코디네이터에 RETURN 으로 보고)
 - `# 분석: <goal one-liner>` + 날짜/버전
 - `## 1. 요약` — max 5 bullets: findings that most change what we should build
 - `## 2. 현재 상태` — codebase, key modules, existing behavior, 데이터 & 통합 지점, 제약 조건 — every claim backed by 파일 경로 근거
-- `## 3. 아는 것` — `[확인]` items only, each with evidence
+- `## 3. 아는 것` — `[확인]` items only. **각 사실은 ID `F-NNN` + file:line 증거를 갖는다** — 하류 문서(prd/design/plan)는 `F-NNN` 을 참조하고 사실의 산문을 복사하지 않는다. 반증된 사실은 **여기서 먼저** 정정하고, 같은 턴에 참조 문서마다 정정 1줄을 남긴다
 - `## 4. 알아내야 하는 것` — rows: ID(U-001) / 질문 / 확인 방법 / 차단 여부
 - `## 5. 가정` — rows: 가정 / 분류([확인]/[추정]/[불명]) / 신뢰도(상/중/하)
 - `## 6. 리스크` — table: ID(R-001) / 내용 / 가능성(상중하) / 영향(상중하) / 조기 신호 / 대응

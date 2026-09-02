@@ -13,7 +13,7 @@ description: 모든 에이전트가 매 디스패치에 여는 공용 계약 —
 
 4. **공용 디스패치 프로토콜** — every role agent, every invocation: ①시작 전 `GOAL.md` + `wiki/INDEX.md` 를 읽고 **자기 scope + `global`/`workflow`** 노드만 연다 ②배정된 것만 한다 — 결과·결함은 디스패처에게 **RETURN**, `plan.md`·`state.json` 은 건드리지 않는다(코디네이터 제외) ③**측정 전 원장을 조회하고**(§측정 원장 §승계 규칙 — 히트하면 재실행 금지, 값 인용), 새로 측정했으면 원장에 한 줄 append ④끝나면 공용 일간 로그에 result 항목 1건(원장 id + `읽음`) + 얻은 통찰을 wiki 노드로 create/reinforce/promote 하고 그 사실을 같은 항목에 1줄로 적는다. 에이전트 파일은 이 네 가지를 **다시 쓰지 않고** 자기 역할의 델타만 적는다.
 
-All `.harness/` content is Korean; code identifiers, file paths, technical terms as-is. This skill is the SINGLE schema authority for `.harness/` — its section lists and formats override any other file. Scaffolding creates files directly from the section lists below.
+All `.harness/` content is Korean; code identifiers, file paths, technical terms as-is. This skill is the schema authority for the **디렉터리 구조 · 위키 · 로그 · 측정 원장 형식** — those formats override any other file. **문서별 정본 섹션은 이 스킬이 소유하지 않는다** (§장부·문서 계약은 별도 스킬 — `harness-ledger` 가 소유). 스캐폴딩은 각 정본의 섹션 목록에서 파일을 만든다.
 
 ## Directory map
 
