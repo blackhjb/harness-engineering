@@ -248,25 +248,35 @@ def check_sections(t, r):
                "0건 — 하류 문서의 F-NNN 참조 계약이 붕괴한다")
 
 
-# sync-codex.sh 가 TOML 로 방출하는 키 — 여기 없는 frontmatter 키는 Codex 경로에서 소실된다.
-MIRROR_EMITTED = {"name", "description"}
+# sync-codex.sh 가 TOML 로 방출할 수 있는 frontmatter 키. 여기 없는 키를 새로 도입하면
+# Codex 경로에서 조용히 소실되므로 FAIL 로 막는다 — 생성기를 먼저 고치라는 뜻이다.
+MIRROR_EMITTED = {"name", "description", "model"}
 
 
 def check_mirror_fields(t, r):
-    """소스 frontmatter 키 ∖ 미러 방출 키 — 소실되는 키를 값으로 드러낸다."""
-    dropped = {}
+    """frontmatter 키가 미러까지 도달하는지 — 소실을 값으로 드러낸다.
+
+    `model` 은 Claude 별칭이라 sync-codex.sh 의 MODEL_MAP 을 거쳐야 방출된다.
+    미매핑 별칭은 키가 빠진 채 생성되므로(= Codex 세션 기본값 상속) WARN 으로 남긴다.
+    """
     for a in t.agents:
         f = f"plugins/harness/agents/{a}.md"
         m = re.match(r"\A---[ \t]*\r?\n(.*?)\r?\n---", t.text.get(f, ""), re.DOTALL)
         if not m:
             continue
+        fm = {}
         for line in m.group(1).splitlines():
-            k = line.partition(":")[0].strip()
-            if k and not line[0].isspace() and k not in MIRROR_EMITTED:
-                dropped.setdefault(k, []).append(a)
-    for k, agents in sorted(dropped.items()):
-        r.warn("MIRROR-FIELDS", f"frontmatter `{k}`", "미러 TOML 로 방출",
-               f"소실 — 에이전트 {len(agents)}건 (sync-codex.sh)")
+            if line and not line[0].isspace() and ":" in line:
+                k, _, v = line.partition(":")
+                fm[k.strip()] = v.strip()
+        for k in sorted(set(fm) - MIRROR_EMITTED):
+            r.fail("MIRROR-FIELDS", f"agents/{a}.md `{k}`", "미러 TOML 로 방출",
+                   "생성기가 버린다 — sync-codex.sh 를 먼저 고쳐라")
+        toml = t.p(".codex/agents", a + ".toml")
+        if fm.get("model") and os.path.exists(toml):
+            if not re.search(r"^model = ", open(toml, encoding="utf-8").read(), re.M):
+                r.warn("MIRROR-FIELDS", f"agents/{a}.md model={fm['model']}", "MODEL_MAP 에 등가 존재",
+                       "미매핑 — Codex 는 세션 기본값을 상속한다")
 
 
 def check_version_cache(t, r):

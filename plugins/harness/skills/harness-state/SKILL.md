@@ -102,7 +102,15 @@ Event types: `session-start`, `decision`, `dispatch`, `result`, `failure`, `gate
 
 **필수 필드 2종(이것 말고 더 만들지 않는다)**
 - `dispatch` 항목: `- 계기: 인수조건 N/8 · 브리프 L/20 · 계약근거 design §5 L<n>` — 셋 다 값이다. 상한 초과면 디스패치하지 말고 쪼갠다.
-- `result` 항목: `- 원장: <id> @행<N> · 읽음: INDEX+<scope>` — 측정값 본체는 산문이 아니라 **측정 원장**(다음 절)에 쓰고 여기엔 id 와 행 수만 적는다. **`N` 은 append 직후의 `wc -l < .harness/measurements.jsonl` 이고 append 없이는 증가하지 않는다** — 연속한 두 result 항목의 `N` 이 같으면 결손이 그 자리에서 드러난다. 「적는 턴에 grep 하라」는 문장형 조항은 3회 연속 재발했다(로그 2026-08-20·24·25; 실측 2026-08-25: 인용 447건 중 77건 미실재). 다건이면 `원장: <id> · <id>… · @행<N>` — `@행` 은 **항목당 1회, 맨 뒤에 ` · ` 로 접합**한다(id 에 공백 접합하면 분할 소비자가 마지막 id 를 놓친다). **id 는 기억에서 재구성하지 말고 append 직후 원장 tail 을 되읽어 그대로 복사한다** — `tail -n <k> .harness/measurements.jsonl | python3 -c "import sys,json;print(' · '.join(json.loads(l)['id'] for l in sys.stdin))"` 의 출력을 붙여 쓴다. 손으로 적으면 `<t>-<HHMM>` 의 HHMM 이 **항목 작성 시각**으로 바뀌어 전건 미실재가 된다(실측 2026-08-27: 한 goal 에서 8건·9건 두 차례, **두 사건 모두 `@행<N>` 은 정상이었다** — `@행` 은 append 를 증명할 뿐 id 를 증명하지 못한다). 사후 대조는 `grep -c -F '<id>'`. **결손 진단의 분모는 인용 목록이 아니라 원장 전체다.** `읽음` 이 비면 위키에 도달하지 않은 것이다. Never edit/delete past entries; corrections = new entries referencing the old one.
+- `result` 항목: `- 원장: <id> @행<N> · 읽음: INDEX+<scope>` — 측정값 본체는 산문이 아니라 **측정 원장**(다음 절)에 쓰고 여기엔 id 와 행 수만 적는다. 다건이면 `원장: <id> · <id>… · @행<N>`.
+
+  | 필드 | 어떻게 얻는가 (명령) | 무엇을 증명하는가 | 틀리면 |
+  |---|---|---|---|
+  | `<id>` | append 직후 원장 tail 을 **되읽어 복사** — `tail -n <k> .harness/measurements.jsonl \| python3 -c "import sys,json;print(' · '.join(json.loads(l)['id'] for l in sys.stdin))"` | 그 레코드가 실재함 | 기억으로 적으면 `<t>-<HHMM>` 의 HHMM 이 **항목 작성 시각**으로 바뀌어 전건 미실재 (2026-08-27: 한 goal 에서 8건·9건 두 차례) |
+  | `@행<N>` | append 직후 `wc -l < .harness/measurements.jsonl` · **항목당 1회, 맨 뒤에 ` · ` 로 접합** | append 가 일어남 | 연속한 두 result 의 `N` 이 같으면 결손이 그 자리에 드러난다. **id 는 증명하지 못한다** — 위 두 사건 모두 `@행` 은 정상이었다. id 에 공백 접합하면 분할 소비자가 마지막 id 를 놓친다 |
+  | `읽음` | `INDEX+<scope>` | 위키에 도달함 | 비면 도달하지 않은 것이다 |
+
+  사후 대조는 `grep -c -F '<id>'` 이고 **결손 진단의 분모는 인용 목록이 아니라 원장 전체다**(실측 2026-08-25: 인용 447건 중 77건 미실재). 「적는 턴에 grep 하라」는 문장형 조항은 3회 연속 재발했다(로그 2026-08-20·24·25) — 그래서 위 표는 전부 명령이다. Never edit/delete past entries; corrections = new entries referencing the old one.
 
 ## 측정 원장 — `.harness/measurements.jsonl` (append-only, 기계 판독)
 

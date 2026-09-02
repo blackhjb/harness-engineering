@@ -145,6 +145,17 @@ for fn in sorted(os.listdir(SRC_COMMANDS)):
 # --- 3. Codex subagent TOMLs --------------------------------------------------
 READ_ONLY_AGENTS = {"code-reviewer"}  # the reviewer reads and reports; it must not edit
 
+# frontmatter `model:` 은 **Claude Code 별칭**이다 — Codex 모델명 공간과 다르므로 그대로
+# 흘리면 Codex 가 모르는 모델을 받는다. 여기서 명시 매핑한 별칭만 방출하고, 미매핑 별칭은
+# 키를 생략해 Codex 세션 기본값을 상속시킨다(= 이 매핑 도입 전과 동일한 동작).
+# 등가 확인: agent TOML 이 `model` 을 받는다 — 미지 키는 "unknown field" 경고로 거부되지만
+# `model` 은 조용히 통과한다(2026-09-02 통제군 대조, codex-cli 0.151.0).
+# 티어링을 켜려면 이 표만 고치면 된다.
+MODEL_MAP = {
+    "opus": "gpt-5.6-luna",   # 현재 Codex 기본값과 동일 — 도입해도 동작이 바뀌지 않는다
+    # "fable": "<미정>",      # architect 전용. Codex 등가는 사용자 결정 사항 — 정할 때까지 상속
+}
+
 n_agents = 0
 for fn in sorted(os.listdir(SRC_AGENTS)):
     if not fn.endswith(".md"):
@@ -158,6 +169,9 @@ for fn in sorted(os.listdir(SRC_AGENTS)):
         "name = %s" % toml_string(name),
         "description = %s" % toml_string(desc),
     ]
+    codex_model = MODEL_MAP.get(fm.get("model", "").strip())
+    if codex_model:
+        lines.append("model = %s" % toml_string(codex_model))
     if name in READ_ONLY_AGENTS:
         lines.append('sandbox_mode = "read-only"  # reviewer must not modify the workspace')
     lines.append("developer_instructions = %s" % toml_multiline(body))
