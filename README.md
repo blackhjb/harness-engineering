@@ -63,6 +63,16 @@ trust를 승인하면 repo 안의 다음이 자동 인식된다:
 
 MCP 경유(선택): `codex mcp add harness-skills -- npx -y skills-mcp -s "$PWD/plugins/harness/skills"` — 네이티브 스킬 지원이 있어 보통 불필요. Codex Web(cloud)의 스킬 지원 여부는 미확인.
 
+## 하네스 자체를 수정할 때 (기여자용)
+
+이 repo 를 clone 했다면 커밋 훅을 한 번 설치한다 — 미러 미동기·버전 갈림을 커밋 시점에 막는다:
+
+```bash
+git config core.hooksPath tools/hooks
+```
+
+`plugins/harness/` 를 고친 커밋은 ①`bash tools/sync-codex.sh` 재실행 ②`plugin.json` + `marketplace.json` **양쪽** version 범프 ③같은 이름의 `.codex/agents/*.toml` 동반 ④`python3 tools/check-canon.py` exit 0 을 만족해야 한다. 전체 절차는 `/harness:retro` 의 「적용 완료 6단계」가 정본이다.
+
 ## 빠른 시작
 
 ```

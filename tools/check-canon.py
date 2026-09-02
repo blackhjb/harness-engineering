@@ -210,6 +210,80 @@ def check_portability(t, r):
             r.warn("PORTABILITY", f"{f}:{i}", "한 줄 ≤130단어", f"{len(l.split())}단어 — 사건 서사 비대 의심")
 
 
+def check_sections(t, r):
+    """정본(`harness-ledger` §Canonical required sections) ↔ 에이전트 파일 사본 대조.
+
+    analyst·architect·planner 는 ledger 비독자다(ledger frontmatter). 비독자는 정본이
+    바뀐 사실을 알 방법이 없으므로, 사본 대조가 유일한 가드다 — 2026-09-02 에
+    `analyst.md` 가 `F-NNN` 조항을 잃은 채로 몇 버전을 돌았다.
+    """
+    canon = "plugins/harness/skills/harness-ledger/SKILL.md"
+    if canon not in t.text:
+        return
+    lists = {}
+    for l in t.text[canon].splitlines():
+        m = re.match(r"-\s+\*\*([A-Za-z.]+)\*\*[^:]*:\s*(.+)$", l)
+        if m:
+            # 괄호 안에도 `·` 가 있다 — 항목 분리 전에 괄호 내용을 먼저 걷어낸다.
+            body = m.group(2)
+            for _ in range(4):
+                body = re.sub(r"\([^()]*\)", "", body)
+            lists[m.group(1)] = [
+                re.sub(r"^\d+\s*", "", x).split("*")[0].split(".")[0].strip()
+                for x in body.split("·")
+            ]
+    copies = {"analysis.md": "agents/analyst.md", "prd.md": "agents/planner.md",
+              "design.md": "agents/architect.md"}
+    for doc, rel in copies.items():
+        f = "plugins/harness/" + rel
+        if doc not in lists or f not in t.text:
+            continue
+        missing = [s for s in lists[doc] if s and s.split()[0] not in t.text[f]]
+        if missing:
+            r.fail("SECTIONS", rel, f"{doc} 정본 {len(lists[doc])}섹션 전건",
+                   f"누락 {len(missing)}: {', '.join(missing[:3])}")
+    analyst = "plugins/harness/agents/analyst.md"
+    if analyst in t.text and "F-NNN" not in t.text[analyst]:
+        r.fail("SECTIONS", "agents/analyst.md", "F-NNN 계약 실재",
+               "0건 — 하류 문서의 F-NNN 참조 계약이 붕괴한다")
+
+
+# sync-codex.sh 가 TOML 로 방출하는 키 — 여기 없는 frontmatter 키는 Codex 경로에서 소실된다.
+MIRROR_EMITTED = {"name", "description"}
+
+
+def check_mirror_fields(t, r):
+    """소스 frontmatter 키 ∖ 미러 방출 키 — 소실되는 키를 값으로 드러낸다."""
+    dropped = {}
+    for a in t.agents:
+        f = f"plugins/harness/agents/{a}.md"
+        m = re.match(r"\A---[ \t]*\r?\n(.*?)\r?\n---", t.text.get(f, ""), re.DOTALL)
+        if not m:
+            continue
+        for line in m.group(1).splitlines():
+            k = line.partition(":")[0].strip()
+            if k and not line[0].isspace() and k not in MIRROR_EMITTED:
+                dropped.setdefault(k, []).append(a)
+    for k, agents in sorted(dropped.items()):
+        r.warn("MIRROR-FIELDS", f"frontmatter `{k}`", "미러 TOML 로 방출",
+               f"소실 — 에이전트 {len(agents)}건 (sync-codex.sh)")
+
+
+def check_version_cache(t, r):
+    """런타임 캐시 대조 — 로컬 전용, WARN. 캐시가 없는 환경(CI)에서는 조용히 통과한다."""
+    root = os.path.expanduser("~/.claude/plugins/cache/harness-engineering/harness")
+    if not os.path.isdir(root):
+        return
+    try:
+        ver = json.load(open(t.p("plugins/harness/.claude-plugin/plugin.json"), encoding="utf-8"))["version"]
+    except (OSError, KeyError):
+        return
+    if not os.path.isdir(os.path.join(root, ver)):
+        have = sorted(os.listdir(root))[-1:] or ["없음"]
+        r.warn("VERSION-CACHE", f"cache/…/harness/{ver}", "소스 버전 캐시 실재",
+               f"최신 캐시 {have[0]} — `claude plugin update` 미실행")
+
+
 def check_budget(t, r, entry):
     cap = int(entry.get("상한", 3500))
     base = t.p("plugins/harness")
@@ -259,7 +333,8 @@ def run(root, canon_path):
     t, r = Tree(root), Report()
     entries = parse_canon(open(canon_path, encoding="utf-8").read())
     for fn in (check_version, check_roster, check_mirror, check_dangling,
-               check_selfref, check_portability):
+               check_selfref, check_portability, check_sections,
+               check_mirror_fields, check_version_cache):
         fn(t, r)
     for e in entries:
         kind = e.get("종류")

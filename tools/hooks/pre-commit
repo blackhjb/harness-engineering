@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+#
+# tools/hooks/pre-commit — 하네스 수정의 「적용 완료」를 커밋 시점에 강제한다.
+#
+# 설치: git config core.hooksPath tools/hooks
+#
+# 도구 중립 — Claude·Codex 어느 경로에서 커밋해도 발동한다. 이 훅이 막는 것은
+# 전부 실제로 일어났던 일이다: 미러가 4커밋 뒤처져 Codex /retro 가 반대 규칙으로
+# 돌았고(2026-09-02), plugin.json 만 범프해 marketplace 와 갈렸다(1.29.1/1.29.2).
+#
+# `--no-verify` 로 우회 가능하다 — 그래서 retro.md 「적용 완료 6단계」 ⑥ 이 이중 가드다.
+
+set -euo pipefail
+
+staged() { git diff --cached --name-only --diff-filter=ACM; }
+
+# 하네스 소스를 건드리지 않는 커밋은 통과.
+if ! staged | grep -q '^plugins/harness/'; then
+  exit 0
+fi
+
+fail() { echo "pre-commit: $*" >&2; exit 1; }
+
+# ① version 범프 — 두 매니페스트가 함께 올라가야 한다(한쪽만 올려 갈린 적 있다).
+staged | grep -qx 'plugins/harness/.claude-plugin/plugin.json' \
+  || fail "version 범프 누락 — plugins/harness/.claude-plugin/plugin.json 이 staged 아니다"
+staged | grep -qx '.claude-plugin/marketplace.json' \
+  || fail "version 범프 누락 — .claude-plugin/marketplace.json 이 staged 아니다 (양쪽을 같이 올린다)"
+
+# ② 미러 동기 — 에이전트 소스를 고쳤으면 같은 이름의 TOML 도 이 커밋에 있어야 한다.
+while read -r md; do
+  [ -n "$md" ] || continue
+  name="$(basename "$md" .md)"
+  staged | grep -qx ".codex/agents/${name}.toml" \
+    || fail "미러 미동기 — ${md} 는 staged 인데 .codex/agents/${name}.toml 이 없다. \`bash tools/sync-codex.sh\` 를 실행하고 함께 add 하라"
+done < <(staged | grep -E '^plugins/harness/agents/.*\.md$' || true)
+
+# ③ 정합성 검사 exit 0.
+python3 tools/check-canon.py >/dev/null 2>&1 \
+  || fail "check-canon FAIL — \`python3 tools/check-canon.py\` 를 실행해 위반을 확인하라"
+
+exit 0

@@ -65,6 +65,20 @@
   범위: plugins
   근거: qa.md 가 A/A 사건 전말 195단어(파일의 27%)를 프로젝트 파일경로까지 담고 있었다
 
+# ── 문서 섹션 정본은 harness-ledger 하나다 (2026-09-02) ─────────────────
+
+- id: sections-owner
+  종류: 금지
+  금지: "harness-state (skill's|스킬의) canonical|harness-state[^\n]{0,20}정본 (12)?섹션"
+  범위: plugins
+  근거: plan.md:19 가 design.md 12섹션을 harness-state 로 가리켰으나 그 스킬에 섹션 목록이 없다(grep 0) — 섹션 이관 때 포인터가 안 따라왔다
+
+- id: state-authority-scope
+  종류: 금지
+  금지: "SINGLE schema authority"
+  범위: plugins
+  근거: harness-state:16 「이 스킬이 유일 권위」가 :37 「문서 섹션은 ledger 소유」와 자기모순이었다 — 이관 잔재
+
 # ── 읽기 예산 (harness-state §Context budget 3 의 고정 read-set) ────────
 # 조합 = 에이전트 파일 + harness-state + 그 역할의 스택 스킬
 
