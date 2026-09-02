@@ -145,16 +145,16 @@ for fn in sorted(os.listdir(SRC_COMMANDS)):
 # --- 3. Codex subagent TOMLs --------------------------------------------------
 READ_ONLY_AGENTS = {"code-reviewer"}  # the reviewer reads and reports; it must not edit
 
-# frontmatter `model:` 은 **Claude Code 별칭**이다 — Codex 모델명 공간과 다르므로 그대로
-# 흘리면 Codex 가 모르는 모델을 받는다. 여기서 명시 매핑한 별칭만 방출하고, 미매핑 별칭은
-# 키를 생략해 Codex 세션 기본값을 상속시킨다(= 이 매핑 도입 전과 동일한 동작).
-# 등가 확인: agent TOML 이 `model` 을 받는다 — 미지 키는 "unknown field" 경고로 거부되지만
-# `model` 은 조용히 통과한다(2026-09-02 통제군 대조, codex-cli 0.151.0).
-# 티어링을 켜려면 이 표만 고치면 된다.
-MODEL_MAP = {
-    "opus": "gpt-5.6-luna",   # 현재 Codex 기본값과 동일 — 도입해도 동작이 바뀌지 않는다
-    # "fable": "<미정>",      # architect 전용. Codex 등가는 사용자 결정 사항 — 정할 때까지 상속
-}
+# frontmatter `model:` 은 **Claude Code 별칭**(opus·fable)이고 Codex 모델명 공간과 다르다.
+# 사용자 결정(2026-09-02): **Codex 경로는 모델을 고정한다** — 별칭 티어링은 Claude 경로 전용이다.
+# 그래서 소스의 `model:` 값과 무관하게 아래 하나를 방출한다.
+#
+# 검증(codex-cli 0.151.0, 격리 대조 실험):
+#   - agent TOML 의 `model` 은 유효 키다 — 통제군 `zzz_not_a_real_key` 는 "unknown field" 로
+#     거부되는데 `model` 은 통과했다.
+#   - `reasoning_effort` 는 agent TOML 의 유효 키가 **아니다** — 통제군과 똑같이 거부된다.
+#     그래서 추론 강도는 여기가 아니라 `.codex/config.toml` 의 `model_reasoning_effort` 가 정한다.
+CODEX_MODEL = "gpt-5.6-luna"
 
 n_agents = 0
 for fn in sorted(os.listdir(SRC_AGENTS)):
@@ -169,9 +169,7 @@ for fn in sorted(os.listdir(SRC_AGENTS)):
         "name = %s" % toml_string(name),
         "description = %s" % toml_string(desc),
     ]
-    codex_model = MODEL_MAP.get(fm.get("model", "").strip())
-    if codex_model:
-        lines.append("model = %s" % toml_string(codex_model))
+    lines.append("model = %s" % toml_string(CODEX_MODEL))
     if name in READ_ONLY_AGENTS:
         lines.append('sandbox_mode = "read-only"  # reviewer must not modify the workspace')
     lines.append("developer_instructions = %s" % toml_multiline(body))

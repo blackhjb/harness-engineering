@@ -256,8 +256,9 @@ MIRROR_EMITTED = {"name", "description", "model"}
 def check_mirror_fields(t, r):
     """frontmatter 키가 미러까지 도달하는지 — 소실을 값으로 드러낸다.
 
-    `model` 은 Claude 별칭이라 sync-codex.sh 의 MODEL_MAP 을 거쳐야 방출된다.
-    미매핑 별칭은 키가 빠진 채 생성되므로(= Codex 세션 기본값 상속) WARN 으로 남긴다.
+    `model` frontmatter 는 **Claude 경로의 티어링 별칭**이고, Codex 경로는 고정 모델을
+    쓴다(sync-codex.sh `CODEX_MODEL`). 따라서 검사하는 것은 별칭의 등가가 아니라
+    「생성기가 model 키를 방출했는가」다 — 방출이 끊기면 Codex 가 세션 기본값으로 낙하한다.
     """
     for a in t.agents:
         f = f"plugins/harness/agents/{a}.md"
