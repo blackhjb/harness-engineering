@@ -1,0 +1,74 @@
+# tools/canon.yaml — 정본 레지스트리
+#
+# 설계: docs/CONSISTENCY-CHECK-2026-08-25.md
+# 원리: 모순을 찾지 말고 중복을 금지한다. 정본 1곳을 선언하면, 나머지는 포인터여야 한다.
+#
+# 종류:
+#   정본  — 값이 정본 위치에 실재하고(a), 반대형이 트리에 없고(b), 값이 정본 밖에 없어야(c) 한다
+#   금지  — 반대형만 검사한다 (정본이 파일 밖에 있거나 frontmatter 인 경우)
+#   예산  — 역할별 읽기 조합의 단어수 상한 (WARN only)
+#
+# 필드:
+#   값        문자열 리터럴 (정규식 아님)
+#   금지      정규식 — 트리 어디에도 매치되면 안 된다
+#   포인터_허용  이 파일들은 슬러그를 언급할 수 있다. 값 재서술은 여전히 금지.
+#
+# 새 모순을 회고가 찾으면 그 자리에서 항목을 추가한다 (= 회귀 가드).
+
+# ── v1.19.0 이 해소한 모순 4건 ──────────────────────────────────────────
+
+- id: succession-grep-pattern
+  종류: 정본
+  정본: skills/harness-state/SKILL.md
+  섹션: 측정 원장
+  값: "grep -F '<명령>@<sha7>@<env>'"
+  금지: "grep[^\n`]*\"key\":"
+  근거: v1.18.2 가 설명만 고치고 코드블록을 놓쳐 승계 grep 이 영구 0히트였다
+  포인터_허용: [commands/verify.md, skills/harness-ledger/SKILL.md]
+
+- id: rerun-obligations
+  종류: 정본
+  정본: skills/harness-state/SKILL.md
+  섹션: 측정 원장
+  값: "재실행 의무는 넷"
+  금지: "재실행 의무는 (셋|둘|다섯|여섯)"
+  근거: verify.md 가 셋, harness-state 가 넷이라 env 불일치 항이 누락됐다
+  포인터_허용: [commands/verify.md]
+
+- id: harness-edit-approval
+  종류: 금지
+  금지: "저위험[^\n]{0,40}자동 적용|자동 적용 후 사후 통보"
+  근거: retro.md 「저위험 자동 적용」 vs improver Boundaries vs GOAL 범위 외 — 3곳이 갈렸다
+
+- id: model-tiering-canon
+  종류: 금지
+  금지: "(설계·분석|빌드·검증)\\s*[=:]\\s*(fable|opus|sonnet|haiku)"
+  근거: 정본은 agents/*.md frontmatter 의 model: 하나뿐이다. 산문 서술은 정본이 아니다
+
+# ── 은퇴한 것들 (v1.12.0 orchestrator · v1.19.0 legacy 이관) ────────────
+
+- id: retired-orchestrator
+  종류: 금지
+  금지: "`agents/orchestrator\\.md`|orchestrator 에이전트에게|orchestrator 를 디스패치"
+  근거: orchestrator 는 2026-08-18 은퇴. 은퇴 사실의 서술은 허용, 살아있는 포인터는 금지
+
+- id: retired-legacy-ledger
+  종류: 금지
+  금지: "playbook\\.md 를 (읽|연다)|retro/inbox\\.md 에 (적|기록)|`PB-[0-9]"
+  근거: 이관 대상 소진으로 2026-08-25 경로 삭제. 역사 서술은 허용, 살아있는 지시는 금지
+
+# ── 이식성 (다른 프로젝트 사건이 범용 프롬프트에 상주하면 안 된다) ─────
+
+- id: portability-project-slugs
+  종류: 금지
+  금지: "karechat|faq_handler|candidate_matching|eval_golden_app"
+  범위: plugins
+  근거: qa.md 가 A/A 사건 전말 195단어(파일의 27%)를 프로젝트 파일경로까지 담고 있었다
+
+# ── 읽기 예산 (harness-state §Context budget 3 의 고정 read-set) ────────
+# 조합 = 에이전트 파일 + harness-state + 그 역할의 스택 스킬
+
+- id: read-budget
+  종류: 예산
+  상한: 3500
+  조합: [architect+product-spec, qa+testing-qa, code-reviewer+testing-qa, planner+product-spec, product-designer+product-spec, ai-agent-dev+ai-agent-dev, frontend-dev+frontend-dev, backend-dev+python-service, backend-dev+spring-boot-dev, backend-dev+data-pipeline, analyst+]
